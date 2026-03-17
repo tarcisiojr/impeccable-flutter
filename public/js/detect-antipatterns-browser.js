@@ -319,24 +319,6 @@
       }
     }
 
-    // --- Identical card grid ---
-    for (const grid of document.querySelectorAll('[class*="grid"], [style*="display: grid"], [style*="display: flex"]')) {
-      const children = [...grid.children].filter(c => !['script','style'].includes(c.tagName.toLowerCase()));
-      if (children.length < 3) continue;
-
-      function fingerprint(el) {
-        const tags = [...el.children].map(c => c.tagName.toLowerCase());
-        const hasIcon = tags.includes('svg') || tags.includes('img') ||
-          [...el.children].some(c => /\bw-\d+\b.*\bh-\d+\b/.test(c.getAttribute('class') || '') && /\brounded/.test(c.getAttribute('class') || ''));
-        return `icon:${hasIcon}|h:${tags.some(t => /^h[1-6]$/.test(t))}|p:${tags.includes('p')}|n:${tags.length}`;
-      }
-
-      const fps = children.map(fingerprint);
-      if (fps.every(f => f === fps[0]) && fps[0].includes('icon:true') && fps[0].includes('h:true') && fps[0].includes('p:true')) {
-        findings.push({ type: 'identical-card-grid', detail: `${children.length} identical cards`, el: grid });
-      }
-    }
-
     return findings;
   }
 
@@ -357,7 +339,6 @@
     'gradient-text': 'gradient text',
     'ai-color-palette': 'AI palette',
     'nested-cards': 'nested cards',
-    'identical-card-grid': 'identical grid',
   };
 
   function highlight(el, findings) {

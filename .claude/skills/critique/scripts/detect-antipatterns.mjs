@@ -120,12 +120,6 @@ const ANTIPATTERNS = [
       'Cards inside cards create visual noise and excessive depth. Flatten the hierarchy — use spacing, typography, and dividers instead of nesting containers.',
   },
   {
-    id: 'identical-card-grid',
-    name: 'Identical card grid',
-    description:
-      'Same-sized cards with identical icon + heading + text structure, repeated endlessly. Vary card sizes, layouts, or content structure to create visual interest.',
-  },
-  {
     id: 'monotonous-spacing',
     name: 'Monotonous spacing',
     description:
@@ -602,71 +596,32 @@ function checkPageLayout(document, window) {
 
   // --- Nested cards ---
   const allEls = document.querySelectorAll('*');
-  const flaggedNested = new Set();
+  const flaggedEls = new WeakSet();
   for (const el of allEls) {
     if (!isCardLike(el, window)) continue;
+    if (flaggedEls.has(el)) continue;
 
     const tag = el.tagName.toLowerCase();
     const cls = el.getAttribute?.('class') || '';
     const rawStyle = el.getAttribute?.('style') || '';
 
-    // Exclude elements that look like non-card components
     if (['pre', 'code'].includes(tag)) continue;
-    // Exclude absolutely/fixed positioned elements (dropdowns, modals, tooltips)
     if (/\b(?:absolute|fixed)\b/.test(cls) || /position\s*:\s*(?:absolute|fixed)/i.test(rawStyle)) continue;
-    // Exclude small elements (badges, chips, icons) — text < 20 chars
     if ((el.textContent?.trim().length || 0) < 20) continue;
-    // Exclude form elements that happen to match card heuristics
     if (/\b(?:dropdown|popover|tooltip|menu|modal|dialog)\b/i.test(cls)) continue;
 
     // Walk up to find card-like ancestor
     let parent = el.parentElement;
     while (parent) {
       if (isCardLike(parent, window)) {
-        const key = `${parent.tagName}:${el.tagName}`;
-        if (!flaggedNested.has(key)) {
-          flaggedNested.add(key);
-          findings.push({ id: 'nested-cards', snippet: `Card inside card (${tag} in ${parent.tagName.toLowerCase()})` });
-        }
+        flaggedEls.add(el);
+        findings.push({ id: 'nested-cards', snippet: `Card inside card (${tag} in ${parent.tagName.toLowerCase()})` });
         break;
       }
       parent = parent.parentElement;
     }
   }
 
-  // --- Identical card grid ---
-  const gridParents = document.querySelectorAll('[class*="grid"], [style*="display: grid"], [style*="display: flex"]');
-  for (const grid of gridParents) {
-    const children = [...grid.children].filter(c => {
-      const tag = c.tagName.toLowerCase();
-      return tag !== 'script' && tag !== 'style';
-    });
-    if (children.length < 3) continue;
-
-    // Compare structural fingerprint of each child
-    function fingerprint(el) {
-      const childTags = [...el.children].map(c => c.tagName.toLowerCase());
-      // Check for icon-like element (svg, img, or div with fixed size classes)
-      const hasIcon = childTags.includes('svg') || childTags.includes('img') ||
-        [...el.children].some(c => {
-          const cls = c.getAttribute?.('class') || '';
-          return /\bw-\d+\b.*\bh-\d+\b/.test(cls) && /\brounded/.test(cls);
-        });
-      const hasHeading = childTags.some(t => /^h[1-6]$/.test(t));
-      const hasParagraph = childTags.includes('p');
-      return `icon:${hasIcon}|h:${hasHeading}|p:${hasParagraph}|children:${childTags.length}`;
-    }
-
-    const fps = children.map(fingerprint);
-    const allSame = fps.every(f => f === fps[0]);
-    // Only flag if structure includes icon + heading + paragraph (the template pattern)
-    if (allSame && fps[0].includes('icon:true') && fps[0].includes('h:true') && fps[0].includes('p:true')) {
-      findings.push({
-        id: 'identical-card-grid',
-        snippet: `${children.length} identical cards (icon + heading + text)`,
-      });
-    }
-  }
 
   // --- Monotonous spacing ---
   // Regex on raw HTML — jsdom doesn't compute inline px spacing reliably
