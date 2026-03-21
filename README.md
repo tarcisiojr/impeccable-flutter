@@ -150,10 +150,10 @@ Most commands accept an optional argument to focus on a specific area:
 Impeccable includes a standalone CLI for detecting anti-patterns without an AI harness:
 
 ```bash
-npx impeccable detect src/                   # scan a directory
-npx impeccable detect index.html             # scan an HTML file
-npx impeccable detect https://example.com    # scan a URL (Puppeteer)
-npx impeccable detect --fast --json .        # regex-only, JSON output
+bun bin/impeccable.mjs detect src/                   # scan a directory
+bun bin/impeccable.mjs detect index.html             # scan an HTML file
+bun bin/impeccable.mjs detect https://example.com    # scan a URL (Puppeteer)
+bun bin/impeccable.mjs detect --fast --json .        # regex-only, JSON output
 ```
 
 The detector catches 25 issues across AI slop (side-tab borders, purple gradients, bounce easing, dark glows) and general design quality (line length, cramped padding, small touch targets, skipped headings, and more).

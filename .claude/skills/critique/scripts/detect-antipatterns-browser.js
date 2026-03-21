@@ -341,26 +341,27 @@ function checkColors(opts) {
 
   // Tailwind class checks
   if (classList) {
-    if (/\bbg-black\b/.test(classList)) {
+    const classStr = typeof classList === 'string' ? classList : Array.from(classList).join(' ');
+    if (/\bbg-black\b/.test(classStr)) {
       findings.push({ id: 'pure-black-white', snippet: 'bg-black' });
     }
 
-    const grayMatch = classList.match(/\btext-(?:gray|slate|zinc|neutral|stone)-\d+\b/);
-    const colorBgMatch = classList.match(/\bbg-(?:red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d+\b/);
+    const grayMatch = classStr.match(/\btext-(?:gray|slate|zinc|neutral|stone)-\d+\b/);
+    const colorBgMatch = classStr.match(/\bbg-(?:red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d+\b/);
     if (grayMatch && colorBgMatch) {
       findings.push({ id: 'gray-on-color', snippet: `${grayMatch[0]} on ${colorBgMatch[0]}` });
     }
 
-    if (/\bbg-clip-text\b/.test(classList) && /\bbg-gradient-to-/.test(classList)) {
+    if (/\bbg-clip-text\b/.test(classStr) && /\bbg-gradient-to-/.test(classStr)) {
       findings.push({ id: 'gradient-text', snippet: 'bg-clip-text + bg-gradient (Tailwind)' });
     }
 
-    const purpleText = classList.match(/\btext-(?:purple|violet|indigo)-\d+\b/);
-    if (purpleText && (['h1', 'h2', 'h3'].includes(tag) || /\btext-(?:[2-9]xl)\b/.test(classList))) {
+    const purpleText = classStr.match(/\btext-(?:purple|violet|indigo)-\d+\b/);
+    if (purpleText && (['h1', 'h2', 'h3'].includes(tag) || /\btext-(?:[2-9]xl)\b/.test(classStr))) {
       findings.push({ id: 'ai-color-palette', snippet: `${purpleText[0]} on heading` });
     }
 
-    if (/\bfrom-(?:purple|violet|indigo)-\d+\b/.test(classList) && /\bto-(?:purple|violet|indigo|blue|cyan|pink|fuchsia)-\d+\b/.test(classList)) {
+    if (/\bfrom-(?:purple|violet|indigo)-\d+\b/.test(classStr) && /\bto-(?:purple|violet|indigo|blue|cyan|pink|fuchsia)-\d+\b/.test(classStr)) {
       findings.push({ id: 'ai-color-palette', snippet: 'Purple/violet gradient (Tailwind)' });
     }
   }
@@ -1395,9 +1396,11 @@ if (IS_BROWSER) {
       }
     }
 
+    const pageLevelFindings = [];
+
     const typoFindings = checkTypography();
     if (typoFindings.length > 0) {
-      showPageBanner(typoFindings);
+      pageLevelFindings.push(...typoFindings);
       allFindings.push({ el: document.body, findings: typoFindings });
     }
 
@@ -1412,7 +1415,7 @@ if (IS_BROWSER) {
     // Page-level quality checks (headings, etc.)
     const qualityFindings = checkPageQualityDOM();
     if (qualityFindings.length > 0) {
-      showPageBanner(qualityFindings);
+      pageLevelFindings.push(...qualityFindings);
       allFindings.push({ el: document.body, findings: qualityFindings });
     }
 
@@ -1420,8 +1423,12 @@ if (IS_BROWSER) {
     const htmlPatternFindings = checkHtmlPatterns(document.documentElement.outerHTML);
     if (htmlPatternFindings.length > 0) {
       const mapped = htmlPatternFindings.map(f => ({ type: f.id, detail: f.snippet }));
-      showPageBanner(mapped);
+      pageLevelFindings.push(...mapped);
       allFindings.push({ el: document.body, findings: mapped });
+    }
+
+    if (pageLevelFindings.length > 0) {
+      showPageBanner(pageLevelFindings);
     }
 
     printSummary(allFindings);
