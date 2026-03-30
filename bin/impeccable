@@ -1,4 +1,4 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 
 /**
  * Impeccable CLI
@@ -9,6 +9,11 @@
  *   npx impeccable --help
  */
 
+import { readFileSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const args = process.argv.slice(2);
 const command = args[0];
 
@@ -19,15 +24,16 @@ Commands:
   detect [file-or-dir-or-url...]   Scan for UI anti-patterns and design quality issues
 
 Options:
-  --help    Show this help message
+  --help       Show this help message
+  --version    Show version number
 
 Run 'impeccable detect --help' for detection-specific options.`);
   process.exit(0);
 }
 
 if (command === '--version' || command === '-v') {
-  const pkg = await import('../package.json', { with: { type: 'json' } });
-  console.log(pkg.default.version);
+  const pkg = JSON.parse(readFileSync(join(__dirname, '..', 'package.json'), 'utf8'));
+  console.log(pkg.version);
   process.exit(0);
 }
 

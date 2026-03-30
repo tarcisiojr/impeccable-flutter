@@ -55,9 +55,9 @@ Unit tests (build, detector logic) run via `bun test`. Fixture tests (jsdom-base
 Impeccable includes a CLI for running anti-pattern detection outside of AI harnesses:
 
 ```bash
-bun bin/impeccable.mjs detect [file-or-dir-or-url...]   # detect anti-patterns
-bun bin/impeccable.mjs detect --fast --json src/         # regex-only, JSON output
-bun bin/impeccable.mjs --help                            # show help
+bun bin/impeccable detect [file-or-dir-or-url...]   # detect anti-patterns
+bun bin/impeccable detect --fast --json src/         # regex-only, JSON output
+bun bin/impeccable --help                            # show help
 ```
 
 The detection script is at `source/skills/critique/scripts/detect-antipatterns.mjs`. It auto-detects browser vs Node and works as both:

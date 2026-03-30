@@ -7,6 +7,7 @@ build/
 
 # Build artifacts
 *.log
+source/skills/critique/scripts/detect-antipatterns-browser.js
 
 # OS files
 .DS_Store

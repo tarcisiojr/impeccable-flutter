@@ -1,27 +1,45 @@
 {
   "name": "impeccable",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "author": "Paul Bakaus",
   "bin": {
-    "impeccable": "./bin/impeccable.mjs"
+    "impeccable": "./bin/impeccable"
   },
+  "files": [
+    "bin/",
+    "source/skills/critique/scripts/detect-antipatterns.mjs",
+    "source/skills/critique/scripts/detect-antipatterns-browser.js",
+    "LICENSE"
+  ],
   "dependencies": {
-    "archiver": "^7.0.1",
-    "motion": "^12.38.0",
-    "playwright": "^1.58.2"
+    "jsdom": "^29.0.0"
   },
-  "description": "Cross-provider design skills and commands for LLM-powered development tools",
+  "optionalDependencies": {
+    "puppeteer": "^24.39.1"
+  },
+  "description": "Detect UI anti-patterns and design quality issues from the command line",
   "keywords": [
-    "cursor",
-    "claude",
-    "gemini",
-    "codex",
     "design",
     "frontend",
-    "ux"
+    "ux",
+    "anti-patterns",
+    "lint",
+    "accessibility",
+    "css",
+    "html",
+    "cli"
   ],
   "license": "SEE LICENSE FILE",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pbakaus/impeccable.git"
+  },
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
+    "prepublishOnly": "cp README.md README.bak.md && cp README.npm.md README.md",
+    "postpublish": "mv README.bak.md README.md",
     "build": "bun run scripts/build.js",
     "clean": "rm -rf dist build",
     "rebuild": "bun run clean && bun run build",
@@ -34,8 +52,9 @@
   },
   "type": "module",
   "devDependencies": {
-    "jsdom": "^29.0.0",
-    "puppeteer": "^24.39.1",
+    "archiver": "^7.0.1",
+    "motion": "^12.38.0",
+    "playwright": "^1.58.2",
     "wrangler": "^4.75.0"
   }
 }
