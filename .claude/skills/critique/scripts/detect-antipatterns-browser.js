@@ -1210,11 +1210,20 @@ if (IS_BROWSER) {
   // Inject hover styles via CSS (more reliable than JS event listeners)
   const styleEl = document.createElement('style');
   styleEl.textContent = `
+    @keyframes impeccable-reveal {
+      from { opacity: 0; outline-color: transparent; }
+      to { opacity: 1; outline-color: ${OUTLINE_COLOR}; }
+    }
     .impeccable-overlay:not(.impeccable-banner) {
       pointer-events: none;
       outline: 2px solid ${OUTLINE_COLOR};
       border-radius: 4px;
       transition: outline-color 0.3s ease;
+      animation: impeccable-reveal 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-play-state: paused;
+    }
+    .impeccable-overlay.impeccable-visible {
+      animation-play-state: running;
     }
     .impeccable-overlay.impeccable-hover {
       outline-color: rgba(0,0,0,0.85);
@@ -1287,6 +1296,7 @@ if (IS_BROWSER) {
   // Uses a huge rootMargin so all *rendered* elements count as intersecting,
   // while display:none / closed <details> / hidden modals etc. do not.
   // This is event-driven -- no polling needed.
+  let overlayIndex = 0;
   const visibilityObserver = new IntersectionObserver((entries) => {
     for (const entry of entries) {
       const overlay = entry.target._impeccableOverlay;
@@ -1294,6 +1304,11 @@ if (IS_BROWSER) {
       if (entry.isIntersecting) {
         overlay.style.display = '';
         positionOverlay(overlay);
+        if (!overlay._revealed) {
+          overlay._revealed = true;
+          overlay.style.animationDelay = `${(overlay._staggerIndex || 0) * 80}ms`;
+          requestAnimationFrame(() => overlay.classList.add('impeccable-visible'));
+        }
       } else {
         overlay.style.display = 'none';
       }
@@ -1360,6 +1375,7 @@ if (IS_BROWSER) {
 
     // Start hidden; the IntersectionObserver will show it once the target is rendered
     outline.style.display = 'none';
+    outline._staggerIndex = overlayIndex++;
     el._impeccableOverlay = outline;
     visibilityObserver.observe(el);
 
@@ -1380,8 +1396,13 @@ if (IS_BROWSER) {
       background: LABEL_BG, color: 'white',
       fontFamily: 'system-ui, sans-serif', fontSize: '13px',
       display: 'flex', alignItems: 'center', pointerEvents: 'auto',
-      height: '36px',
+      height: '36px', overflow: 'hidden', maxWidth: '100vw',
+      transform: 'translateY(-100%)',
+      transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
     });
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      banner.style.transform = 'translateY(0)';
+    }));
 
     // Scrollable findings area
     const scrollArea = document.createElement('div');
@@ -1475,6 +1496,8 @@ if (IS_BROWSER) {
       // Skip browser extension elements (Claude, etc.)
       const elId = el.id || '';
       if (elId.startsWith('claude-') || elId.startsWith('cic-')) continue;
+      // Skip html/body -- page-level findings go in the banner, not a full-page overlay
+      if (el === document.body || el === document.documentElement) continue;
 
       const findings = [
         ...checkElementBordersDOM(el).map(f => ({ type: f.id, detail: f.snippet })),

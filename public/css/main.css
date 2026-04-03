@@ -973,7 +973,233 @@ code {
 }
 
 /* ============================================
-   SOLUTION SECTION
+   FOUNDATION SECTION
+   ============================================ */
+
+.foundation-section {
+  padding: var(--spacing-2xl) 0;
+  border-top: 1px solid var(--color-mist);
+}
+
+.foundation-content {
+  display: grid;
+  gap: var(--spacing-lg);
+}
+
+.foundation-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-sm);
+}
+
+@media (max-width: 900px) {
+  .foundation-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .foundation-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.foundation-card {
+  padding: var(--spacing-md);
+  background: white;
+  border-radius: 8px;
+}
+
+.foundation-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--spacing-xs);
+}
+
+.foundation-card-label {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-ink);
+}
+
+.foundation-card-count {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  color: var(--color-accent);
+}
+
+.foundation-card-detail {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-ash);
+  margin: 0;
+}
+
+.foundation-cta {
+  text-align: center;
+}
+
+.foundation-cta-text {
+  font-size: 0.9375rem;
+  color: var(--color-charcoal);
+  margin: 0;
+}
+
+.foundation-cta-text code {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  color: var(--color-ink);
+}
+
+.foundation-slash {
+  color: var(--color-accent);
+}
+
+/* ============================================
+   LANGUAGE SECTION (wraps periodic table + commands)
+   ============================================ */
+
+.language-section {
+  padding: var(--spacing-2xl) 0;
+  border-top: 1px solid var(--color-mist);
+}
+
+.language-content {
+  display: grid;
+  gap: var(--spacing-xl);
+}
+
+.commands-subsection {
+  display: grid;
+  gap: var(--spacing-lg);
+}
+
+.commands-header-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 400;
+  margin: 0 0 var(--spacing-xs);
+  color: var(--color-ink);
+}
+
+.commands-header-subtitle {
+  font-size: 1rem;
+  color: var(--color-charcoal);
+  margin: 0;
+}
+
+/* ============================================
+   VISUAL MODE SECTION
+   ============================================ */
+
+.visual-mode-section {
+  padding: var(--spacing-2xl) 0;
+  border-top: 1px solid var(--color-mist);
+}
+
+.visual-mode-content {
+  display: grid;
+  gap: var(--spacing-lg);
+}
+
+.visual-mode-demo {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: var(--spacing-xl);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .visual-mode-demo {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Browser chrome frame for the iframe */
+.visual-mode-preview {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--color-mist);
+  box-shadow: 0 8px 30px -6px rgba(0,0,0,0.12);
+}
+
+.visual-mode-preview-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: var(--color-cream);
+  border-bottom: 1px solid var(--color-mist);
+}
+
+.visual-mode-preview-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.visual-mode-preview-dot.red { background: #ff5f56; }
+.visual-mode-preview-dot.yellow { background: #ffbd2e; }
+.visual-mode-preview-dot.green { background: #27c93f; }
+
+.visual-mode-preview-title {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-ash);
+}
+
+.visual-mode-iframe {
+  display: block;
+  width: 100%;
+  height: 480px;
+  border: none;
+  background: white;
+}
+
+/* Details sidebar */
+.visual-mode-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.visual-mode-feature {
+  padding: var(--spacing-md);
+  background: white;
+  border-radius: 8px;
+}
+
+.visual-mode-feature-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-accent);
+  margin-bottom: var(--spacing-xs);
+}
+
+.visual-mode-feature p {
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--color-charcoal);
+  margin: 0;
+}
+
+.visual-mode-feature code {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--color-ink);
+}
+
+/* ============================================
+   SOLUTION SECTION (legacy styles for periodic table)
    ============================================ */
 
 .solution-section {

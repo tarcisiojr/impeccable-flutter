@@ -91,7 +91,7 @@ const server = serve({
       const assetFile = file(filePath);
       if (await assetFile.exists()) {
         return new Response(assetFile, {
-          headers: { "Content-Type": "text/html", "X-Content-Type-Options": "nosniff", "X-Frame-Options": "DENY" }
+          headers: { "Content-Type": "text/html", "X-Content-Type-Options": "nosniff", "X-Frame-Options": "SAMEORIGIN" }
         });
       }
       return new Response("Not Found", { status: 404 });

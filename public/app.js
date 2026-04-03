@@ -7,6 +7,7 @@ import { initFrameworkViz } from "./js/components/framework-viz.js";
 import { initScrollReveal } from "./js/utils/reveal.js";
 import { initAnchorScroll, initHashTracking } from "./js/utils/scroll.js";
 import { initSectionNav } from "./js/components/section-nav.js";
+import { initFoundationGrid } from "./js/components/foundation-grid.js";
 
 // ============================================
 // STATE
@@ -226,6 +227,7 @@ function init() {
 	initScrollReveal();
 	initGlassTerminal();
 	initFrameworkViz();
+	initFoundationGrid();
 	initSectionNav();
 	loadContent();
 

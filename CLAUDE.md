@@ -66,6 +66,8 @@ The detection script is at `source/skills/critique/scripts/detect-antipatterns.m
 
 Build the browser script: `node scripts/build-browser-detector.js`
 
+**IMPORTANT**: The browser script is **generated** from `detect-antipatterns.mjs` -- never edit the browser `.js` files directly. All changes must go in the `.mjs` source. The build strips Node-specific sections and wraps it in an IIFE. Running `bun run build` also regenerates it, which will **overwrite** any direct edits to the browser script.
+
 ## Versioning
 
 When bumping the version, update **all** of these locations to keep them in sync:

@@ -30,6 +30,17 @@ export const skillFocusAreas = {
   ]
 };
 
+// Guideline counts per dimension (verified from reference files)
+export const dimensionGuidelineCounts = {
+  'Typography': 33,
+  'Color & Contrast': 29,
+  'Spatial Design': 27,
+  'Motion': 32,
+  'Interaction': 36,
+  'Responsive': 23,
+  'UX Writing': 32
+};
+
 // Reference domains within the impeccable skill
 export const skillReferenceDomains = [
   'typography',
