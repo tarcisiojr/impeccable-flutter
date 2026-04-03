@@ -177,6 +177,15 @@ cp -r dist/trae/.trae/skills/* ~/.trae/skills/
 >
 > After copying, restart Trae IDE to activate the skills.
 
+**Rovo Dev:**
+```bash
+# Project-specific
+cp -r dist/rovo-dev/.rovodev your-project/
+
+# Or global (applies to all projects)
+cp -r dist/rovo-dev/.rovodev/skills/* ~/.rovodev/skills/
+```
+
 ## Usage
 
 Once installed, use commands in your AI harness:
@@ -221,6 +230,7 @@ The detector catches 24 issues across AI slop (side-tab borders, purple gradient
 - [VS Code Copilot](https://code.visualstudio.com)
 - [Kiro](https://kiro.dev)
 - [Trae](https://trae.ai)
+- [Rovo Dev](https://www.atlassian.com/software/rovo)
 
 ## Contributing
 
