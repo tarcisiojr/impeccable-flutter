@@ -7,16 +7,11 @@
   },
   "files": [
     "bin/",
-    "source/skills/critique/scripts/detect-antipatterns.mjs",
-    "source/skills/critique/scripts/detect-antipatterns-browser.js",
     "lib/download-providers.js",
     "LICENSE"
   ],
   "dependencies": {
-    "jsdom": "^29.0.0"
-  },
-  "optionalDependencies": {
-    "puppeteer": "^24.39.1"
+    "@impeccable/detect": "github:pbakaus/impeccable-detect"
   },
   "description": "Detect UI anti-patterns and design quality issues from the command line",
   "keywords": [

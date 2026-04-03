@@ -4,10 +4,10 @@ description: "Evaluate design from a UX perspective, assessing visual hierarchy,
 argument-hint: "[area (feature, page, component...)]"
 user-invocable: true
 allowed-tools:
-  - Bash(python3 -m http.server 8384 *)
-  - Bash(kill $(lsof -ti:8384)*)
-  - Bash(lsof -ti:8384*)
-  - Bash(node *detect-antipatterns*)
+  - Bash(npx @impeccable/detect *)
+  - Bash(npx impeccable detect *)
+  - Bash(kill $(lsof -ti:*)*)
+  - Bash(lsof -ti:*)
 ---
 
 ## STEPS
@@ -59,7 +59,7 @@ Run the bundled deterministic detector, which flags 25 specific patterns (AI slo
 
 **CLI scan**:
 ```bash
-node {{scripts_path}}/detect-antipatterns.mjs --json [--fast] [target]
+npx @impeccable/detect --json [--fast] [target]
 ```
 
 - Pass HTML/JSX/TSX/Vue/Svelte files or directories as `[target]` (anything with markup). Do not pass CSS-only files.
@@ -72,25 +72,26 @@ node {{scripts_path}}/detect-antipatterns.mjs --json [--fast] [target]
 
 The overlay is a **visual aid for the user** -- it highlights issues directly in their browser. Do NOT scroll through the page to screenshot overlays. Instead, read the console output to get the results programmatically.
 
-1. **Serve the script**:
+1. **Start the live detection server**:
    ```bash
-   python3 -m http.server 8384 -d {{scripts_path}}/ &
+   npx @impeccable/detect live &
    ```
+   Note the port printed to stdout (auto-assigned). Use `--port=PORT` to fix it.
 2. **Create a new tab** and navigate to the page (use dev server URL for local files, or direct URL) -- do not reuse existing tabs
 3. **Label the tab** via `javascript_tool` so the user can distinguish it:
    ```javascript
    document.title = '[Human] ' + document.title;
    ```
 4. **Scroll to top** -- ensure the page is scrolled to the very top before injection
-5. **Inject** via `javascript_tool`:
+5. **Inject** via `javascript_tool` (replace PORT with the port from step 1):
    ```javascript
-   const s = document.createElement('script'); s.src = 'http://localhost:8384/detect-antipatterns-browser.js'; document.head.appendChild(s);
+   const s = document.createElement('script'); s.src = 'http://localhost:PORT/detect.js'; document.head.appendChild(s);
    ```
 6. Wait 2--3 seconds for the detector to render overlays
 7. **Read results from console** using `read_console_messages` with pattern `impeccable` -- the detector logs all findings with the `[impeccable]` prefix. Do NOT scroll through the page to take screenshots of the overlays.
-8. **Cleanup**: Kill the HTTP server when done:
+8. **Cleanup**: Kill the live server when done:
    ```bash
-   kill $(lsof -ti:8384) 2>/dev/null; echo "done"
+   kill $(lsof -ti:PORT) 2>/dev/null; echo "done"
    ```
 
 For multi-view targets, inject on 3--5 representative pages. If injection fails, continue with CLI results only.
