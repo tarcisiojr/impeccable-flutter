@@ -2280,6 +2280,18 @@ async function isPortListening(port, fingerprint = null) {
 // CLI
 // ---------------------------------------------------------------------------
 
+async function confirm(question) {
+  const rl = (await import('node:readline')).default.createInterface({
+    input: process.stdin, output: process.stderr,
+  });
+  return new Promise((resolve) => {
+    rl.question(`${question} [Y/n] `, (answer) => {
+      rl.close();
+      resolve(!answer || /^y(es)?$/i.test(answer.trim()));
+    });
+  });
+}
+
 function printUsage() {
   console.log(`Usage: impeccable detect [options] [file-or-dir-or-url...]
 
@@ -2359,6 +2371,18 @@ async function main() {
         }
 
         const files = walkDir(resolved);
+        const htmlCount = files.filter(f => HTML_EXTENSIONS.has(path.extname(f).toLowerCase())).length;
+
+        // Warn and confirm if scanning many files (jsdom is slow per HTML file)
+        if (files.length > 50 && process.stdin.isTTY && !jsonMode) {
+          process.stderr.write(
+            `\nFound ${files.length} files (${htmlCount} HTML) in ${target}.\n` +
+            `Scanning may take a while${htmlCount > 10 ? ' (jsdom processes each HTML file individually)' : ''}.\n` +
+            `Use --fast to skip jsdom, or target a specific subdirectory.\n`
+          );
+          const ok = await confirm('Continue?');
+          if (!ok) { process.stderr.write('Aborted.\n'); process.exit(0); }
+        }
 
         // Build import graph for multi-file awareness
         const graph = buildImportGraph(files);
