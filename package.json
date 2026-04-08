@@ -56,7 +56,8 @@
     "og-image": "bun run scripts/generate-og-image.js"
   },
   "dependencies": {
-    "jsdom": "^29.0.0"
+    "jsdom": "^29.0.0",
+    "marked": "^16.1.0"
   },
   "optionalDependencies": {
     "puppeteer": "^24.39.1"

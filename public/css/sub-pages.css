@@ -1,0 +1,134 @@
+/*
+ * impeccable.style — shared styles for sub-pages and the site-wide header
+ *
+ * Imported by all generated pages under /skills, /anti-patterns, /tutorials,
+ * and by the hand-authored pages (index, cheatsheet, gallery, privacy) via
+ * a direct <link> tag so they all share the same header + prose typography.
+ */
+
+@import "./tokens.css";
+
+/* ============================================
+   BASE
+   ============================================ */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-ink);
+  background: var(--color-paper);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ============================================
+   SHARED SITE HEADER
+   ============================================ */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-lg);
+  padding: 18px clamp(var(--spacing-md), 4vw, var(--spacing-2xl));
+  background: color-mix(in oklch, var(--color-paper) 94%, transparent);
+  -webkit-backdrop-filter: saturate(1.4) blur(16px);
+  backdrop-filter: saturate(1.4) blur(16px);
+  border-bottom: 1px solid var(--color-mist);
+}
+
+.site-header-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+  flex-shrink: 0;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.site-header-brand:hover {
+  color: var(--color-accent);
+}
+
+.site-header-brand-name {
+  display: inline-block;
+}
+
+.site-header-nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(var(--spacing-sm), 2vw, var(--spacing-lg));
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.site-header-nav a {
+  position: relative;
+  color: var(--color-charcoal);
+  padding: 4px 0;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.site-header-nav a:hover {
+  color: var(--color-accent);
+}
+
+.site-header-nav a[aria-current="page"] {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+.site-header-nav a[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 2px;
+  background: var(--color-accent);
+  border-radius: 2px;
+}
+
+@media (max-width: 720px) {
+  .site-header {
+    padding: 14px var(--spacing-md);
+    gap: var(--spacing-sm);
+  }
+
+  .site-header-brand {
+    font-size: 1.125rem;
+  }
+
+  .site-header-nav {
+    font-size: 0.8125rem;
+    gap: var(--spacing-sm);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .site-header-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .site-header-nav a[data-nav="github"] {
+    display: none;
+  }
+}
