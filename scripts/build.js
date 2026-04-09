@@ -477,7 +477,7 @@ function generateCFConfig(buildDir) {
   // _headers: security + cache headers
   const headers = `/*
   X-Content-Type-Options: nosniff
-  X-Frame-Options: DENY
+  X-Frame-Options: SAMEORIGIN
 
 # HTML pages: browser always revalidates, CDN caches 1h
 /*.html
@@ -502,10 +502,6 @@ function generateCFConfig(buildDir) {
 
 /antipattern-images/*
   Cache-Control: public, max-age=604800, stale-while-revalidate=86400
-
-# Antipattern examples: allow same-origin framing (visual-mode page embeds these)
-/antipattern-examples/*
-  X-Frame-Options: SAMEORIGIN
 
 # Root static assets (favicon, og-image, etc.)
 /favicon.svg
