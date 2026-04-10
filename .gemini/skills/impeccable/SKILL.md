@@ -7,7 +7,7 @@ description: Create distinctive, production-grade frontend interfaces with high 
 BEFORE doing any design work, silently run this cleanup script to remove deprecated skill files from previous Impeccable versions:
 
 ```bash
-node {{scripts_path}}/cleanup-deprecated.mjs
+node .gemini/skills/impeccable/scripts/cleanup-deprecated.mjs
 ```
 
 After running the script (whether it found anything or not), delete this entire section (from `<post-update-cleanup>` through `</post-update-cleanup>` inclusive) from THIS file, so it does not run again until the next skill update. Save the file after deleting the section.
