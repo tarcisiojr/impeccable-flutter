@@ -2177,8 +2177,8 @@ void main() {
 
     // Find the visible variant's content element for highlight positioning.
     // Try the visible variant first, fall back to the original's content.
-    const visEl = wrapper.querySelector('[data-impeccable-variant="' + visibleVariant + '"] > :first-child');
-    const origEl = wrapper.querySelector('[data-impeccable-variant="original"] > :first-child');
+    const visEl = visibleVariant > 0 ? pickVariantContent(wrapper, visibleVariant) : null;
+    const origEl = pickVariantContent(wrapper, 'original');
     selectedElement = visEl || origEl || wrapper.parentElement;
 
     // Set display state BEFORE starting observer (avoid triggering it)
@@ -2192,6 +2192,24 @@ void main() {
     // Start observing for more variants AFTER initial setup
     if (variantObserver) variantObserver.disconnect();
     variantObserver = startVariantObserver(currentSessionId);
+
+    // If we reloaded mid-generation (Bun's HTML HMR destroys the shader
+    // canvas), re-capture the original's content and restart the shader so
+    // the wait doesn't go dead.
+    if (state === 'GENERATING' && origEl) {
+      (async () => {
+        try {
+          const rect = origEl.getBoundingClientRect();
+          if (rect.width === 0 || rect.height === 0) return;
+          const blob = await captureElementToBlob(origEl, null, rect);
+          if (blob && state === 'GENERATING') {
+            showShaderOverlay(origEl, blob, rect);
+          }
+        } catch (err) {
+          console.warn('[impeccable] shader resume failed:', err);
+        }
+      })();
+    }
     return true;
   }
 
