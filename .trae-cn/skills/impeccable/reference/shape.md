@@ -2,7 +2,7 @@ Shape the UX and UI for a feature before any code is written. This command produ
 
 **Scope**: Design planning only. This command does NOT write code. It produces the thinking that makes code good.
 
-**Output**: A design brief that can be handed off to /impeccable craft, or directly to /impeccable for freeform implementation.
+**Output**: A design brief that can be handed off to /impeccable craft, or directly to /impeccable for freeform implementation. When visual direction probes are used, the images are supporting artifacts, not the primary output.
 
 ## Philosophy
 
@@ -55,6 +55,42 @@ Scope answers are task-scoped. Don't write them to PRODUCT.md or DESIGN.md — c
 - What should this NOT be? What would be a wrong direction?
 - What's the biggest risk of getting this wrong?
 
+## Phase 1.5: Visual Direction Probe (Capability-Gated)
+
+After the discovery interview, generate a small set of visual direction probes **before** writing the final brief when all of these are true:
+
+- The work is **net-new** or directionally ambiguous enough that visual exploration will clarify the brief.
+- The requested fidelity is **mid-fi, high-fi, or production-ready**. Skip for sketch-only planning.
+- The current harness has **built-in image generation capability** (for example, Codex with a native image tool). Do **not** ask the user to set up external APIs, shell scripts, or one-off tooling just to do this.
+
+When those conditions are met, this step is the default. Use it to explore visual lanes, not to replace the brief.
+
+### What to generate
+
+Generate **2 to 4** distinct direction probes based on the discovery answers, especially:
+
+- Color strategy
+- Theme scene sentence
+- Named anchor references
+- Scope and fidelity
+
+The probes should differ in primary visual direction (hierarchy, topology, density, typographic voice, or color strategy), not just palette tweaks.
+
+### How to use the probes
+
+- Treat them as **direction tests**, not final designs.
+- Use them to pressure-test whether the brief is pointing at the right lane.
+- Ask the user which direction feels closest, what feels off, and what should carry forward.
+- If the probes reveal a mismatch, revise the brief inputs before finalizing the brief.
+
+### Important limits
+
+- Do **not** skip discovery because image generation is available.
+- Do **not** treat generated imagery as final UX specification, final copy, or final accessibility behavior.
+- Do **not** use this step for minor refinements of existing work. It's for shaping a new surface or clarifying a big directional choice.
+
+If image generation is unavailable, or the task doesn't benefit from it, skip this phase and proceed directly to the design brief.
+
 ## Phase 2: Design Brief
 
 After the interview, synthesize everything into a structured design brief. Present it to the user for confirmation before considering this command complete.
@@ -69,6 +105,8 @@ The single most important thing a user should do or understand here.
 
 **3. Design Direction**
 Color strategy (Restrained / Committed / Full palette / Drenched) + the theme scene sentence + 2–3 named anchor references. Reference PRODUCT.md and DESIGN.md where they already answer, and note any per-surface overrides.
+
+If you ran the Visual Direction Probe step, name which probe direction won and what changed in the brief because of it.
 
 **4. Scope**
 Fidelity, breadth, interactivity, and time intent from the Scope section of the interview. Task-scoped — these don't persist beyond the brief.
