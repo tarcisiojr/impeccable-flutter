@@ -56,8 +56,6 @@ Identify before designing. Priority: (1) cue in the task itself ("landing page" 
 
 If PRODUCT.md lacks the `register` field (legacy), infer it once from its "Users" and "Product Purpose" sections, then cache the inferred value for the session. Suggest the user run `$impeccable teach` to add the field explicitly.
 
-Legacy value: `editorial` is an accepted alias for `brand` (the register was renamed in a recent version). Treat `editorial` as `brand` without asking.
-
 Load the matching reference: [reference/brand.md](reference/brand.md) or [reference/product.md](reference/product.md). The shared design laws below apply to both.
 
 ## Shared design laws

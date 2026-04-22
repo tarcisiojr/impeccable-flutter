@@ -22,8 +22,6 @@ Every design task belongs to one of two registers:
 
 PRODUCT.md at the project root carries a `## Register` section with a bare value (`brand` or `product`). `/impeccable teach` asks about register first because it shapes every downstream answer.
 
-Historical note: this was originally named "editorial" (v3 consolidation). Renamed to "brand" in v3.x because "editorial" biased models toward magazine/broadsheet aesthetics on every brief. PRODUCT.md files in existing projects with `register: editorial` are still handled (the loader normalizes the value) but should be migrated on next `/impeccable teach`.
-
 Sub-command reference files add a short `## Register` section near the top *only where the answer diverges between the two*. Don't restate the register files' content in sub-commands — link instead. Sub-commands where register meaningfully diverges today: `typeset`, `animate`, `bolder`, `delight`, `colorize`, `layout`, `quieter`.
 
 **a11y lives in `audit.md`**, not in SKILL.md, `brand.md`, or `product.md`. Models over-cautious themselves into safe, underdesigned output when reminded about accessibility at design time. The audit command is the dedicated place for that check.
