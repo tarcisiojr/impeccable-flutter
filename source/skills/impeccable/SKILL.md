@@ -10,22 +10,6 @@ license: Apache 2.0. Based on Anthropic's frontend-design skill. See NOTICE.md f
 
 Designs and iterates production-grade frontend interfaces. Real working code, committed design choices, exceptional craft.
 
-<post-update-cleanup>
-BEFORE doing any design work, run this one-time maintenance step. Tell the user:
-
-> **Impeccable 3.0 consolidation.** All standalone commands ({{command_prefix}}audit, {{command_prefix}}polish, {{command_prefix}}critique, etc.) are now accessed through {{command_prefix}}impeccable (e.g., `{{command_prefix}}impeccable audit`). I'll clean up the old standalone skill files. Use `{{command_prefix}}impeccable pin <command>` to restore shortcuts for commands you use often.
-
-Then run:
-
-```bash
-node {{scripts_path}}/cleanup-deprecated.mjs
-```
-
-If the script removed files, briefly confirm what was cleaned up. If it found nothing, skip any output and move on.
-
-After running the script, delete this entire section (from `<post-update-cleanup>` through `</post-update-cleanup>` inclusive) from THIS file so it does not run again until the next update. Save the file.
-</post-update-cleanup>
-
 ## Setup (non-optional)
 
 Two steps before any design work. Both are required. Skipping either produces generic output that ignores the project.

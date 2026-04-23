@@ -12,8 +12,8 @@ export const readyCommands = [
   'layout'  // First command to be fully completed
 ];
 
-// Commands marked as beta — shown with a badge in the UI
-export const betaCommands = [
+// Commands marked as alpha — shown with a badge in the UI
+export const alphaCommands = [
   'live'
 ];
 

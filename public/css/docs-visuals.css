@@ -1319,6 +1319,24 @@
   max-width: 56ch;
 }
 
+.live-mode-page-alpha-note {
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--color-ash);
+  margin: 0;
+  max-width: 56ch;
+  padding: 10px 14px;
+  border-left: 2px solid var(--color-accent);
+  background: color-mix(in oklab, var(--color-accent) 6%, transparent);
+  border-radius: 0 4px 4px 0;
+}
+
+.live-mode-page-alpha-note strong {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
 .live-mode-start {
   display: flex;
   align-items: center;
@@ -2411,47 +2429,87 @@
    PHASE 3 — Polish (3-column editorial, no cards)
    ============================================ */
 
+/* Polish section — drenched magenta masthead band over a three-column
+   title/description grid. Commands live in the band so the grid stays
+   focused on the editorial titles. */
 .designing-polish {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: clamp(1.5rem, 3vw, 2.5rem);
+  display: block;
 }
 
-@media (max-width: 720px) {
-  .designing-polish {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-lg, 32px);
-  }
+.designing-polish-band {
+  background: var(--color-accent);
+  padding: 20px 28px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 24px;
+  align-items: baseline;
+  color: oklch(98% 0 0);
+}
+
+.designing-polish-band-label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.designing-polish-band-cmds {
+  display: flex;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.designing-polish-band-cmds a {
+  display: inline-block;
+  padding: 4px 16px;
+  color: inherit;
+  text-decoration: none;
+  border-right: 1px solid color-mix(in oklch, currentColor 32%, transparent);
+}
+
+.designing-polish-band-cmds a:first-child { padding-left: 0; }
+.designing-polish-band-cmds a:last-child { border-right: 0; padding-right: 0; }
+
+.designing-polish-band-cmds a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.designing-polish-band-meta {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.designing-polish-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 28px;
+  padding: 28px;
+  background: var(--color-cream);
+  border-left: 1px solid var(--color-mist);
+  border-right: 1px solid var(--color-mist);
+  border-bottom: 1px solid var(--color-mist);
 }
 
 .designing-polish-col {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm, 16px);
-  padding-top: var(--spacing-sm, 16px);
-  border-top: 1px solid var(--color-ink);
+  gap: 10px;
 }
-
-.designing-polish-cmd {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--color-accent);
-}
-
-.designing-polish-cmd a {
-  color: inherit;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  text-decoration-thickness: 1px;
-}
-
-.designing-polish-cmd a:hover { text-decoration-thickness: 2px; }
 
 .designing-polish-name {
   font-family: var(--font-display);
   font-style: italic;
+  font-weight: 400;
   font-size: 1.5rem;
-  line-height: 1.1;
+  line-height: 1.15;
   color: var(--color-ink);
   margin: 0;
 }
@@ -2459,51 +2517,80 @@
 .designing-polish-desc {
   font-family: var(--font-body);
   font-size: 0.9375rem;
-  line-height: 1.7;
+  line-height: 1.6;
   color: var(--color-charcoal);
   margin: 0;
+}
+
+@media (max-width: 720px) {
+  .designing-polish-grid {
+    grid-template-columns: 1fr;
+  }
+  .designing-polish-band {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
 }
 
 /* ============================================
    PHASE 4 — Maintain (two editorial columns + one hero viz each)
    ============================================ */
 
+/* Maintain section — architectural poster diptych. Each tile presents the
+   domain visualization as the hero (stage) with a quiet caption beneath
+   (command link, italic title, short description). */
 .designing-maintain {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: clamp(1.5rem, 3vw, 2.5rem);
+  gap: clamp(1.5rem, 3vw, 2rem);
 }
 
-@media (max-width: 720px) {
-  .designing-maintain {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-xl, 48px);
-  }
-}
-
-.designing-maintain-col {
+.designing-maintain-tile {
+  margin: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm, 16px);
+  gap: 18px;
+  min-width: 0;
+}
+
+.designing-maintain-stage {
+  aspect-ratio: 5 / 3;
+  background: var(--color-cream);
+  border: 1px solid var(--color-mist);
+  display: grid;
+  place-items: center;
+  padding: 28px;
+  overflow: hidden;
+}
+
+.designing-maintain-caption {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .designing-maintain-label {
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-accent);
 }
 
 .designing-maintain-label a {
-  color: var(--color-accent);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  text-decoration-thickness: 1px;
+  color: inherit;
+  text-decoration: none;
 }
 
-.designing-maintain-label a:hover { text-decoration-thickness: 2px; }
+.designing-maintain-label a:hover {
+  color: var(--color-accent-hover);
+}
 
 .designing-maintain-name {
   font-family: var(--font-display);
   font-style: italic;
+  font-weight: 400;
   font-size: 1.5rem;
   line-height: 1.15;
   color: var(--color-ink);
@@ -2512,159 +2599,191 @@
 
 .designing-maintain-desc {
   font-family: var(--font-body);
-  font-size: 0.9375rem;
-  line-height: 1.7;
+  font-size: 0.875rem;
+  line-height: 1.55;
   color: var(--color-charcoal);
-  margin: 0 0 var(--spacing-md, 24px) 0;
+  margin: 0;
+  max-width: 42ch;
 }
 
-/* Extract consolidation viz — inline, no card */
+/* Extract consolidation viz — cloud of pills converging on a single primitive */
 .designing-extract-viz {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  gap: 14px;
+  display: flex;
   align-items: center;
+  gap: 20px;
+  flex-wrap: nowrap;
+  justify-content: center;
+  width: 100%;
 }
 
 .designing-extract-before {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 4px;
-}
-
-.designing-extract-btn {
-  padding: 6px 4px;
-  background: var(--color-paper);
-  border: 1px solid var(--color-mist);
-  border-radius: 3px;
-  font-family: var(--font-body);
-  font-size: 9px;
-  text-align: center;
-  color: var(--color-charcoal);
-}
-
-.designing-extract-btn:nth-child(1) { background: oklch(97% 0.01 20); }
-.designing-extract-btn:nth-child(3) { background: oklch(97% 0.01 220); color: oklch(40% 0.06 220); }
-.designing-extract-btn:nth-child(4) { border-radius: 0; }
-.designing-extract-btn:nth-child(6) { border-radius: 999px; }
-
-.designing-extract-arrow {
-  color: var(--color-accent);
-  font-size: 16px;
-}
-
-.designing-extract-after {
-  padding: 10px;
-  background: var(--color-ink);
-  color: var(--color-paper);
-  font-family: var(--font-body);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  border-radius: 4px;
-  text-align: center;
-  min-height: 42px;
-  display: flex;
-  align-items: center;
+  grid-template-columns: repeat(2, auto);
+  gap: 6px;
   justify-content: center;
 }
 
-/* DESIGN.md inline preview */
-.designing-designmd-preview {
-  padding: 10px 14px;
-  background: var(--color-cream);
-  border-radius: 6px;
-  font-family: var(--font-mono);
+.designing-extract-btn {
+  display: inline-block;
+  padding: 5px 12px;
+  background: var(--color-paper);
+  border: 1px solid var(--color-mist);
+  font-family: var(--font-body);
   font-size: 0.75rem;
-  line-height: 1.85;
-  color: var(--color-ink);
+  color: var(--color-ash);
+  opacity: 0.75;
+}
+
+.designing-extract-arrow {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 2.5rem;
+  line-height: 1;
+  color: var(--color-accent);
+}
+
+.designing-extract-after {
+  display: inline-block;
+  padding: 10px 22px;
+  background: var(--color-ink);
+  color: var(--color-paper);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+/* DESIGN.md index — enlarged list of numbered sections */
+.designing-designmd-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 280px;
 }
 
 .designing-designmd-preview-line {
-  display: flex;
-  gap: 10px;
-  align-items: baseline;
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 14px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--color-mist);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  color: var(--color-ink);
 }
 
+.designing-designmd-preview-line:last-child { border-bottom: 0; }
+
 .designing-designmd-preview-num {
-  color: var(--color-ash);
-  min-width: 18px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-accent);
+}
+
+@media (max-width: 720px) {
+  .designing-maintain {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-xl, 48px);
+  }
+  .designing-extract-viz { flex-wrap: wrap; }
 }
 
 /* ============================================
    APPENDIX: Register (cross-link, quieter aside)
    ============================================ */
 
-.designing-register {
-  display: grid;
-  grid-template-columns: 1fr 1.6fr;
-  gap: clamp(1.5rem, 4vw, 2.5rem);
-  align-items: center;
-}
-
-@media (max-width: 640px) {
-  .designing-register {
-    grid-template-columns: 1fr;
-  }
-}
-
-.designing-register-preview {
+/* Two-lane explainer — brand vs product as twin columns divided by a
+   hairline, each with its own mock to make the vocabulary visible. */
+.designing-lanes {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 0;
+  margin-bottom: var(--spacing-lg, 32px);
 }
 
-.designing-register-mini {
-  padding: 14px 12px;
-  border-radius: 6px;
+.designing-lane {
+  padding: 0 clamp(18px, 3vw, 32px);
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  min-height: 88px;
-  justify-content: center;
+  gap: 14px;
+  border-left: 1px solid var(--color-mist);
 }
 
-.designing-register-mini--brand {
+.designing-lane:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+
+.designing-lane-kind {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.designing-lane-rule {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--color-charcoal);
+  max-width: 38ch;
+}
+
+.designing-lane-mock {
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  justify-content: center;
+  min-height: 116px;
+  border: 1px solid var(--color-mist);
+}
+
+.designing-lane-mock--brand {
   background: oklch(96% 0.02 30);
 }
 
-.designing-register-mini--brand .designing-register-mini-label {
+.designing-lane-mock--brand .designing-lane-mock-label {
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 9px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: oklch(40% 0.12 30);
 }
 
-.designing-register-mini--brand .designing-register-mini-title {
+.designing-lane-mock--brand .designing-lane-mock-title {
   font-family: var(--font-display);
   font-style: italic;
-  font-size: 14px;
+  font-size: 22px;
   color: oklch(20% 0.1 30);
   line-height: 1.1;
 }
 
-.designing-register-mini--product {
+.designing-lane-mock--product {
   background: var(--color-cream);
 }
 
-.designing-register-mini--product .designing-register-mini-label {
+.designing-lane-mock--product .designing-lane-mock-label {
   font-family: var(--font-body);
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
   color: var(--color-ash);
+  letter-spacing: 0.04em;
 }
 
-.designing-register-mini--product .designing-register-mini-title {
+.designing-lane-mock--product .designing-lane-mock-title {
   font-family: var(--font-body);
   font-weight: 600;
-  font-size: 13px;
+  font-size: 15px;
   color: var(--color-ink);
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
-.designing-register-link {
+.designing-lane-link {
   font-family: var(--font-body);
   font-size: 0.875rem;
   font-weight: 600;
@@ -2673,93 +2792,26 @@
   text-underline-offset: 3px;
   text-decoration-thickness: 1px;
   display: inline-block;
-  margin-top: var(--spacing-md, 24px);
-  margin-bottom: var(--spacing-sm, 16px);
 }
 
-.designing-register-link:hover {
+.designing-lane-link:hover {
   text-decoration-thickness: 2px;
 }
 
-/* ============================================
-   APPENDIX: Interop (minimal inline diagram)
-   ============================================ */
-
-.designing-interop {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  gap: 16px 24px;
-  align-items: center;
-  justify-items: center;
-  font-family: var(--font-body);
-  font-size: 0.9375rem;
-  color: var(--color-ink);
-  padding: 32px 16px;
-  border: 1px solid var(--color-mist);
-  border-radius: 8px;
-  background: var(--color-cream);
-}
-
 @media (max-width: 640px) {
-  .designing-interop {
+  .designing-lanes {
     grid-template-columns: 1fr;
-    padding: 24px 16px;
+    gap: var(--spacing-md, 24px);
   }
-}
-
-.designing-interop-side {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  align-items: center;
-  text-align: center;
-}
-
-.designing-interop-side-label {
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--color-ash);
-}
-
-.designing-interop-side-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-family: var(--font-body);
-  font-size: 0.9375rem;
-  color: var(--color-ink);
-}
-
-.designing-interop-node {
-  padding: 8px 16px;
-  background: var(--color-paper);
-  border: 1px solid var(--color-mist);
-  border-radius: 6px;
-  white-space: nowrap;
-}
-
-.designing-interop-node--center {
-  background: var(--color-ink);
-  color: var(--color-paper);
-  border-color: transparent;
-  font-family: var(--font-mono);
-  font-size: 0.875rem;
-  padding: 12px 20px;
-}
-
-.designing-interop-arrow {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-accent);
-  font-size: 18px;
-  line-height: 1;
-}
-
-@media (max-width: 640px) {
-  .designing-interop-arrow { transform: rotate(90deg); }
+  .designing-lane {
+    padding: var(--spacing-md, 24px) 0 0 0;
+    border-left: 0;
+    border-top: 1px solid var(--color-mist);
+  }
+  .designing-lane:first-child {
+    padding-top: 0;
+    border-top: 0;
+  }
 }
 
 /* ============================================

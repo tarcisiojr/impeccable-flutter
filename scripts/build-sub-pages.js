@@ -263,7 +263,7 @@ function renderSkillsOverviewMain(skillsByCategory, allSkills) {
     const tagline = skill.editorial?.frontmatter?.tagline || skill.description;
     const shortTagline = tagline.length > 140 ? tagline.slice(0, 137) + '...' : tagline;
     const rel = COMMAND_RELATIONSHIPS[skill.id] || {};
-    const isBeta = skill.id === 'live';
+    const isAlpha = skill.id === 'live';
 
     let metaHtml = '';
     if (rel.pairs) {
@@ -281,7 +281,7 @@ function renderSkillsOverviewMain(skillsByCategory, allSkills) {
     return `
       <div class="command-row">
         <div class="command-row-name">
-          <a href="/docs/${skill.id}"><span class="command-row-namespace">/impeccable</span> ${escapeHtml(skill.id)}</a>${isBeta ? ' <span class="command-row-beta">BETA</span>' : ''}
+          <a href="/docs/${skill.id}"><span class="command-row-namespace">/impeccable</span> ${escapeHtml(skill.id)}</a>${isAlpha ? ' <span class="command-row-beta">ALPHA</span>' : ''}
         </div>
         <div class="command-row-info">
           <p class="command-row-desc">${escapeHtml(shortTagline)}</p>
@@ -805,9 +805,10 @@ function renderLiveModeMain() {
   return `
 <div class="live-mode-page">
   <header class="live-mode-page-header">
-    <p class="live-mode-page-eyebrow">New in v3.0 <span class="live-mode-page-eyebrow-badge">Beta</span></p>
+    <p class="live-mode-page-eyebrow">New in v3.0 <span class="live-mode-page-eyebrow-badge">Alpha</span></p>
     <h1 class="live-mode-page-title">Live Mode</h1>
     <p class="live-mode-page-lede">Pick any element in the browser. Drop a comment or a stroke. Three production-quality variants swap in via your framework's HMR. Accept the one you want and it writes back to source.</p>
+    <p class="live-mode-page-alpha-note"><strong>Why alpha:</strong> Live Mode works end-to-end and is ready to try, but it still needs more testing against real-world repos and framework configs. Expect rough edges on uncommon setups, and please report what breaks.</p>
     <div class="live-mode-start" aria-label="Start live mode command">
       <span class="live-mode-start-prompt">$</span>
       <code class="live-mode-start-cmd">/impeccable live</code>
@@ -1143,20 +1144,28 @@ function renderDesigningMain() {
 
     <div class="designing-phase-body">
       <div class="designing-polish">
-        <div class="designing-polish-col">
-          <span class="designing-polish-cmd"><a href="/docs/audit">/impeccable audit</a></span>
-          <h3 class="designing-polish-name">Score it.</h3>
-          <p class="designing-polish-desc">Five dimensions scored 0 to 4: accessibility, performance, theming, responsive, anti-patterns. Findings tagged P0 to P3.</p>
+        <div class="designing-polish-band">
+          <span class="designing-polish-band-label">Pre-ship</span>
+          <div class="designing-polish-band-cmds">
+            <a href="/docs/audit">audit</a>
+            <a href="/docs/clarify">clarify</a>
+            <a href="/docs/harden">harden</a>
+          </div>
+          <span class="designing-polish-band-meta">03 &middot; 04</span>
         </div>
-        <div class="designing-polish-col">
-          <span class="designing-polish-cmd"><a href="/docs/clarify">/impeccable clarify</a></span>
-          <h3 class="designing-polish-name">Rewrite the copy.</h3>
-          <p class="designing-polish-desc">Labels, error messages, empty-state prose, microcopy. Tuned to the audience from PRODUCT.md.</p>
-        </div>
-        <div class="designing-polish-col">
-          <span class="designing-polish-cmd"><a href="/docs/harden">/impeccable harden</a></span>
-          <h3 class="designing-polish-name">Stress-test reality.</h3>
-          <p class="designing-polish-desc">60-character names, German product titles, prices in the billions, 500s, offline. Production data is messy.</p>
+        <div class="designing-polish-grid">
+          <div class="designing-polish-col">
+            <h3 class="designing-polish-name">Score it.</h3>
+            <p class="designing-polish-desc">Five dimensions scored 0 to 4: accessibility, performance, theming, responsive, anti-patterns. Findings tagged P0 to P3.</p>
+          </div>
+          <div class="designing-polish-col">
+            <h3 class="designing-polish-name">Rewrite the copy.</h3>
+            <p class="designing-polish-desc">Labels, error messages, empty-state prose, microcopy. Tuned to the audience from PRODUCT.md.</p>
+          </div>
+          <div class="designing-polish-col">
+            <h3 class="designing-polish-name">Stress-test reality.</h3>
+            <p class="designing-polish-desc">60-character names, German product titles, prices in the billions, 500s, offline. Production data is messy.</p>
+          </div>
         </div>
       </div>
     </div>
@@ -1171,90 +1180,76 @@ function renderDesigningMain() {
 
     <div class="designing-phase-body">
       <div class="designing-maintain">
-        <div class="designing-maintain-col">
-          <span class="designing-maintain-label"><a href="/docs/extract">/impeccable extract</a></span>
-          <h3 class="designing-maintain-name">Consolidate drift.</h3>
-          <p class="designing-maintain-desc">Find patterns used three or more times with the same intent. Propose tokens and primitives. Migrate call sites in the same pass.</p>
-          <div class="designing-extract-viz" aria-hidden="true">
-            <div class="designing-extract-before">
-              <span class="designing-extract-btn">Subscribe</span>
-              <span class="designing-extract-btn">Submit</span>
-              <span class="designing-extract-btn">Join</span>
-              <span class="designing-extract-btn">Send</span>
-              <span class="designing-extract-btn">Go</span>
-              <span class="designing-extract-btn">OK</span>
+        <figure class="designing-maintain-tile">
+          <div class="designing-maintain-stage">
+            <div class="designing-extract-viz" aria-hidden="true">
+              <div class="designing-extract-before">
+                <span class="designing-extract-btn">Subscribe</span>
+                <span class="designing-extract-btn">Submit</span>
+                <span class="designing-extract-btn">Join</span>
+                <span class="designing-extract-btn">Send</span>
+                <span class="designing-extract-btn">Go</span>
+                <span class="designing-extract-btn">OK</span>
+              </div>
+              <span class="designing-extract-arrow">&rarr;</span>
+              <span class="designing-extract-after">Button</span>
             </div>
-            <span class="designing-extract-arrow">→</span>
-            <span class="designing-extract-after">Button</span>
           </div>
-        </div>
+          <figcaption class="designing-maintain-caption">
+            <span class="designing-maintain-label"><a href="/docs/extract">/impeccable extract</a></span>
+            <h3 class="designing-maintain-name">Consolidate drift.</h3>
+            <p class="designing-maintain-desc">Find patterns used three or more times with the same intent. Propose tokens and primitives.</p>
+          </figcaption>
+        </figure>
 
-        <div class="designing-maintain-col">
-          <span class="designing-maintain-label"><a href="/docs/document">/impeccable document</a></span>
-          <h3 class="designing-maintain-name">Re-capture the system.</h3>
-          <p class="designing-maintain-desc">Scans tokens, components, and rendered output. Writes a spec-compliant DESIGN.md that every other command reads.</p>
-          <div class="designing-designmd-preview" aria-hidden="true">
-            <div class="designing-designmd-preview-line"><span class="designing-designmd-preview-num">01</span><span>Overview</span></div>
-            <div class="designing-designmd-preview-line"><span class="designing-designmd-preview-num">02</span><span>Colors</span></div>
-            <div class="designing-designmd-preview-line"><span class="designing-designmd-preview-num">03</span><span>Typography</span></div>
-            <div class="designing-designmd-preview-line"><span class="designing-designmd-preview-num">04</span><span>Elevation</span></div>
-            <div class="designing-designmd-preview-line"><span class="designing-designmd-preview-num">05</span><span>Components</span></div>
-            <div class="designing-designmd-preview-line"><span class="designing-designmd-preview-num">06</span><span>Do's and Don'ts</span></div>
+        <figure class="designing-maintain-tile">
+          <div class="designing-maintain-stage">
+            <div class="designing-designmd-preview" aria-hidden="true">
+              <div class="designing-designmd-preview-line"><span class="designing-designmd-preview-num">01</span><span>Overview</span></div>
+              <div class="designing-designmd-preview-line"><span class="designing-designmd-preview-num">02</span><span>Colors</span></div>
+              <div class="designing-designmd-preview-line"><span class="designing-designmd-preview-num">03</span><span>Typography</span></div>
+              <div class="designing-designmd-preview-line"><span class="designing-designmd-preview-num">04</span><span>Elevation</span></div>
+              <div class="designing-designmd-preview-line"><span class="designing-designmd-preview-num">05</span><span>Components</span></div>
+              <div class="designing-designmd-preview-line"><span class="designing-designmd-preview-num">06</span><span>Do's &amp; Don'ts</span></div>
+            </div>
           </div>
-        </div>
+          <figcaption class="designing-maintain-caption">
+            <span class="designing-maintain-label"><a href="/docs/document">/impeccable document</a></span>
+            <h3 class="designing-maintain-name">Re-capture the system.</h3>
+            <p class="designing-maintain-desc">Scans tokens, components, and rendered output. Writes a spec-compliant DESIGN.md.</p>
+          </figcaption>
+        </figure>
       </div>
     </div>
   </section>
 
-  <section class="designing-phase designing-phase--appendix" aria-label="Brand vs product register">
+  <section class="designing-phase designing-phase--appendix" aria-label="Brand or product lane">
     <header class="designing-phase-head">
-      <span class="designing-phase-num">Before any of this</span>
-      <h2 class="designing-phase-title">Pick a register.</h2>
-      <p class="designing-phase-sub">Brand and product surfaces have different defaults. Impeccable tracks this in <code>PRODUCT.md</code> as a single field, so commands like <code>typeset</code>, <code>animate</code>, and <code>colorize</code> adapt their vocabulary to match.</p>
+      <span class="designing-phase-num">Two lanes</span>
+      <h2 class="designing-phase-title">Brand, or product.</h2>
+      <p class="designing-phase-sub">Two defaults with different vocabularies. Impeccable picks the lane from your task cue and <code>PRODUCT.md</code> before every command, so <code>typeset</code>, <code>animate</code>, <code>colorize</code>, and friends adjust their output to match. You rarely need to set it by hand.</p>
     </header>
 
     <div class="designing-phase-body">
-      <div class="designing-register">
-        <div class="designing-register-preview" aria-hidden="true">
-          <div class="designing-register-mini designing-register-mini--brand">
-            <span class="designing-register-mini-label">No. 04 &middot; Dispatch</span>
-            <span class="designing-register-mini-title">Letters, occasionally.</span>
+      <div class="designing-lanes">
+        <section class="designing-lane">
+          <span class="designing-lane-kind">Brand</span>
+          <p class="designing-lane-rule">Design IS the product. Marketing, landing, editorial, long-form, portfolio.</p>
+          <div class="designing-lane-mock designing-lane-mock--brand" aria-hidden="true">
+            <span class="designing-lane-mock-label">No. 04 &middot; Dispatch</span>
+            <span class="designing-lane-mock-title">Letters, occasionally.</span>
           </div>
-          <div class="designing-register-mini designing-register-mini--product">
-            <span class="designing-register-mini-label">Newsletter</span>
-            <span class="designing-register-mini-title">Subscribe to updates</span>
+        </section>
+        <section class="designing-lane">
+          <span class="designing-lane-kind">Product</span>
+          <p class="designing-lane-rule">Design serves the task. App UI, admin, dashboards, tools.</p>
+          <div class="designing-lane-mock designing-lane-mock--product" aria-hidden="true">
+            <span class="designing-lane-mock-label">Newsletter</span>
+            <span class="designing-lane-mock-title">Subscribe to updates</span>
           </div>
-        </div>
-        <div>
-          <p style="font-family:var(--font-body);font-size:0.9375rem;line-height:1.65;color:var(--color-charcoal);margin:0;max-width:52ch">The same element, rendered in brand register (editorial masthead) and product register (utility). Register is answered once during <code>teach</code> and applies to every downstream command.</p>
-          <a class="designing-register-link" href="/tutorials/brand-vs-product">Read the brand-vs-product tutorial &rarr;</a>
-        </div>
+        </section>
       </div>
-    </div>
-  </section>
-
-  <section class="designing-phase designing-phase--appendix" aria-label="DESIGN.md interop">
-    <header class="designing-phase-head">
-      <span class="designing-phase-num">Interop</span>
-      <h2 class="designing-phase-title">Your system travels.</h2>
-      <p class="designing-phase-sub"><code>DESIGN.md</code> follows <a href="https://stitch.withgoogle.com/docs/design-md/format/" target="_blank" rel="noopener">the format Google Stitch publishes</a>. Not a lock-in. When you outgrow Impeccable or want a second opinion from another tool, the file comes with you.</p>
-    </header>
-
-    <div class="designing-phase-body">
-      <div class="designing-interop" aria-hidden="true">
-        <div class="designing-interop-side">
-          <span class="designing-interop-side-label">Writes it</span>
-          <span class="designing-interop-node">Impeccable</span>
-        </div>
-        <div class="designing-interop-node designing-interop-node--center">DESIGN.md</div>
-        <div class="designing-interop-side">
-          <span class="designing-interop-side-label">Reads it</span>
-          <div class="designing-interop-side-list">
-            <span class="designing-interop-node">Google Stitch</span>
-            <span class="designing-interop-node">Other tools</span>
-          </div>
-        </div>
-      </div>
+      <a class="designing-lane-link" href="/tutorials/brand-vs-product">Read the brand-vs-product tutorial &rarr;</a>
     </div>
   </section>
 

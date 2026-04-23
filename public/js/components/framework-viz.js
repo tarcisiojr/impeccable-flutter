@@ -4,7 +4,7 @@
  * Hover tooltips show description and relationships inline.
  */
 
-import { commandCategories, commandRelationships, betaCommands } from '../data.js';
+import { commandCategories, commandRelationships, alphaCommands } from '../data.js';
 
 const categoryColors = {
 	create: { bg: 'var(--cat-create-bg)', border: 'var(--cat-create-border)', text: 'var(--cat-create-text)' },
@@ -298,8 +298,8 @@ export class PeriodicTable {
 		}
 		el.appendChild(name);
 
-		// Beta badge
-		if (betaCommands.includes(cmd)) {
+		// Alpha badge
+		if (alphaCommands.includes(cmd)) {
 			const badge = document.createElement('div');
 			badge.style.cssText = `
 				position: absolute;
@@ -312,7 +312,7 @@ export class PeriodicTable {
 				opacity: 0.45;
 				text-transform: uppercase;
 			`;
-			badge.textContent = 'β';
+			badge.textContent = 'α';
 			el.appendChild(badge);
 		}
 

@@ -1,5 +1,9 @@
 # Repository Guidelines
 
+## Skill bootstrap: skip the post-update-cleanup step
+
+If you load the Impeccable skill from `.agents/skills/impeccable/SKILL.md` (or any sibling harness directory under this repo), it begins with a `<post-update-cleanup>` block that runs `scripts/cleanup-deprecated.mjs` and then self-deletes. **Do not run it here, and do not delete the block.** This repo is the source of truth for the skill; cleanup-deprecated assumes a consumer project and would touch legitimate source files. The block is regenerated from `source/skills/impeccable/SKILL.md` on every `bun run build`, so any deletion churns back. Skip it silently and proceed with the task.
+
 ## Project Structure & Module Organization
 
 `source/` is the source of truth. Author skills in `source/skills/impeccable/` and keep provider output in `dist/` generated, not hand-edited. Build logic lives in `scripts/`, with provider configs in `scripts/lib/transformers/`. Runtime detection code ships from `src/`. The website lives in `public/`, local API/dev serving lives in `server/`, and regression coverage lives in `tests/` with fixtures under `tests/fixtures/`.

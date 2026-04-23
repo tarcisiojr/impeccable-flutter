@@ -2818,14 +2818,18 @@ void main() {
 
     // Static-server / no-HMR fallback: if the wrapper is still around 2s after
     // the cleanup above, swap it out manually. By now React has either moved
-    // on or the app isn't React at all.
+    // on or the app isn't React at all. Preserve the `data-impeccable-variant="N"`
+    // div (with display:contents) so @scope rules anchored to the variant
+    // attribute keep matching until reload replaces it with the carbonize block.
     setTimeout(function() {
       const wrapper = document.querySelector('[data-impeccable-variants="' + acceptedSessionId + '"]');
       if (!wrapper) return;
       const accepted = wrapper.querySelector('[data-impeccable-variant="' + acceptedVariant + '"]');
       if (accepted && accepted.firstElementChild) {
         const parent = wrapper.parentElement;
-        if (parent) parent.replaceChild(accepted.firstElementChild.cloneNode(true), wrapper);
+        if (!parent) return;
+        accepted.style.display = 'contents';
+        parent.replaceChild(accepted, wrapper);
       }
     }, 2000);
   }

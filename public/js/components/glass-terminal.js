@@ -1,6 +1,6 @@
 import { renderCommandDemo, initCommandDemo } from "../demo-renderer.js";
 import { initSplitCompare } from "../effects/split-compare.js";
-import { commandProcessSteps, commandCategories, commandRelationships, betaCommands } from "../data.js";
+import { commandProcessSteps, commandCategories, commandRelationships, alphaCommands } from "../data.js";
 
 // Track current split instance and command for cleanup
 let currentSplitInstance = null;
@@ -134,14 +134,14 @@ function renderDesktopLayout(container, commands) {
 
     const fisheyeHTML = filteredCommands.map((cmd, i) => {
         const cat = commandCategories[cmd.id] || 'other';
-        const isBeta = betaCommands.includes(cmd.id);
+        const isAlpha = alphaCommands.includes(cmd.id);
         // The root skill is shown as "/impeccable", everything else is a sub-command
         // displayed without a slash (invocation is /impeccable <name>)
         const isRoot = cmd.id === 'impeccable';
         const label = isRoot
             ? `<span class="fisheye-slash">/</span>impeccable`
             : cmd.id;
-        return `<button class="fisheye-item${i === startIndex ? ' is-active' : ''}" data-index="${i}" data-id="${cmd.id}" data-cat="${cat}">${label}${isBeta ? '<span class="fisheye-beta">BETA</span>' : ''}</button>`;
+        return `<button class="fisheye-item${i === startIndex ? ' is-active' : ''}" data-index="${i}" data-id="${cmd.id}" data-cat="${cat}">${label}${isAlpha ? '<span class="fisheye-beta">ALPHA</span>' : ''}</button>`;
     }).join('');
 
     container.innerHTML = `
@@ -166,7 +166,7 @@ function renderDesktopLayout(container, commands) {
 
 function renderSpread(cmd, index, isActive) {
     const cat = commandCategories[cmd.id] || 'other';
-    const isBeta = betaCommands.includes(cmd.id);
+    const isAlpha = alphaCommands.includes(cmd.id);
     const relationship = commandRelationships[cmd.id];
     // Build relationship flow
     let flowHTML = '';
@@ -213,7 +213,7 @@ function renderSpread(cmd, index, isActive) {
         <div class="magazine-spread${isActive ? ' active' : ''}" data-index="${index}" data-category="${cat}" data-id="${cmd.id}" id="cmd-${cmd.id}">
             <div class="spread-identity">
                 <span class="spread-category-label">${categoryLabels[cat] || cat}</span>
-                <h3 class="spread-command-name">${nameHTML}${isBeta ? '<span class="beta-badge">BETA</span>' : ''}</h3>
+                <h3 class="spread-command-name">${nameHTML}${isAlpha ? '<span class="beta-badge">ALPHA</span>' : ''}</h3>
                 <p class="spread-description">${cmd.tagline || cmd.description}</p>
                 ${flowHTML}
             </div>

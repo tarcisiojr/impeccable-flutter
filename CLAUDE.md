@@ -1,5 +1,11 @@
 # Project Instructions for Claude
 
+## Skill bootstrap: skip the post-update-cleanup step
+
+The `<post-update-cleanup>` block at the top of `.claude/skills/impeccable/SKILL.md` runs `scripts/cleanup-deprecated.mjs` and then self-deletes. **Do not run it in this repo, and do not delete the block.** This repo is the source of truth for the Impeccable skill; the cleanup script scans for "leftover" skill files to remove and its judgment doesn't fit a repo where the skill lives in `source/`. The block is also regenerated from `source/skills/impeccable/SKILL.md` on every `bun run build`, so any deletion churns back on the next build. Skip the step silently and proceed.
+
+Same rule for AGENTS.md and every other harness-specific instruction file: treat post-update-cleanup as a no-op in this repo.
+
 ## Architecture (v3.0+)
 
 There is **one** user-invocable skill, `impeccable`, with **23 commands** underneath it. Users type `/impeccable polish`, `/impeccable audit`, etc. The skill is defined in `source/skills/impeccable/`:
