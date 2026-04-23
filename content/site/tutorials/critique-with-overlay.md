@@ -1,7 +1,7 @@
 ---
 title: Critique with the visual overlay
 tagline: "Use /impeccable critique plus the browser overlay to review a live page with ground truth."
-order: 2
+order: 4
 description: "Run a full design critique that combines LLM assessment, the automated detector, and a live browser overlay so you can see exactly which elements trigger which anti-patterns on the page you're looking at."
 ---
 
@@ -35,7 +35,7 @@ It labels the tab it opens with `[LLM]` in the title so you can tell which one i
 
 ### What the automated detector does
 
-The second assessment runs `npx impeccable detect` against the page. This is deterministic: 25 specific pattern checks that fire or do not fire. Gradient text, purple palettes, side-tab borders, nested cards, line length problems, low contrast, tiny body text, and the rest.
+The second assessment runs `npx impeccable detect` against the page. This is deterministic: around thirty specific pattern checks that fire or do not fire. Gradient text, purple palettes, side-tab borders, nested cards, line length problems, low contrast, tiny body text, and the rest. The [full catalog](/anti-patterns) lists every rule and which layer (CLI, browser, or LLM-only) catches it.
 
 You get back a JSON list of every finding with its element selector, the rule that fired, and a short description.
 
@@ -117,6 +117,7 @@ If something still fires, fix it or write a suppression comment explaining why t
 
 ## What to try next
 
+- [Iterate on the critique findings with Live Mode](/tutorials/iterate-live). Pick the element critique flagged, drop a comment, get three redirections hot-swapped in place, and write the accepted one back to source.
 - `/impeccable audit the same page` to catch the implementation issues critique does not cover (accessibility, performance, theming).
 - `/impeccable polish` if the critique report is clean and you want the last-mile refinement pass.
 - `/impeccable distill` if critique flagged "too busy" or "cognitive load". Distill removes what should not be there.

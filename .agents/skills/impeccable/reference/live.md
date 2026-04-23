@@ -179,7 +179,56 @@ The first variant has no `display: none` (visible by default). All others do. If
 
 One edit, all variants — the browser's MutationObserver picks everything up in one pass.
 
-### 7. Signal done
+### 7. Parameters (optional, 2-5 per variant)
+
+Each variant can expose coarse knobs alongside the full HTML/CSS replacement. The browser docks a small panel to the right of the outline with one control per parameter. The user drags/clicks and sees instant feedback: there is zero regeneration cost because the knob toggles a CSS variable or data attribute that the variant's scoped CSS is already authored against.
+
+**When to use.** Any time the variant has a meaningful axis the user might want to dial in: color amount, density, motion intensity, scale ratio. Not micro-level margin tweaks; those defeat the point.
+
+**Budget scales with the element's visual weight, not the user's curiosity.** Knobs need real estate to produce noticeably different output; slapping three on a small element just crowds the panel without making anything feel tunable.
+
+- **Leaf / tiny** — a single button, icon, input, bare heading, solitary paragraph: **0 params.** A slider can't meaningfully reshape one element; just use variants.
+- **Small composition** — labeled input, simple card, short callout (≤ ~5 visual children): **0-1 params.** Only add one if it's a clear dominant axis (e.g. density on a card with visible internal rhythm).
+- **Medium composition** — section component, nav cluster, dense card, short feature block (6-15 visual children): **2 params.**
+- **Large composition** — hero section, full page region, spread layout, anything with strong internal structure (16+ visual children or multiple sub-sections): **3-4 params.**
+
+When in doubt, fewer. The user can always ask for more variants to explore an axis you didn't expose as a knob. Count by visual children, not by DOM-node depth; a deeply-nested-but-visually-simple card still counts as small.
+
+**How to declare.** Put a JSON manifest on the variant wrapper:
+
+```html
+<div data-impeccable-variant="1" data-impeccable-params='[
+  {"id":"color-amount","kind":"range","min":0,"max":1,"step":0.05,"default":0.5,"label":"Color amount"},
+  {"id":"density","kind":"steps","default":"snug","label":"Density","options":[
+    {"value":"airy","label":"Airy"},
+    {"value":"snug","label":"Snug"},
+    {"value":"packed","label":"Packed"}
+  ]},
+  {"id":"serif","kind":"toggle","default":false,"label":"Serif display"}
+]'>
+  ...variant content...
+</div>
+```
+
+**Three kinds:**
+
+- `range` — smooth slider. Drives a CSS custom property `--p-<id>` on the variant wrapper. Author CSS with `var(--p-color-amount, 0.5)`. Fields: `min`, `max`, `step`, `default` (number), `label`.
+- `steps` — segmented radio. Drives a data attribute `data-p-<id>` on the variant wrapper. Author CSS with `:scope[data-p-density="airy"] .grid { ... }`. Fields: `options` (array of `{value, label}`), `default` (string), `label`.
+- `toggle` — on/off switch. Drives BOTH a CSS var (`--p-<id>: 0|1`) and a data attribute (present when on, absent when off). Use whichever is more convenient. Fields: `default` (boolean), `label`.
+
+**Signature params per action.** Each action has one or two signature params that MUST be exposed when the variant can meaningfully express them. Check the action's reference file for the list. Layer 1-2 variant-specific params on top.
+
+**Reset on variant switch.** User dials density on v1, flips to v2, v2 starts at v2's declared defaults. Known limitation; preservation across variants may land later.
+
+**On accept**, the browser sends the user's current values in the accept event. `live-accept.mjs` writes them as a sibling comment:
+
+```html
+<!-- impeccable-param-values SESSION_ID: {"color-amount":0.7,"density":"packed"} -->
+```
+
+The carbonize cleanup step (see below) reads that comment and bakes the chosen values into the final CSS. For `steps`/`toggle` attribute selectors: keep only the branch matching the chosen value, drop the others, collapse `:scope[data-p-density="packed"] .grid` to a semantic class rule. For `range` vars: either substitute the literal or keep the var with the chosen value as its new default.
+
+### 8. Signal done
 
 ```bash
 node .agents/skills/impeccable/scripts/live-poll.mjs --reply EVENT_ID done --file RELATIVE_PATH
@@ -244,11 +293,11 @@ When `_acceptResult.carbonize === true`, the accepted variant was stitched into 
 
 Do these five steps in the current thread, synchronously, before the next poll. Do not poll again until the file is clean.
 
-1. **Locate the carbonize block** in the source file (`_acceptResult.file`). It's bracketed by `<!-- impeccable-carbonize-start SESSION_ID -->` and `<!-- impeccable-carbonize-end SESSION_ID -->` and contains a `<style data-impeccable-css="SESSION_ID">` element.
+1. **Locate the carbonize block** in the source file (`_acceptResult.file`). It's bracketed by `<!-- impeccable-carbonize-start SESSION_ID -->` and `<!-- impeccable-carbonize-end SESSION_ID -->` and contains a `<style data-impeccable-css="SESSION_ID">` element. If the variant declared parameters, an `<!-- impeccable-param-values SESSION_ID: {...} -->` comment sits alongside the style tag with the user's chosen values — read it first; it drives steps 3 and 4 below.
 2. **Move the CSS rules** into the project's real stylesheet. Which stylesheet depends on the project (e.g. `public/css/workflow.css` for this repo, or the component's co-located CSS file for a Vite/Next project — pick whichever already owns styling for the surrounding element).
-3. **Rewrite `@scope ([data-impeccable-variant="N"])` selectors** to target real, semantic classes on the accepted HTML. Example: `@scope ([data-impeccable-variant="2"]) { .v2-label { … } }` becomes `.why-visual--v2 .v2-label { … }` if the accepted element already carries `.why-visual--v2`, or pick/add a suitable class if it doesn't.
-4. **Unwrap the accepted content.** Delete the `<div data-impeccable-variant="N" style="display: contents">` that wraps it.
-5. **Delete the inline `<style>` block and both `<!-- impeccable-carbonize-start/end -->` markers.** Also drop any `@scope` rules for variants other than the accepted one — those are dead code now.
+3. **Bake in parameter values while rewriting selectors.** For `@scope ([data-impeccable-variant="N"])` wrappers: retarget to real, semantic classes on the accepted HTML (`.why-visual--v2 .v2-label { … }`). For `:scope[data-p-<id>="VALUE"]` selectors: keep only the branch matching the chosen value from the param-values comment; drop the others (they're dead after accept). For `var(--p-<id>, DEFAULT)` in the CSS: either substitute the literal value, or if the param is still useful as a knob going forward, leave the var and update its initial declaration to the chosen value.
+4. **Unwrap the accepted content.** Delete the `<div data-impeccable-variant="N" style="display: contents">` that wraps it. Drop `data-impeccable-params` and any `data-p-*` attributes from it — those are live-mode plumbing, not source.
+5. **Delete the inline `<style>` block, the `<!-- impeccable-param-values -->` comment if present, and both `<!-- impeccable-carbonize-start/end -->` markers.** Also drop any `@scope` rules for variants other than the accepted one — those are dead code now.
 
 Then poll again.
 

@@ -45,10 +45,17 @@ Output (JSON):
 
   const id = argVal(args, '--id');
   const variantNum = argVal(args, '--variant');
+  const paramValuesRaw = argVal(args, '--param-values');
   const isDiscard = args.includes('--discard');
 
   if (!id) { console.error('Missing --id'); process.exit(1); }
   if (!isDiscard && !variantNum) { console.error('Need --discard or --variant N'); process.exit(1); }
+
+  let paramValues = null;
+  if (paramValuesRaw) {
+    try { paramValues = JSON.parse(paramValuesRaw); }
+    catch { paramValues = null; } // malformed blob: skip the comment rather than failing the accept
+  }
 
   // Find the file containing this session's markers
   const found = findSessionFile(id, process.cwd());
@@ -78,7 +85,7 @@ Output (JSON):
     const result = handleDiscard(id, lines, targetFile);
     console.log(JSON.stringify({ handled: true, file: relFile, carbonize: false, ...result }));
   } else {
-    const result = handleAccept(id, variantNum, lines, targetFile);
+    const result = handleAccept(id, variantNum, lines, targetFile, paramValues);
     // Single-line attention-grabber when cleanup is required. The full
     // five-step checklist lives in reference/live.md (loaded once per
     // session); repeating it per-event would waste tokens.
@@ -116,7 +123,7 @@ function handleDiscard(id, lines, targetFile) {
 // Accept
 // ---------------------------------------------------------------------------
 
-function handleAccept(id, variantNum, lines, targetFile) {
+function handleAccept(id, variantNum, lines, targetFile, paramValues) {
   const block = findMarkerBlock(id, lines);
   if (!block) return { handled: false, error: 'Markers not found' };
 
@@ -149,6 +156,11 @@ function handleAccept(id, variantNum, lines, targetFile) {
       replacement.push(indent + cssLine.trimStart());
     }
     replacement.push(indent + '</style>');
+    if (paramValues && Object.keys(paramValues).length > 0) {
+      // Preserve the user's knob positions for the carbonize-cleanup agent
+      // to bake into the final CSS when it collapses scoped rules.
+      replacement.push(indent + commentSyntax.open + ' impeccable-param-values ' + id + ': ' + JSON.stringify(paramValues) + ' ' + commentSyntax.close);
+    }
     replacement.push(indent + commentSyntax.open + ' impeccable-carbonize-end ' + id + ' ' + commentSyntax.close);
   }
 

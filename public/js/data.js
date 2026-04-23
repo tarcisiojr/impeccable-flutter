@@ -14,7 +14,7 @@ export const readyCommands = [
 
 // Commands marked as beta — shown with a badge in the UI
 export const betaCommands = [
-  'overdrive'
+  'live'
 ];
 
 // Consolidated impeccable skill with reference domains

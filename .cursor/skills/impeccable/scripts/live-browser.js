@@ -30,10 +30,13 @@
   // Design tokens
   // ---------------------------------------------------------------------------
 
+  // Brand magenta is pinned to the site token (--color-accent in main.css)
+  // so Accept / knobs / cycle-dots match the site's accent, not a washed
+  // theme-adjusted one.
   const C = {
-    brand:     'oklch(55% 0.25 350)',
-    brandHov:  'oklch(48% 0.25 350)',
-    brandSoft: 'oklch(55% 0.25 350 / 0.12)',
+    brand:     'oklch(60% 0.25 350)',
+    brandHov:  'oklch(52% 0.25 350)',
+    brandSoft: 'oklch(60% 0.25 350 / 0.15)',
     ink:       'oklch(15% 0.01 350)',
     ash:       'oklch(55% 0 0)',
     paper:     'oklch(98% 0.005 350 / 0.92)',
@@ -59,6 +62,25 @@
   const SKIP_TAGS = new Set([
     'html', 'head', 'body', 'script', 'style', 'link', 'meta', 'noscript', 'br', 'wbr',
   ]);
+
+  // SVG icons stack above each chip label. All strokes use currentColor so the
+  // icon recolors to C.brand when its chip is selected. 20x20 render, 24-viewBox,
+  // 1.5 stroke — visually consistent with the Foundation grid on the homepage.
+  const ICON_ATTRS = 'width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:block"';
+  const ICONS = {
+    impeccable: `<svg ${ICON_ATTRS}><path d="M4 20l4-1L18 9l-3-3L5 16z"/><path d="M14 7l3 3"/></svg>`,
+    bolder:     `<svg ${ICON_ATTRS}><rect x="6" y="12" width="4" height="7" rx="0.5"/><rect x="14" y="5" width="4" height="14" rx="0.5"/></svg>`,
+    quieter:    `<svg ${ICON_ATTRS}><rect x="6" y="5" width="4" height="14" rx="0.5"/><rect x="14" y="12" width="4" height="7" rx="0.5"/></svg>`,
+    distill:    `<svg ${ICON_ATTRS}><path d="M4 5h16l-6 8v7l-4-2v-5z"/></svg>`,
+    polish:     `<svg ${ICON_ATTRS}><path d="M15 3l1 3 3 1-3 1-1 3-1-3-3-1 3-1z"/><path d="M7 13l0.6 1.8 1.8 0.6-1.8 0.6-0.6 1.8-0.6-1.8-1.8-0.6 1.8-0.6z"/></svg>`,
+    typeset:    `<svg ${ICON_ATTRS}><path d="M5 6h14" stroke-width="2.6"/><path d="M5 12h9" stroke-width="1.9"/><path d="M5 18h5" stroke-width="1.3"/></svg>`,
+    colorize:   `<svg ${ICON_ATTRS}><circle cx="9" cy="10" r="5"/><circle cx="15" cy="10" r="5"/><circle cx="12" cy="15" r="5"/></svg>`,
+    layout:     `<svg ${ICON_ATTRS}><rect x="3" y="4" width="8" height="16" rx="0.5"/><rect x="13" y="4" width="8" height="7" rx="0.5"/><rect x="13" y="13" width="8" height="7" rx="0.5"/></svg>`,
+    adapt:      `<svg ${ICON_ATTRS}><rect x="2.5" y="5" width="12" height="11" rx="1"/><line x1="2.5" y1="19" x2="14.5" y2="19"/><rect x="16.5" y="8" width="5" height="11" rx="1"/></svg>`,
+    animate:    `<svg ${ICON_ATTRS}><path d="M3 18c4-4 6-10 10-10"/><path d="M13 8c3 0 5 5 8 10"/><circle cx="13" cy="8" r="1.6" fill="currentColor" stroke="none"/></svg>`,
+    delight:    `<svg ${ICON_ATTRS}><path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></svg>`,
+    overdrive:  `<svg ${ICON_ATTRS}><path d="M13 3L5 13h5l-1 8 9-12h-6z"/></svg>`,
+  };
 
   const ACTIONS = [
     { value: 'impeccable', label: 'Freeform' },
@@ -756,7 +778,21 @@
   // The Bar — one floating element, three modes
   // ---------------------------------------------------------------------------
 
+  // Contextual-bar palette. Cached at init so every build*Row reads a
+  // consistent set of colors; detectPageTheme runs once rather than on every
+  // phase transition.
+  let BP = null;
+
+  // Bar shadow variants. The default projects down + subtle around. When
+  // the Tune popover opens below the bar, a downward shadow lands on the
+  // dark popover and reads as a bright ghost line. We swap to UP-only while
+  // tune is open below so the popover's top edge is clean.
+  const BAR_SHADOW_DEFAULT = '0 4px 20px oklch(0% 0 0 / 0.08), 0 1px 3px oklch(0% 0 0 / 0.06)';
+  const BAR_SHADOW_UP = '0 -4px 20px oklch(0% 0 0 / 0.08), 0 -1px 3px oklch(0% 0 0 / 0.06)';
+  const BAR_SHADOW_DOWN = BAR_SHADOW_DEFAULT;
+
   function initBar() {
+    BP = barPaletteForTheme(detectPageTheme());
     barEl = document.createElement('div');
     barEl.id = PREFIX + '-bar';
     Object.assign(barEl.style, {
@@ -764,15 +800,15 @@
       display: 'none', opacity: '0',
       transform: 'translateY(6px)',
       transition: 'opacity 0.25s ' + EASE + ', transform 0.3s ' + EASE,
-      // Visual
-      background: C.paper,
+      background: BP.surface,
       backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
-      border: '1px solid ' + C.mist,
+      border: '1px solid ' + BP.hairline,
       borderRadius: '10px',
-      boxShadow: '0 4px 20px oklch(0% 0 0 / 0.08), 0 1px 3px oklch(0% 0 0 / 0.06)',
-      fontFamily: FONT, fontSize: '13px', color: C.ink,
+      boxShadow: BAR_SHADOW_DEFAULT,
+      transition: 'box-shadow 0.2s ease, opacity 0.25s ' + EASE + ', transform 0.3s ' + EASE,
+      fontFamily: FONT, fontSize: '13px', color: BP.text,
       padding: '6px',
-      maxWidth: '460px', minWidth: '320px',
+      maxWidth: '520px', minWidth: '320px',
     });
     document.body.appendChild(barEl);
   }
@@ -824,14 +860,15 @@
     barEl.style.transform = 'translateY(6px)';
     setTimeout(() => { if (barEl) barEl.style.display = 'none'; }, 250);
     hideActionPicker();
+    closeTunePopover();
   }
 
   function updateBarContent(mode) {
     if (!barEl || barEl.style.display === 'none') return;
     barEl.innerHTML = '';
-    // Reset bar styling
-    barEl.style.background = C.paper;
-    barEl.style.border = '1px solid ' + C.mist;
+    // Reset bar styling to the theme-aware palette
+    barEl.style.background = BP.surface;
+    barEl.style.border = '1px solid ' + BP.hairline;
     if (mode === 'configure') barEl.appendChild(buildConfigureRow());
     else if (mode === 'generating') barEl.appendChild(buildGeneratingRow());
     else if (mode === 'cycling') barEl.appendChild(buildCyclingRow());
@@ -854,15 +891,15 @@
     const pill = el('button', {
       display: 'inline-flex', alignItems: 'center', gap: '4px',
       padding: '5px 10px', borderRadius: '6px',
-      background: C.ink, color: C.white,
+      background: BP.mark, color: BP.markText,
       fontFamily: FONT, fontSize: '12px', fontWeight: '500',
       border: 'none', cursor: 'pointer',
       transition: 'background 0.12s ease, transform 0.1s ease',
       whiteSpace: 'nowrap', flexShrink: '0',
     });
     pill.textContent = actionLabel() + ' \u25BE';
-    pill.addEventListener('mouseenter', () => pill.style.background = C.brandHov);
-    pill.addEventListener('mouseleave', () => pill.style.background = C.ink);
+    pill.addEventListener('mouseenter', () => pill.style.background = BP.accent);
+    pill.addEventListener('mouseleave', () => pill.style.background = BP.mark);
     pill.addEventListener('mousedown', () => pill.style.transform = 'scale(0.97)');
     pill.addEventListener('mouseup', () => pill.style.transform = 'scale(1)');
     pill.addEventListener('click', (e) => { e.stopPropagation(); toggleActionPicker(); });
@@ -877,13 +914,13 @@
       flex: '1', minWidth: '0',
       padding: '5px 8px', borderRadius: '6px',
       border: '1px solid transparent', background: 'transparent',
-      fontFamily: FONT, fontSize: '12px', color: C.ink,
+      fontFamily: FONT, fontSize: '12px', color: BP.text,
       outline: 'none',
       transition: 'border-color 0.15s ease, background 0.15s ease',
     });
     input.addEventListener('focus', () => {
-      input.style.borderColor = C.mist;
-      input.style.background = C.white;
+      input.style.borderColor = BP.hairline;
+      input.style.background = BP.accentSoft;
     });
     input.addEventListener('blur', () => {
       input.style.borderColor = 'transparent';
@@ -901,16 +938,16 @@
     // Variant count toggle
     const count = el('button', {
       padding: '4px 6px', borderRadius: '5px',
-      border: '1px solid ' + C.mist, background: 'transparent',
+      border: '1px solid ' + BP.hairline, background: 'transparent',
       fontFamily: MONO, fontSize: '11px', fontWeight: '600',
-      color: C.ash, cursor: 'pointer',
+      color: BP.textDim, cursor: 'pointer',
       transition: 'color 0.12s ease, border-color 0.12s ease',
       flexShrink: '0', whiteSpace: 'nowrap',
     });
     count.textContent = '\u00D7' + selectedCount;
     count.title = 'Variants: click to change';
-    count.addEventListener('mouseenter', () => { count.style.color = C.ink; count.style.borderColor = C.ink; });
-    count.addEventListener('mouseleave', () => { count.style.color = C.ash; count.style.borderColor = C.mist; });
+    count.addEventListener('mouseenter', () => { count.style.color = BP.text; count.style.borderColor = BP.text; });
+    count.addEventListener('mouseleave', () => { count.style.color = BP.textDim; count.style.borderColor = BP.hairline; });
     count.addEventListener('click', (e) => {
       e.stopPropagation();
       selectedCount = selectedCount >= 4 ? 2 : selectedCount + 1;
@@ -921,15 +958,15 @@
     // Go button
     const go = el('button', {
       padding: '5px 12px', borderRadius: '6px',
-      border: 'none', background: C.brand, color: C.white,
+      border: 'none', background: BP.accent, color: BP.mark,
       fontFamily: FONT, fontSize: '12px', fontWeight: '600',
       cursor: 'pointer',
-      transition: 'background 0.12s ease, transform 0.1s ease',
+      transition: 'filter 0.12s ease, transform 0.1s ease',
       flexShrink: '0', whiteSpace: 'nowrap',
     });
     go.textContent = 'Go \u2192';
-    go.addEventListener('mouseenter', () => go.style.background = C.brandHov);
-    go.addEventListener('mouseleave', () => go.style.background = C.brand);
+    go.addEventListener('mouseenter', () => go.style.filter = 'brightness(1.1)');
+    go.addEventListener('mouseleave', () => go.style.filter = 'none');
     go.addEventListener('mousedown', () => go.style.transform = 'scale(0.97)');
     go.addEventListener('mouseup', () => go.style.transform = 'scale(1)');
     go.addEventListener('click', (e) => { e.stopPropagation(); handleGo(); });
@@ -950,7 +987,7 @@
 
     // Action label
     const label = el('span', {
-      fontWeight: '600', fontSize: '12px', color: C.ink,
+      fontWeight: '600', fontSize: '12px', color: BP.text,
       flexShrink: '0', whiteSpace: 'nowrap',
     });
     label.textContent = actionLabel();
@@ -961,7 +998,7 @@
 
     // Status
     const status = el('span', {
-      fontSize: '11px', color: C.ash, whiteSpace: 'nowrap',
+      fontSize: '11px', color: BP.textDim, whiteSpace: 'nowrap',
       marginLeft: 'auto',
     });
     // Variants currently arrive atomically in a single file edit, so a
@@ -975,6 +1012,8 @@
   }
 
   // --- Cycling row ---
+
+  const TUNE_ICON_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="flex-shrink:0"><line x1="4" y1="8" x2="20" y2="8"/><circle cx="14" cy="8" r="2.4" fill="currentColor" stroke="none"/><line x1="4" y1="16" x2="20" y2="16"/><circle cx="10" cy="16" r="2.4" fill="currentColor" stroke="none"/></svg>';
 
   function buildCyclingRow() {
     const row = el('div', {
@@ -994,7 +1033,7 @@
     // Counter
     const counter = el('span', {
       fontFamily: MONO, fontSize: '11px', fontWeight: '500',
-      color: C.ash, minWidth: '24px', textAlign: 'center',
+      color: BP.textDim, minWidth: '24px', textAlign: 'center',
     });
     counter.textContent = visibleVariant + '/' + arrivedVariants;
     row.appendChild(counter);
@@ -1005,20 +1044,67 @@
     if (visibleVariant >= arrivedVariants) next.style.opacity = '0.3';
     row.appendChild(next);
 
+    // Tune chip — only when the visible variant exposes params
+    const visParams = parseVariantParams(getVisibleVariantEl());
+    const hasParams = visParams.length > 0;
+    if (hasParams) {
+      const tune = el('button', {
+        display: 'inline-flex', alignItems: 'center', gap: '6px',
+        padding: '4px 10px', borderRadius: '5px',
+        border: '1px solid transparent',
+        background: tuneOpen ? BP.accentSoft : 'transparent',
+        color: tuneOpen ? BP.accent : BP.text,
+        fontFamily: FONT, fontSize: '11px', fontWeight: '500',
+        cursor: 'pointer',
+        transition: 'color 0.12s ease, background 0.12s ease',
+        whiteSpace: 'nowrap',
+      });
+      tune.innerHTML = TUNE_ICON_SVG;
+      const tuneLabel = document.createElement('span');
+      tuneLabel.textContent = 'Tune';
+      tune.appendChild(tuneLabel);
+      const tuneBadge = document.createElement('span');
+      Object.assign(tuneBadge.style, {
+        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+        minWidth: '16px', height: '16px', padding: '0 4px',
+        borderRadius: '999px',
+        background: tuneOpen ? C.brand : BP.hairline,
+        color: tuneOpen ? 'oklch(98% 0 0)' : 'inherit',
+        fontFamily: MONO, fontSize: '9.5px', fontWeight: '600',
+        lineHeight: '1',
+        boxSizing: 'border-box',
+      });
+      tuneBadge.textContent = String(visParams.length);
+      tune.appendChild(tuneBadge);
+      tune.title = 'Tune this variant (' + visParams.length + ' knob' + (visParams.length === 1 ? '' : 's') + ')';
+      tune.addEventListener('mouseenter', () => {
+        if (!tuneOpen) tune.style.background = BP.accentSoft;
+      });
+      tune.addEventListener('mouseleave', () => {
+        if (!tuneOpen) tune.style.background = 'transparent';
+      });
+      tune.addEventListener('click', (e) => { e.stopPropagation(); toggleTunePopover(); });
+      tune.dataset.iceqTune = '1';
+      row.appendChild(tune);
+    }
+
     // Spacer
     row.appendChild(el('div', { flex: '1' }));
 
-    // Accept
+    // Accept — primary action, uses the site's saturated brand magenta
+    // with paper-white text, not the theme-muted BP.accent.
     const accept = el('button', {
-      padding: '4px 10px', borderRadius: '5px',
-      border: 'none', background: C.ink, color: C.white,
+      padding: '5px 14px', borderRadius: '5px',
+      border: 'none', background: C.brand, color: 'oklch(98% 0 0)',
       fontFamily: FONT, fontSize: '11px', fontWeight: '600',
-      cursor: 'pointer', transition: 'background 0.12s ease',
+      cursor: 'pointer', transition: 'filter 0.12s ease, transform 0.1s ease',
       whiteSpace: 'nowrap',
     });
     accept.textContent = '\u2713 Accept';
-    accept.addEventListener('mouseenter', () => accept.style.background = C.brand);
-    accept.addEventListener('mouseleave', () => accept.style.background = C.ink);
+    accept.addEventListener('mouseenter', () => accept.style.filter = 'brightness(1.08)');
+    accept.addEventListener('mouseleave', () => accept.style.filter = 'none');
+    accept.addEventListener('mousedown', () => accept.style.transform = 'scale(0.97)');
+    accept.addEventListener('mouseup', () => accept.style.transform = 'scale(1)');
     accept.addEventListener('click', (e) => { e.stopPropagation(); handleAccept(); });
     if (arrivedVariants === 0) { accept.style.opacity = '0.3'; accept.style.pointerEvents = 'none'; }
     row.appendChild(accept);
@@ -1026,14 +1112,14 @@
     // Discard
     const discard = el('button', {
       padding: '4px 6px', borderRadius: '5px',
-      border: '1px solid ' + C.mist, background: 'transparent',
-      fontFamily: FONT, fontSize: '11px', color: C.ash,
+      border: '1px solid ' + BP.hairline, background: 'transparent',
+      fontFamily: FONT, fontSize: '11px', color: BP.textDim,
       cursor: 'pointer', transition: 'color 0.12s ease, border-color 0.12s ease',
     });
     discard.textContent = '\u2715';
     discard.title = 'Discard all variants';
-    discard.addEventListener('mouseenter', () => { discard.style.color = C.ink; discard.style.borderColor = C.ink; });
-    discard.addEventListener('mouseleave', () => { discard.style.color = C.ash; discard.style.borderColor = C.mist; });
+    discard.addEventListener('mouseenter', () => { discard.style.color = BP.text; discard.style.borderColor = BP.text; });
+    discard.addEventListener('mouseleave', () => { discard.style.color = BP.textDim; discard.style.borderColor = BP.hairline; });
     discard.addEventListener('click', (e) => { e.stopPropagation(); handleDiscard(); });
     row.appendChild(discard);
 
@@ -1051,14 +1137,14 @@
     });
     const spinner = el('div', {
       width: '14px', height: '14px', borderRadius: '50%',
-      border: '2px solid ' + C.mist,
-      borderTopColor: C.brand,
+      border: '2px solid ' + BP.hairline,
+      borderTopColor: BP.accent,
       animation: 'impeccable-spin 0.6s linear infinite',
       flexShrink: '0',
     });
     row.appendChild(spinner);
     const label = el('span', {
-      fontSize: '12px', color: C.ash, fontWeight: '500',
+      fontSize: '12px', color: BP.textDim, fontWeight: '500',
     });
     label.textContent = 'Applying variant...';
     row.appendChild(label);
@@ -1103,14 +1189,26 @@
     for (let i = 1; i <= expectedVariants; i++) {
       const arrived = i <= arrivedVariants;
       const active = i === visibleVariant;
+      // active: solid site-brand magenta dot. arrived+inactive: muted neutral.
+      // pending (not yet arrived): faint outline ring. No borders on arrived
+      // dots — the previous "accent ring + ash fill" combo read as noisy
+      // magenta chips, especially when all variants had arrived and every
+      // dot wore an accent ring.
+      const dotBg = active ? C.brand
+        : arrived ? BP.textDim
+        : 'transparent';
+      const dotBorder = arrived ? 'none' : '1.5px solid ' + BP.hairline;
       const dot = el('div', {
-        width: '7px', height: '7px', borderRadius: '50%',
-        background: active ? C.brand : (arrived ? C.ash : 'transparent'),
-        border: '1.5px solid ' + (arrived ? C.brand : C.mist),
+        width: active ? '8px' : '6px',
+        height: active ? '8px' : '6px',
+        borderRadius: '50%',
+        background: dotBg,
+        border: dotBorder,
+        boxSizing: 'border-box',
         transition: 'all 0.2s ' + EASE,
         cursor: (clickable && arrived) ? 'pointer' : 'default',
-        transform: arrived ? 'scale(1)' : 'scale(0.6)',
-        opacity: arrived ? '1' : '0.4',
+        transform: arrived ? 'scale(1)' : 'scale(0.85)',
+        opacity: arrived ? (active ? '1' : '0.6') : '0.4',
       });
       if (clickable && arrived) {
         const idx = i;
@@ -1130,15 +1228,15 @@
   function navBtn(text) {
     const b = el('button', {
       width: '26px', height: '26px', borderRadius: '5px',
-      border: '1px solid ' + C.mist, background: 'transparent',
-      color: C.ink, fontFamily: FONT, fontSize: '13px',
+      border: '1px solid ' + BP.hairline, background: 'transparent',
+      color: BP.text, fontFamily: FONT, fontSize: '13px',
       cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
       transition: 'border-color 0.12s ease, background 0.12s ease',
       padding: '0', lineHeight: '1',
     });
     b.textContent = text;
-    b.addEventListener('mouseenter', () => { b.style.borderColor = C.ink; });
-    b.addEventListener('mouseleave', () => { b.style.borderColor = C.mist; });
+    b.addEventListener('mouseenter', () => { b.style.borderColor = BP.text; });
+    b.addEventListener('mouseleave', () => { b.style.borderColor = BP.hairline; });
     return b;
   }
 
@@ -1158,6 +1256,7 @@
   // ---------------------------------------------------------------------------
 
   function initActionPicker() {
+    const P = barPaletteForTheme(detectPageTheme());
     pickerEl = document.createElement('div');
     pickerEl.id = PREFIX + '-picker';
     Object.assign(pickerEl.style, {
@@ -1166,12 +1265,14 @@
       transform: 'scale(0.96) translateY(4px)',
       transformOrigin: 'bottom left',
       transition: 'opacity 0.18s ' + EASE + ', transform 0.2s ' + EASE,
-      background: C.paperSolid,
-      border: '1px solid ' + C.mist,
+      background: P.surface,
+      border: '1px solid ' + P.hairline,
       borderRadius: '10px',
       boxShadow: '0 8px 30px oklch(0% 0 0 / 0.10), 0 2px 6px oklch(0% 0 0 / 0.06)',
       padding: '6px',
       fontFamily: FONT,
+      backdropFilter: 'blur(10px)',
+      WebkitBackdropFilter: 'blur(10px)',
     });
 
     // Build the chip grid
@@ -1181,22 +1282,32 @@
 
     ACTIONS.forEach(action => {
       const chip = el('button', {
-        padding: '6px 8px', borderRadius: '6px',
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        gap: '4px',
+        padding: '8px 6px', borderRadius: '6px',
         border: 'none',
-        background: action.value === selectedAction ? C.brandSoft : 'transparent',
-        color: action.value === selectedAction ? C.brand : C.ink,
+        background: action.value === selectedAction ? P.accentSoft : 'transparent',
+        color: action.value === selectedAction ? P.accent : P.text,
         fontFamily: FONT, fontSize: '11px', fontWeight: '500',
         cursor: 'pointer',
         transition: 'background 0.1s ease, color 0.1s ease',
         textAlign: 'center', whiteSpace: 'nowrap',
       });
-      chip.textContent = action.label;
+      const iconWrap = el('span', {
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        height: '20px', opacity: '0.9',
+      });
+      iconWrap.innerHTML = ICONS[action.value] || '';
+      const labelEl = el('span', { lineHeight: '1' });
+      labelEl.textContent = action.label;
+      chip.appendChild(iconWrap);
+      chip.appendChild(labelEl);
       chip.dataset.action = action.value;
       chip.addEventListener('mouseenter', () => {
-        if (action.value !== selectedAction) chip.style.background = C.brandSoft;
+        if (action.value !== selectedAction) chip.style.background = P.accentSoft;
       });
       chip.addEventListener('mouseleave', () => {
-        chip.style.background = action.value === selectedAction ? C.brandSoft : 'transparent';
+        chip.style.background = action.value === selectedAction ? P.accentSoft : 'transparent';
       });
       chip.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -1209,19 +1320,24 @@
 
     pickerEl.appendChild(grid);
     document.body.appendChild(pickerEl);
+
+    // Cache the palette on the picker so toggleActionPicker's state refresh
+    // uses the same theme-aware colors when it repaints chips.
+    pickerEl.__iceq_palette = P;
   }
 
   function toggleActionPicker() {
     if (pickerEl.style.display !== 'none') { hideActionPicker(); return; }
     // Rebuild chips to reflect current selection
+    const P = pickerEl.__iceq_palette || barPaletteForTheme(detectPageTheme());
     pickerEl.querySelectorAll('button').forEach(chip => {
       const isActive = chip.dataset.action === selectedAction;
-      chip.style.background = isActive ? C.brandSoft : 'transparent';
-      chip.style.color = isActive ? C.brand : C.ink;
+      chip.style.background = isActive ? P.accentSoft : 'transparent';
+      chip.style.color = isActive ? P.accent : P.text;
     });
     // Position above the bar
     const barRect = barEl.getBoundingClientRect();
-    const pickerH = 90; // approximate
+    const pickerH = 170; // approximate; grows with icon + label rows
     let top = barRect.top - pickerH - 6;
     if (top < 8) top = barRect.bottom + 6;
     Object.assign(pickerEl.style, {
@@ -1242,6 +1358,399 @@
   }
 
   // ---------------------------------------------------------------------------
+  // Params panel (per-variant coarse controls)
+  //
+  // Variants may declare a parameter manifest via a JSON attribute on the
+  // variant wrapper:
+  //
+  //   <div data-impeccable-variant="1"
+  //        data-impeccable-params='[{"id":"density","kind":"steps",...}]'>
+  //
+  // The panel docks to the right edge of the outline during CYCLING and
+  // exposes 2-5 coarse knobs. Values apply to the variant wrapper so scoped
+  // CSS can respond instantly without regeneration:
+  //
+  //   range  / numeric toggle  → CSS var  (`--p-<id>`)  used via var(--p-foo, N)
+  //   steps  / boolean toggle  → data-p-<id> attribute  used via :scope[data-p-foo="..."]
+  //
+  // On variant switch, values reset to that variant's declared defaults.
+  // On accept, current values are sent in the event payload so the agent
+  // can bake them into the source-file write.
+  // ---------------------------------------------------------------------------
+
+  let paramsPanelEl = null;     // outer wrapper (overflow:hidden, clips the slide)
+  let paramsPanelInner = null;  // translating content (carries bg, padding, knobs)
+  let paramsPanelBody = null;   // grid holding the knob cells
+  let paramsCurrentValues = {}; // {paramId: value} — mirror of the visible variant's live values
+  let tuneOpen = false;         // whether the Tune popover is open right now
+
+  // Theme-aware Tune popover. Appears as a drawer that slides out from the
+  // contextual bar's bar-facing edge (below if the bar sits below the
+  // element, above otherwise). Same width as the bar. Auto-wraps to extra
+  // rows when the knobs exceed one row. The bar's border-radius on the
+  // popover side goes flat while open so the two shapes read as one.
+  let paramsPanelPalette = null;
+
+  function initParamsPanel() {
+    paramsPanelPalette = barPaletteForTheme(detectPageTheme());
+    const P = paramsPanelPalette;
+
+    // Single element, always in the DOM. The slide animation is a CSS mask
+    // with mask-size growing from 0% to 100% along the bar-facing axis — no
+    // display toggle, no opacity toggle, no transform trickery. The mask
+    // hides everything initially; as it grows, content is revealed from
+    // the bar edge outward.
+    paramsPanelEl = document.createElement('div');
+    paramsPanelEl.id = PREFIX + '-params-panel';
+    Object.assign(paramsPanelEl.style, {
+      position: 'fixed', zIndex: String(Z.bar - 1),
+      background: P.surfaceDeep,
+      color: P.text,
+      fontFamily: FONT,
+      padding: '14px 18px',
+      boxSizing: 'border-box',
+      borderRadius: '0 0 10px 10px',
+      pointerEvents: 'none',
+      backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+
+      // clip-path is the same conceptual reveal as mask but with rock-solid
+      // transition support across engines. Closed state clips from the far
+      // edge; open = inset(0) shows everything.
+      clipPath: 'inset(0 0 100% 0)',
+      transition: 'clip-path 0.44s ' + EASE,
+
+      // Park off-screen until positionParamsPanel places it. These are NOT
+      // in the transition list, so they snap instantly — no fly-in from the
+      // top-left when first shown.
+      top: '-9999px', left: '-9999px', width: '0',
+    });
+
+    paramsPanelBody = el('div', {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+      gap: '12px 16px',
+    });
+
+    paramsPanelEl.appendChild(paramsPanelBody);
+    document.body.appendChild(paramsPanelEl);
+    paramsPanelInner = paramsPanelEl; // compatibility alias for the rest of the code
+  }
+
+  function getVisibleVariantEl() {
+    if (!currentSessionId) return null;
+    const wrapper = document.querySelector('[data-impeccable-variants="' + currentSessionId + '"]');
+    if (!wrapper) return null;
+    return wrapper.querySelector('[data-impeccable-variant="' + visibleVariant + '"]');
+  }
+
+  function parseVariantParams(variantEl) {
+    if (!variantEl) return [];
+    const raw = variantEl.getAttribute('data-impeccable-params');
+    if (!raw) return [];
+    try {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (err) {
+      console.warn('[impeccable] Invalid data-impeccable-params JSON:', err.message);
+      return [];
+    }
+  }
+
+  function applyParamValue(variantEl, param, value) {
+    if (!variantEl) return;
+    const attr = 'data-p-' + param.id;
+    if (param.kind === 'range') {
+      variantEl.style.setProperty('--p-' + param.id, String(value));
+    } else if (param.kind === 'toggle') {
+      const on = !!value;
+      variantEl.style.setProperty('--p-' + param.id, on ? '1' : '0');
+      if (on) variantEl.setAttribute(attr, 'on');
+      else variantEl.removeAttribute(attr);
+    } else if (param.kind === 'steps') {
+      variantEl.setAttribute(attr, String(value));
+    }
+  }
+
+  function applyParamDefaults(variantEl, params) {
+    paramsCurrentValues = {};
+    for (const p of params) {
+      paramsCurrentValues[p.id] = p.default;
+      applyParamValue(variantEl, p, p.default);
+    }
+  }
+
+  function formatRangeValue(input) {
+    const max = parseFloat(input.max), min = parseFloat(input.min);
+    const v = parseFloat(input.value);
+    if (!isFinite(v)) return input.value;
+    return (max - min) <= 2 ? v.toFixed(2) : String(Math.round(v));
+  }
+
+  function buildParamsPanel(variantEl, params) {
+    const P = paramsPanelPalette || barPaletteForTheme(detectPageTheme());
+    paramsPanelBody.innerHTML = '';
+    for (const p of params) {
+      const row = el('div', { display: 'flex', flexDirection: 'column', gap: '6px' });
+      const labelRow = el('div', {
+        display: 'flex', justifyContent: 'space-between',
+        alignItems: 'baseline', gap: '8px',
+      });
+      const lbl = el('span', {
+        fontSize: '10.5px', fontWeight: '600', color: P.text,
+        letterSpacing: '0.03em',
+      });
+      lbl.textContent = p.label || p.id;
+      labelRow.appendChild(lbl);
+      const readout = el('span', {
+        fontSize: '10.5px', color: P.textDim,
+        fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+      });
+      labelRow.appendChild(readout);
+      row.appendChild(labelRow);
+
+      if (p.kind === 'range') {
+        const input = document.createElement('input');
+        input.type = 'range';
+        input.min = String(p.min != null ? p.min : 0);
+        input.max = String(p.max != null ? p.max : 1);
+        input.step = String(p.step != null ? p.step : 0.05);
+        input.value = String(p.default);
+        Object.assign(input.style, {
+          width: '100%', accentColor: C.brand, cursor: 'pointer',
+        });
+        readout.textContent = formatRangeValue(input);
+        input.addEventListener('input', (e) => {
+          e.stopPropagation();
+          const v = parseFloat(input.value);
+          paramsCurrentValues[p.id] = v;
+          readout.textContent = formatRangeValue(input);
+          applyParamValue(variantEl, p, v);
+        });
+        row.appendChild(input);
+      } else if (p.kind === 'toggle') {
+        const initial = !!p.default;
+        readout.textContent = initial ? 'On' : 'Off';
+        const track = el('button', {
+          position: 'relative', width: '36px', height: '20px',
+          borderRadius: '10px', border: 'none', padding: '0',
+          cursor: 'pointer',
+          background: initial ? C.brand : P.hairline,
+          transition: 'background 0.15s ease',
+          alignSelf: 'flex-start',
+        });
+        const knob = el('span', {
+          position: 'absolute', top: '2px',
+          left: initial ? '18px' : '2px',
+          width: '16px', height: '16px', borderRadius: '50%',
+          background: 'oklch(98% 0 0)',
+          transition: 'left 0.18s ' + EASE,
+          boxShadow: '0 1px 2px oklch(0% 0 0 / 0.2)',
+        });
+        track.appendChild(knob);
+        track.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const next = !paramsCurrentValues[p.id];
+          paramsCurrentValues[p.id] = next;
+          track.style.background = next ? C.brand : P.hairline;
+          knob.style.left = next ? '18px' : '2px';
+          readout.textContent = next ? 'On' : 'Off';
+          applyParamValue(variantEl, p, next);
+        });
+        row.appendChild(track);
+      } else if (p.kind === 'steps') {
+        const opts = (p.options || []).map(o =>
+          typeof o === 'string' ? { value: o, label: o } : o
+        );
+        const activeOpt = opts.find(o => o.value === p.default) || opts[0];
+        readout.textContent = activeOpt ? activeOpt.label : String(p.default);
+        const segRow = el('div', {
+          display: 'grid',
+          gridTemplateColumns: 'repeat(' + opts.length + ', 1fr)',
+          gap: '1px', padding: '2px',
+          background: P.hairline, borderRadius: '5px',
+        });
+        const segBtns = [];
+        opts.forEach(o => {
+          const active = o.value === p.default;
+          const b = el('button', {
+            padding: '5px 4px', border: 'none', borderRadius: '3px',
+            background: active ? C.brand : 'transparent',
+            color: active ? 'oklch(98% 0 0)' : P.text,
+            fontFamily: FONT, fontSize: '10.5px', fontWeight: '500',
+            cursor: 'pointer', whiteSpace: 'nowrap',
+            transition: 'background 0.1s ease, color 0.1s ease',
+          });
+          b.textContent = o.label;
+          b.addEventListener('click', (e) => {
+            e.stopPropagation();
+            paramsCurrentValues[p.id] = o.value;
+            readout.textContent = o.label;
+            segBtns.forEach(({ btn, val }) => {
+              const on = val === o.value;
+              btn.style.background = on ? C.brand : 'transparent';
+              btn.style.color = on ? 'oklch(98% 0 0)' : P.text;
+            });
+            applyParamValue(variantEl, p, o.value);
+          });
+          segRow.appendChild(b);
+          segBtns.push({ btn: b, val: o.value });
+        });
+        row.appendChild(segRow);
+      }
+
+      paramsPanelBody.appendChild(row);
+    }
+  }
+
+  // Decide which way the popover opens: away from the picked element. If the
+  // bar landed below the element, popover slides DOWN from the bar's bottom.
+  // If the bar landed above, popover slides UP from the bar's top.
+  function popoverDirection() {
+    if (!barEl || !selectedElement) return 'below';
+    const br = barEl.getBoundingClientRect();
+    const er = selectedElement.getBoundingClientRect();
+    return br.top >= er.bottom - 4 ? 'below' : 'above';
+  }
+
+  // The popover overlaps the bar by OVERLAP px on the bar-facing side. With
+  // popover z-index below bar, that overlap sits behind bar (invisible) and
+  // reinforces the "tucked behind" feel. Padding compensates so the real
+  // content starts flush with bar's outer edge.
+  const TUNE_OVERLAP = 6;
+
+  // Closed clip-path depends on direction: for 'below' clip from the far
+  // (bottom) edge so the reveal grows downward from the bar; for 'above'
+  // clip from the top edge so the reveal grows upward from the bar.
+  function closedClipPath(direction) {
+    return direction === 'below' ? 'inset(0 0 100% 0)' : 'inset(100% 0 0 0)';
+  }
+
+  function setClipPath(value, withTransition) {
+    const saved = paramsPanelEl.style.transition;
+    if (!withTransition) paramsPanelEl.style.transition = 'none';
+    paramsPanelEl.style.clipPath = value;
+    if (!withTransition) {
+      void paramsPanelEl.offsetHeight;
+      paramsPanelEl.style.transition = saved;
+    }
+  }
+
+  function positionParamsPanel() {
+    if (!paramsPanelEl || !barEl || barEl.style.display === 'none') return;
+    const br = barEl.getBoundingClientRect();
+    const direction = popoverDirection();
+    const prevDirection = paramsPanelEl.dataset.tuneDirection;
+
+    // top/left/width are NOT in the transition list, so they snap instantly.
+    paramsPanelEl.style.left = br.left + 'px';
+    paramsPanelEl.style.width = br.width + 'px';
+
+    if (direction === 'below') {
+      paramsPanelEl.style.top = (br.bottom - TUNE_OVERLAP) + 'px';
+      paramsPanelEl.style.borderRadius = '0 0 10px 10px';
+      paramsPanelEl.style.paddingTop = (14 + TUNE_OVERLAP) + 'px';
+      paramsPanelEl.style.paddingBottom = '14px';
+    } else {
+      const ih = paramsPanelEl.offsetHeight || 80;
+      paramsPanelEl.style.top = (br.top - ih + TUNE_OVERLAP) + 'px';
+      paramsPanelEl.style.borderRadius = '10px 10px 0 0';
+      paramsPanelEl.style.paddingTop = '14px';
+      paramsPanelEl.style.paddingBottom = (14 + TUNE_OVERLAP) + 'px';
+    }
+    paramsPanelEl.dataset.tuneDirection = direction;
+
+    // If currently closed and direction flipped (or first-time setup),
+    // snap the clip-path to the new direction's closed pose without
+    // transitioning (so the clip doesn't slide across the element).
+    if (!tuneOpen && (!prevDirection || prevDirection !== direction)) {
+      setClipPath(closedClipPath(direction), false);
+    }
+  }
+
+  function showParamsPanel() {
+    if (!paramsPanelEl) return;
+    positionParamsPanel();
+    paramsPanelEl.style.pointerEvents = 'auto';
+    // rAF so the positioning paint commits before the transition fires.
+    requestAnimationFrame(() => {
+      setClipPath('inset(0 0 0 0)', true);
+    });
+  }
+
+  function hideParamsPanel() {
+    if (!paramsPanelEl) return;
+    paramsPanelEl.style.pointerEvents = 'none';
+    const direction = paramsPanelEl.dataset.tuneDirection || 'below';
+    setClipPath(closedClipPath(direction), true);
+  }
+
+  // Build/rebuild the panel's contents for the current variant AND apply
+  // its defaults to the variant wrapper (so scoped CSS responds even before
+  // the user opens the popover). Visibility is governed by tuneOpen.
+  function refreshParamsPanel() {
+    if (state !== 'CYCLING') {
+      paramsCurrentValues = {};
+      tuneOpen = false;
+      hideParamsPanel();
+      return;
+    }
+    const variantEl = getVisibleVariantEl();
+    const params = parseVariantParams(variantEl);
+    if (!variantEl || params.length === 0) {
+      paramsCurrentValues = {};
+      tuneOpen = false;
+      hideParamsPanel();
+      return;
+    }
+    applyParamDefaults(variantEl, params);
+    buildParamsPanel(variantEl, params);
+    if (tuneOpen) {
+      // If already visible (variant cycled while open), refresh in place
+      // instead of re-running the clip-path animation.
+      const alreadyVisible = paramsPanelEl.style.display === 'block'
+        && paramsPanelEl.style.opacity === '1';
+      if (alreadyVisible) positionParamsPanel();
+      else showParamsPanel();
+    } else {
+      hideParamsPanel();
+    }
+  }
+
+  function toggleTunePopover() {
+    if (tuneOpen) { closeTunePopover(); return; }
+    openTunePopover();
+  }
+
+  function openTunePopover() {
+    if (state !== 'CYCLING') return;
+    const variantEl = getVisibleVariantEl();
+    const params = parseVariantParams(variantEl);
+    if (!variantEl || params.length === 0) return;
+    // Build fresh to ensure the current variant's controls are shown.
+    applyParamDefaults(variantEl, params);
+    buildParamsPanel(variantEl, params);
+    tuneOpen = true;
+    showParamsPanel();
+    // Kill the bar's shadow on the popover-facing side so the dark popover
+    // doesn't pick up a bright glow line.
+    if (barEl) {
+      const direction = paramsPanelEl?.dataset.tuneDirection || 'below';
+      barEl.style.boxShadow = direction === 'below' ? BAR_SHADOW_UP : BAR_SHADOW_DOWN;
+    }
+    // Re-render the bar so the Tune chip picks up the active styling.
+    updateBarContent('cycling');
+  }
+
+  function closeTunePopover() {
+    tuneOpen = false;
+    hideParamsPanel();
+    if (barEl) barEl.style.boxShadow = BAR_SHADOW_DEFAULT;
+    if (barEl && barEl.style.display !== 'none' && state === 'CYCLING') {
+      updateBarContent('cycling');
+    }
+  }
+
+  // ---------------------------------------------------------------------------
   // Variant cycling in DOM
   // ---------------------------------------------------------------------------
 
@@ -1253,6 +1762,10 @@
       if (!v) continue;
       child.style.display = (v === String(num)) ? '' : 'none';
     }
+    // Unconditional refresh — covers first-reveal (no-op if state isn't
+    // CYCLING yet, the subsequent CYCLING transition triggers its own
+    // refresh) and every cycle step.
+    refreshParamsPanel();
   }
 
   /**
@@ -1316,6 +1829,7 @@
         state = 'CYCLING';
         hideShaderOverlay();
         updateBarContent('cycling');
+        refreshParamsPanel();
         saveSession();
         console.log('[impeccable] Injected ' + arrivedVariants + ' variants from source file.');
       })
@@ -1329,7 +1843,7 @@
     const next = visibleVariant + dir;
     if (next < 1 || next > arrivedVariants) return;
     visibleVariant = next;
-    showVariantInDOM(currentSessionId, next);
+    showVariantInDOM(currentSessionId, next); // calls refreshParamsPanel itself
     updateSelectedElement();
     updateBarContent('cycling');
     saveSession();
@@ -1540,6 +2054,7 @@
         state = 'CYCLING';
         hideShaderOverlay();
         updateBarContent('cycling');
+        refreshParamsPanel();
       } else if (state === 'GENERATING') {
         updateBarContent('generating');
       }
@@ -1560,6 +2075,7 @@
       if (state === 'CONFIGURING' || state === 'GENERATING' || state === 'CYCLING') {
         positionBar();
         showHighlight(selectedElement);
+        if (tuneOpen) positionParamsPanel();
       }
       if (annotActive) positionAnnotOverlay(selectedElement);
       // Shader overlay (via debug P toggle or generation) is repositioned
@@ -1606,6 +2122,7 @@
             if (state === 'GENERATING') {
               state = 'CYCLING';
               updateBarContent('cycling');
+              refreshParamsPanel();
             }
             break;
           }
@@ -1690,6 +2207,10 @@
     // Close action picker on any outside click
     if (pickerEl?.style.display !== 'none' && !own(e.target)) {
       hideActionPicker();
+    }
+    // Close Tune popover on outside click (anything outside panel + bar)
+    if (tuneOpen && paramsPanelEl && !paramsPanelEl.contains(e.target) && barEl && !barEl.contains(e.target)) {
+      closeTunePopover();
     }
     // In CONFIGURING: click outside the bar and selected element returns to PICKING
     if (state === 'CONFIGURING' && !own(e.target) && selectedElement && !selectedElement.contains(e.target)) {
@@ -2258,7 +2779,11 @@ void main() {
 
   function handleAccept() {
     if (!currentSessionId || arrivedVariants === 0) return;
-    sendEvent({ type: 'accept', id: currentSessionId, variantId: String(visibleVariant) });
+    const acceptPayload = { type: 'accept', id: currentSessionId, variantId: String(visibleVariant) };
+    if (Object.keys(paramsCurrentValues).length > 0) {
+      acceptPayload.paramValues = { ...paramsCurrentValues };
+    }
+    sendEvent(acceptPayload);
     markSessionHandled();
 
     // The accepted variant is already the only visible child of the wrapper
@@ -2477,6 +3002,11 @@ void main() {
     state = arrivedVariants >= expectedVariants ? 'CYCLING' : 'GENERATING';
     showBar(state === 'CYCLING' ? 'cycling' : 'generating');
     startScrollTracking();
+    // Build the params panel for the restored visible variant. Previously
+    // this was missed on page-reload resume: showVariantInDOM above fires
+    // refreshParamsPanel, but state was still IDLE at that moment so it
+    // hid. Now that state is CYCLING, re-fire.
+    if (state === 'CYCLING') refreshParamsPanel();
     saveSession();
 
     // Start observing for more variants AFTER initial setup
@@ -2522,6 +3052,11 @@ void main() {
   // dark pages. This keeps the bar from fighting with the host design.
   function detectPageTheme() {
     try {
+      // Dev override: set localStorage 'impeccable-dev-theme' to 'light' or
+      // 'dark' to preview the opposite palette without actually changing the
+      // page bg. Used for screenshots and theme QA.
+      const override = localStorage.getItem('impeccable-dev-theme');
+      if (override === 'light' || override === 'dark') return override;
       const bg = getComputedStyle(document.body).backgroundColor
         || getComputedStyle(document.documentElement).backgroundColor;
       const m = bg.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
@@ -2538,6 +3073,7 @@ void main() {
       // Light bar on dark page
       return {
         surface: 'oklch(98% 0 0 / 0.92)',
+        surfaceDeep: 'oklch(92% 0.005 60 / 0.96)', // slightly deeper, faint warm
         hairline: 'oklch(70% 0 0 / 0.35)',
         text: 'oklch(15% 0 0)',
         textDim: 'oklch(45% 0 0)',
@@ -2552,6 +3088,7 @@ void main() {
     // deeper so the rounded-right shape reads as a clear sculpted mark.
     return {
       surface: 'oklch(26% 0 0 / 0.94)',
+      surfaceDeep: 'oklch(18% 0 0 / 0.96)', // darker sand for Tune popover
       hairline: 'oklch(42% 0 0 / 0.5)',
       text: 'oklch(96% 0 0)',
       textDim: 'oklch(72% 0 0)',
@@ -2883,6 +3420,7 @@ void main() {
     if (tooltipEl) { tooltipEl.remove(); tooltipEl = null; }
     if (barEl) { barEl.remove(); barEl = null; }
     if (pickerEl) { pickerEl.remove(); pickerEl = null; }
+    if (paramsPanelEl) { paramsPanelEl.remove(); paramsPanelEl = null; paramsPanelInner = null; paramsPanelBody = null; }
     if (evtSource) { evtSource.close(); evtSource = null; }
     document.removeEventListener('mousemove', handleMouseMove, true);
     document.removeEventListener('click', handleClick, true);
@@ -3956,6 +4494,7 @@ void main() {
     initAnnotOverlay();
     initBar();
     initActionPicker();
+    initParamsPanel();
     initGlobalBar();
     initDesignPanel();
     document.addEventListener('mousemove', handleMouseMove, true);

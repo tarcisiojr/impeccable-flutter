@@ -145,6 +145,11 @@ Options:
       const scriptArgs = event.type === 'discard'
         ? ['--id', event.id, '--discard']
         : ['--id', event.id, '--variant', event.variantId];
+      if (event.type === 'accept' && event.paramValues && Object.keys(event.paramValues).length > 0) {
+        // Pass through a JSON blob; the shell-safe wrap uses single quotes because
+        // values are finite {id, number|string|boolean} pairs from a validated payload.
+        scriptArgs.push('--param-values', `'${JSON.stringify(event.paramValues).replace(/'/g, "'\\''")}'`);
+      }
       try {
         const out = execSync(
           `node "${acceptScript}" ${scriptArgs.join(' ')}`,

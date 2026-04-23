@@ -452,6 +452,14 @@
   margin-left: 6px;
 }
 
+.section-title .beta-badge {
+  font-size: 0.6875rem;
+  padding: 2px 7px;
+  border-radius: 4px;
+  vertical-align: 0.35em;
+  margin-left: 10px;
+}
+
 .manual-cmd-desc {
   font-size: 0.875rem;
   line-height: 1.5;

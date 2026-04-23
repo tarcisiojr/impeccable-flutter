@@ -2,6 +2,27 @@
 tagline: "Pull reusable components, tokens, and patterns into the design system."
 ---
 
+<div class="docs-viz-hero">
+  <div class="docs-viz-flow">
+    <div class="docs-viz-flow-step">
+      <span class="docs-viz-flow-num">01</span>
+      <span class="docs-viz-flow-name">Discover drift</span>
+      <span class="docs-viz-flow-hint">Repeated hex values, button variants, spacing scales, text styles.</span>
+    </div>
+    <div class="docs-viz-flow-step">
+      <span class="docs-viz-flow-num">02</span>
+      <span class="docs-viz-flow-name">Propose primitives</span>
+      <span class="docs-viz-flow-hint">Token names, component APIs with variant + size, text styles.</span>
+    </div>
+    <div class="docs-viz-flow-step docs-viz-flow-step--accent">
+      <span class="docs-viz-flow-num">03</span>
+      <span class="docs-viz-flow-name">Migrate call sites</span>
+      <span class="docs-viz-flow-hint">Replace duplicated CSS with the new primitives. No orphan code left behind.</span>
+    </div>
+  </div>
+  <p class="docs-viz-caption">The skill only extracts what's used three or more times with the same intent. Two usages are not a pattern, and migration always happens in the same pass.</p>
+</div>
+
 ## When to use it
 
 `/impeccable extract` is for the moment your codebase has accidentally become a design system. Repeated button styles in 12 places. Three variants of the same card. Hex colors scattered throughout. Hand-rolled spacing that accidentally matches a scale. Reach for it when you want to consolidate this drift into reusable primitives.

@@ -147,6 +147,11 @@ function validateEvent(msg) {
     case 'accept':
       if (!msg.id) return 'accept: missing id';
       if (!msg.variantId) return 'accept: missing variantId';
+      if (msg.paramValues !== undefined) {
+        if (typeof msg.paramValues !== 'object' || msg.paramValues === null || Array.isArray(msg.paramValues)) {
+          return 'accept: paramValues must be an object';
+        }
+      }
       return null;
     case 'discard':
       return msg.id ? null : 'discard: missing id';

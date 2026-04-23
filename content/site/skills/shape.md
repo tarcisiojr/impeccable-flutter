@@ -2,6 +2,39 @@
 tagline: "Think before you build. Produce a design brief through discovery, not guesswork."
 ---
 
+<div class="docs-viz-hero">
+  <div class="docs-viz-file">
+    <div class="docs-viz-file-header">
+      <span class="docs-viz-file-name">brief.md</span>
+      <span class="docs-viz-file-status">Output of /impeccable shape</span>
+    </div>
+    <div class="docs-viz-file-body">
+      <div class="docs-viz-file-row">
+        <span class="docs-viz-file-k">Purpose</span>
+        <span class="docs-viz-file-v">Let committed subscribers change what they get without losing them to unsubscribe.</span>
+      </div>
+      <div class="docs-viz-file-row">
+        <span class="docs-viz-file-k">User</span>
+        <span class="docs-viz-file-v">Rushed, on mobile, mid-meeting. Reading fast, low patience.</span>
+      </div>
+      <div class="docs-viz-file-row">
+        <span class="docs-viz-file-k">Content</span>
+        <span class="docs-viz-file-v">4 digest types, 2 cadences, one opt-out-all at the bottom.</span>
+      </div>
+      <div class="docs-viz-file-row">
+        <span class="docs-viz-file-k">Feeling</span>
+        <span class="docs-viz-file-v">Calm, trustworthy, no dark patterns.</span>
+      </div>
+      <div class="docs-viz-file-row">
+        <span class="docs-viz-file-k">Constraints</span>
+        <span class="docs-viz-file-v">Mobile-first. WCAG AA contrast. One column, no modals.</span>
+      </div>
+    </div>
+    <div class="docs-viz-file-footer">Hand it to <code>/impeccable</code>, <code>/impeccable craft</code>, or any implementation flow.</div>
+  </div>
+  <p class="docs-viz-caption">A shape brief is a compass, not a spec. It captures intent, not UI. Implementation skills read it before writing a line of code.</p>
+</div>
+
 ## When to use it
 
 `/impeccable shape` is where a feature starts. Before anyone writes code, before anyone argues about the hero treatment, before anyone picks a font. Use it to force a discovery conversation about purpose, users, content, and constraints, then capture the answers as a design brief the implementation skills can lean on.

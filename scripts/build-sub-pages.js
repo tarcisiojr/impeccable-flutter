@@ -262,7 +262,7 @@ function renderSkillsOverviewMain(skillsByCategory, allSkills) {
     const tagline = skill.editorial?.frontmatter?.tagline || skill.description;
     const shortTagline = tagline.length > 140 ? tagline.slice(0, 137) + '...' : tagline;
     const rel = COMMAND_RELATIONSHIPS[skill.id] || {};
-    const isBeta = skill.id === 'overdrive';
+    const isBeta = skill.id === 'live';
 
     let metaHtml = '';
     if (rel.pairs) {
@@ -333,7 +333,13 @@ ${rowsHtml}
       <li>
         <a href="/docs/teach">
           <span class="docs-home-mode-label"><span class="docs-home-mode-slash">/</span>impeccable teach</span>
-          <span class="docs-home-mode-hint">One-time project setup. Runs automatically on first use.</span>
+          <span class="docs-home-mode-hint">One-time project setup. Writes PRODUCT.md, offers DESIGN.md next.</span>
+        </a>
+      </li>
+      <li>
+        <a href="/docs/document">
+          <span class="docs-home-mode-label"><span class="docs-home-mode-slash">/</span>impeccable document</span>
+          <span class="docs-home-mode-hint">Generate a spec-compliant DESIGN.md that captures your visual system.</span>
         </a>
       </li>
       <li>
@@ -343,9 +349,9 @@ ${rowsHtml}
         </a>
       </li>
       <li>
-        <a href="/docs/extract">
-          <span class="docs-home-mode-label"><span class="docs-home-mode-slash">/</span>impeccable extract</span>
-          <span class="docs-home-mode-hint">Pull reusable components and tokens into the design system.</span>
+        <a href="/docs/live">
+          <span class="docs-home-mode-label"><span class="docs-home-mode-slash">/</span>impeccable live</span>
+          <span class="docs-home-mode-hint">Pick an element, get three variants, accept one. Writes back to source.</span>
         </a>
       </li>
     </ul>
@@ -641,7 +647,7 @@ ${rules.map(renderRuleCard).join('\n')}
   <header class="anti-patterns-header">
     <p class="sub-page-eyebrow">${totalRules} rules</p>
     <h1 class="sub-page-title">Anti-patterns</h1>
-    <p class="sub-page-lede">The full catalog of patterns <a href="/docs/impeccable">/impeccable</a> teaches against. ${detectedCount} are caught by a deterministic detector (<code>npx impeccable detect</code> or the browser extension). ${llmCount} can only be flagged by <a href="/docs/critique">/impeccable critique</a>'s LLM review pass. Want to see them live on real pages? Try <a href="/visual-mode">Visual Mode</a>.</p>
+    <p class="sub-page-lede">The full catalog of patterns <a href="/docs/impeccable">/impeccable</a> teaches against. ${detectedCount} are caught by a deterministic detector (<code>npx impeccable detect</code> or the browser extension). ${llmCount} can only be flagged by <a href="/docs/critique">/impeccable critique</a>'s LLM review pass. Want to see them live on real pages? Try <a href="/visual-mode">Visual Mode</a>, or iterate past them on your own dev server with <a href="/docs/live">Live Mode</a>.</p>
   </header>
 
   <details class="anti-patterns-legend">

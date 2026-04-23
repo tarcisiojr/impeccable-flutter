@@ -7,6 +7,7 @@
  */
 
 @import "./tokens.css";
+@import "./docs-visuals.css";
 
 /* ============================================
    SKIP LINK (a11y)
@@ -581,11 +582,19 @@ main#main {
 .docs-home-card-modes a {
   display: block;
   text-decoration: none;
-  transition: padding var(--duration-fast) var(--ease-out, ease);
+  padding-left: 10px;
+  border-left: 2px solid transparent;
+  transition:
+    border-color var(--duration-fast) var(--ease-out, ease),
+    color var(--duration-fast) var(--ease-out, ease);
 }
 
 .docs-home-card-modes a:hover {
-  padding-left: 6px;
+  border-left-color: var(--color-accent);
+}
+
+.docs-home-card-modes a:hover .docs-home-mode-label {
+  color: var(--color-accent);
 }
 
 .docs-home-mode-label {

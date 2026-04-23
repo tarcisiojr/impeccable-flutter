@@ -2,6 +2,32 @@
 tagline: "Shape the design, then build it, all in one flow."
 ---
 
+<div class="docs-viz-hero">
+  <div class="docs-viz-flow">
+    <div class="docs-viz-flow-step">
+      <span class="docs-viz-flow-num">01</span>
+      <span class="docs-viz-flow-name">Shape</span>
+      <span class="docs-viz-flow-hint">Discovery interview. Purpose, users, constraints, direction.</span>
+    </div>
+    <div class="docs-viz-flow-step">
+      <span class="docs-viz-flow-num">02</span>
+      <span class="docs-viz-flow-name">Load references</span>
+      <span class="docs-viz-flow-hint">Spatial, typography, motion, color, interaction.</span>
+    </div>
+    <div class="docs-viz-flow-step">
+      <span class="docs-viz-flow-num">03</span>
+      <span class="docs-viz-flow-name">Build</span>
+      <span class="docs-viz-flow-hint">Structure, hierarchy, type, color, states, motion, responsive.</span>
+    </div>
+    <div class="docs-viz-flow-step docs-viz-flow-step--accent">
+      <span class="docs-viz-flow-num">04</span>
+      <span class="docs-viz-flow-name">Iterate visually</span>
+      <span class="docs-viz-flow-hint">Check in browser, refine until it matches the brief.</span>
+    </div>
+  </div>
+  <p class="docs-viz-caption">Every phase is non-skippable. The discovery step is where most AI output fails: by the time code exists, the thinking is locked in.</p>
+</div>
+
 ## When to use it
 
 `/impeccable craft` is the end-to-end build command. Give it a feature description and it runs the whole pipeline: structured discovery, reference loading, implementation, visual iteration. Use it when you are starting a new feature from zero and want the whole workflow in one invocation.
