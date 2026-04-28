@@ -188,9 +188,19 @@ The agent should insert variant HTML at insertLine.`);
   const isJsx = commentSyntax.open === '{/*';
   const indent = lines[startLine].match(/^(\s*)/)[1];
 
-  // Extract the original element
+  // Extract the original element. Reindent under the wrapper while preserving
+  // the relative depth between lines — `l.trimStart()` would strip ALL leading
+  // whitespace and collapse e.g. `<aside>`/`  <h1>`/`</aside>` (6/8/6 spaces)
+  // to a single uniform indent, so on accept/discard the round-trip restores
+  // the inner element at its parent's depth instead of nested inside it.
+  // Strip only the COMMON minimum leading whitespace across the picked lines;
+  // `deindentContent` on the accept side already mirrors this convention.
   const originalLines = lines.slice(startLine, endLine + 1);
-  const originalIndented = originalLines.map(l => indent + '    ' + l.trimStart()).join('\n');
+  const originalBaseIndent = minLeadingSpaces(originalLines);
+  const reindentOriginal = (extra) => originalLines
+    .map((l) => (l.trim() === '' ? '' : indent + extra + l.slice(originalBaseIndent)))
+    .join('\n');
+  const originalIndented = reindentOriginal('    ');
 
   // Wrapper attributes differ by syntax. HTML allows plain string attrs;
   // JSX requires object-literal style and parses string attrs as HTML (which
@@ -214,7 +224,7 @@ The agent should insert variant HTML at insertLine.`);
     indent + '  ' + commentSyntax.open + ' impeccable-variants-start ' + id + ' ' + commentSyntax.close,
     indent + '  ' + commentSyntax.open + ' Original ' + commentSyntax.close,
     indent + '  <div data-impeccable-variant="original">',
-    originalLines.map(l => indent + '    ' + l.trimStart()).join('\n'),
+    reindentOriginal('    '),
     indent + '  </div>',
     indent + '  ' + commentSyntax.open + ' Variants: insert below this line ' + commentSyntax.close,
     indent + '  ' + commentSyntax.open + ' impeccable-variants-end ' + id + ' ' + commentSyntax.close,
@@ -392,6 +402,22 @@ const OPENER_RE = /<([A-Za-z][A-Za-z0-9]*)(?=[\s/>]|$)/;
  * line to find the actual tag opener. When `tag` is provided, opener candidates
  * must match that tag name.
  */
+/**
+ * Return the smallest leading-whitespace count across a set of lines,
+ * ignoring blank lines (whose indent isn't load-bearing). Used to compute
+ * the common base indent of a multi-line picked element so reindenting
+ * under the wrapper preserves the relative depth between lines.
+ */
+function minLeadingSpaces(lines) {
+  let min = Infinity;
+  for (const l of lines) {
+    if (l.trim() === '') continue;
+    const m = l.match(/^(\s*)/);
+    if (m && m[1].length < min) min = m[1].length;
+  }
+  return min === Infinity ? 0 : min;
+}
+
 function findElement(lines, query, tag = null) {
   // Iterate all matches — the first substring hit isn't always the right one.
   for (let i = 0; i < lines.length; i++) {

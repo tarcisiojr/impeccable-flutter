@@ -235,11 +235,17 @@ describe('live-accept — style-element edge cases', () => {
     runAccept(tmp, ['--id', 'INDENTDISC', '--discard']);
     const after = readFileSync(join(tmp, 'App.tsx'), 'utf-8');
     // The aside opener should land at exactly 6 spaces — same as the
-    // original. Any deeper indent is the bug Bugbot flagged. (Inner indent
-    // loss inside the element is a separate, pre-existing wrap behavior;
-    // not asserted here.)
+    // original — and the <h1> child at 8 (preserved relative depth).
+    // The earlier 6/6/6 collapse was caused by `originalLines.map(l =>
+    // indent + '    ' + l.trimStart())` in live-wrap stripping ALL
+    // leading whitespace before reindenting; the fix strips only the
+    // COMMON minimum so the relative structure is preserved.
     assert.match(after, /^      <aside className="card">$/m,
-      `<aside> opener must be at 6-space indent (was 8 before fix), got:\n${after}`);
+      `<aside> opener must be at 6-space indent (was 8 before outer-indent fix), got:\n${after}`);
+    assert.match(after, /^        <h1 className="hero-title">Hero<\/h1>$/m,
+      `<h1> child must be at 8-space indent — relative depth preserved through wrap+discard. Got:\n${after}`);
+    assert.match(after, /^      <\/aside>$/m,
+      `</aside> closer must be back at 6-space indent. Got:\n${after}`);
   });
 
   it('accept (no carbonize, raw HTML) restores at the original indent on JSX', () => {
