@@ -19,6 +19,11 @@ describe('download provider validation', () => {
     expect(isAllowedFileProvider('github')).toBe(true);
   });
 
+  test('allows qoder as an individual download provider', () => {
+    expect(ALLOWED_FILE_PROVIDERS).toContain('qoder');
+    expect(isAllowedFileProvider('qoder')).toBe(true);
+  });
+
   test('separates file downloads from bundle downloads', () => {
     expect(ALLOWED_BUNDLE_PROVIDERS).toContain('universal');
     expect(isAllowedBundleProvider('universal')).toBe(true);
@@ -43,6 +48,12 @@ describe('download file paths', () => {
   test('maps github copilot skills into the .github config directory', () => {
     expect(getFilePath('skill', 'github', 'impeccable')).toBe(
       path.join(process.cwd(), 'dist', 'github', '.github', 'skills', 'impeccable', 'SKILL.md')
+    );
+  });
+
+  test('maps qoder skills into the .qoder config directory', () => {
+    expect(getFilePath('skill', 'qoder', 'impeccable')).toBe(
+      path.join(process.cwd(), 'dist', 'qoder', '.qoder', 'skills', 'impeccable', 'SKILL.md')
     );
   });
 
