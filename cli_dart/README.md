@@ -32,14 +32,24 @@ impeccable_flutter detect --fast lib/
 impeccable_flutter detect --fast --format=json lib/
 ```
 
-**Schema do output `--format=json`**:
+**Schema do output `--format=json`** (unificado nos dois modos, paridade com o `impeccable` web original):
 
-| Modo | Schema |
-|---|---|
-| Full | Schema oficial do `custom_lint`: `{version, diagnostics: [{code, severity, type, location: {file, range: {start: {offset, line, column}, end: {...}}}, problemMessage, correctionMessage}]}` |
-| Fast | Schema próprio: `{mode: "fast", count: N, findings: [{ruleId, severity, message, path, line, column}]}` |
+```json
+[
+  {
+    "antipattern": "deep-purple-seed",
+    "name": "Deep Purple Seed",
+    "description": "Colors.deepPurple é a seedColor default de flutter create.",
+    "file": "/path/to/file.dart",
+    "line": 20,
+    "snippet": "seedColor: Colors.deepPurple",
+    "severity": "WARNING",
+    "column": 43
+  }
+]
+```
 
-Os dois schemas hoje são distintos (full delega para o `custom_lint`; fast emite o próprio). Normalização planejada para v0.2.
+Output é array direto, sem wrapper. `antipattern` é o ID curto em kebab-case (sem o prefix `impeccable_`). Modo full também extrai snippet do source via offsets reportados pelo `custom_lint`.
 
 ### `skills install/update/check` — gerenciar o skill no projeto
 
@@ -97,7 +107,6 @@ impeccable_flutter detect --json lib/ > findings.json      # CI
 ## Roadmap
 
 - v0.2: live mode com HTTP server + overlay
-- v0.2: schema JSON único entre full e fast
 - v0.2: bump de dependências Dart (analyzer 7→13, custom_lint 0.7→0.8)
 
 ## Licença

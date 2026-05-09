@@ -70,11 +70,9 @@ class DetectCommand extends Command<int> {
     final findings = await scanDirectory(dir);
 
     if (format == 'json') {
-      stdout.writeln(jsonEncode({
-        'mode': 'fast',
-        'count': findings.length,
-        'findings': findings.map((f) => f.toJson()).toList(),
-      }));
+      // Schema unificado: array direto de findings (paridade com impeccable
+      // web original). Ver `FastFinding.toJson` para o shape de cada item.
+      stdout.writeln(jsonEncode(findings.map((f) => f.toJson()).toList()));
     } else {
       if (findings.isEmpty) {
         stdout.writeln('No issues found.');
@@ -107,11 +105,88 @@ class DetectCommand extends Command<int> {
       runInShell: true,
     );
 
-    stdout.write(result.stdout);
+    if (format == 'json') {
+      // custom_lint emite `{version, diagnostics: [{code, severity, type,
+      // location: {file, range: {start: {offset, line, column}, end: {...}}},
+      // problemMessage, correctionMessage}]}`. Convertemos para o schema
+      // unificado: array de `{antipattern, name, description, file, line,
+      // snippet, severity, column}` igual ao --fast.
+      try {
+        final raw = jsonDecode(result.stdout.toString());
+        final diagnostics =
+            (raw['diagnostics'] as List?) ?? const <dynamic>[];
+        final normalized = await Future.wait(
+          diagnostics.map((d) async => await _normalizeDiagnostic(d as Map)),
+        );
+        stdout.writeln(jsonEncode(normalized));
+      } catch (e) {
+        // Se parse falhar (versão diferente do custom_lint, output não-JSON),
+        // emite raw e avisa via stderr.
+        stderr.writeln('warn: falha ao parsear JSON do custom_lint ($e). '
+            'Emitindo output bruto.');
+        stdout.write(result.stdout);
+      }
+    } else {
+      stdout.write(result.stdout);
+    }
     if (result.stderr.toString().isNotEmpty) {
       stderr.write(result.stderr);
     }
     return result.exitCode;
+  }
+
+  /// Converte um diagnostic do `custom_lint` no schema unificado.
+  /// Tenta extrair o snippet do arquivo via `start.offset` + `end.offset`.
+  Future<Map<String, dynamic>> _normalizeDiagnostic(Map d) async {
+    final code = (d['code'] as String?) ?? 'unknown';
+    final location = d['location'] as Map?;
+    final file = location?['file'] as String? ?? '';
+    final range = location?['range'] as Map?;
+    final start = range?['start'] as Map?;
+    final end = range?['end'] as Map?;
+    final line = (start?['line'] as int?) ?? 0;
+    final column = (start?['column'] as int?) ?? 0;
+    final startOffset = (start?['offset'] as int?) ?? 0;
+    final endOffset = (end?['offset'] as int?) ?? startOffset;
+
+    String snippet = '';
+    if (file.isNotEmpty && endOffset > startOffset) {
+      try {
+        final source = await File(file).readAsString();
+        if (endOffset <= source.length) {
+          snippet =
+              source.substring(startOffset, endOffset).replaceAll('\n', ' ').trim();
+          if (snippet.length > 200) snippet = '${snippet.substring(0, 200)}...';
+        }
+      } catch (_) {/* arquivo inacessível: snippet vazio */}
+    }
+
+    return {
+      'antipattern': _toCanonicalId(code),
+      'name': _ruleIdToName(code),
+      'description': (d['problemMessage'] as String?) ?? '',
+      'file': file,
+      'line': line,
+      'snippet': snippet,
+      'severity': (d['severity'] as String?) ?? 'INFO',
+      'column': column,
+    };
+  }
+
+  /// Converte `impeccable_deep_purple_seed` → `deep-purple-seed`.
+  String _toCanonicalId(String ruleId) {
+    final stripped =
+        ruleId.startsWith('impeccable_') ? ruleId.substring(11) : ruleId;
+    return stripped.replaceAll('_', '-');
+  }
+
+  /// Converte `impeccable_deep_purple_seed` → `Deep Purple Seed`.
+  String _ruleIdToName(String ruleId) {
+    final canonical = _toCanonicalId(ruleId);
+    return canonical
+        .split('-')
+        .map((w) => w.isEmpty ? w : '${w[0].toUpperCase()}${w.substring(1)}')
+        .join(' ');
   }
 
   /// Sobe na árvore de diretórios procurando pubspec.yaml.

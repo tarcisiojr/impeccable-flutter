@@ -16,6 +16,10 @@ library;
 
 import 'dart:io';
 
+/// Resultado individual da detecção, normalizado no schema do impeccable
+/// web original: `{antipattern, name, description, file, line, snippet}`.
+/// Garante paridade de output entre `--fast` e modo full (este último
+/// converte o JSON do `custom_lint` para o mesmo schema).
 class FastFinding {
   FastFinding({
     required this.ruleId,
@@ -24,6 +28,7 @@ class FastFinding {
     required this.path,
     required this.line,
     required this.column,
+    required this.snippet,
   });
 
   final String ruleId;
@@ -32,17 +37,39 @@ class FastFinding {
   final String path;
   final int line;
   final int column;
+  final String snippet;
 
+  /// Schema unificado (paridade com o impeccable web original).
+  /// `antipattern` = ruleId sem o prefixo `impeccable_` e em kebab-case.
+  /// `severity` e `column` mantidos como extensão útil para tooling.
   Map<String, dynamic> toJson() => {
-        'ruleId': ruleId,
-        'severity': severity,
-        'message': message,
-        'path': path,
+        'antipattern': _toCanonicalId(ruleId),
+        'name': _ruleIdToName(ruleId),
+        'description': message,
+        'file': path,
         'line': line,
+        'snippet': snippet,
+        'severity': severity,
         'column': column,
       };
 
   String toHuman() => '  $path:$line:$column • $message • $ruleId • $severity';
+}
+
+/// Converte `impeccable_deep_purple_seed` → `deep-purple-seed`.
+String _toCanonicalId(String ruleId) {
+  final stripped =
+      ruleId.startsWith('impeccable_') ? ruleId.substring(11) : ruleId;
+  return stripped.replaceAll('_', '-');
+}
+
+/// Converte `impeccable_deep_purple_seed` → `Deep Purple Seed`.
+String _ruleIdToName(String ruleId) {
+  final canonical = _toCanonicalId(ruleId);
+  return canonical
+      .split('-')
+      .map((w) => w.isEmpty ? w : '${w[0].toUpperCase()}${w.substring(1)}')
+      .join(' ');
 }
 
 class _FastRule {
@@ -160,6 +187,7 @@ Future<List<FastFinding>> _scanFile(File file) async {
           path: file.path,
           line: i + 1,
           column: match.start + 1,
+          snippet: line.trim(),
         ));
       }
     }
@@ -202,6 +230,7 @@ List<FastFinding> _aggregateMonotonousSpacing(
         path: path,
         line: first.line,
         column: first.col,
+        snippet: 'EdgeInsets.all($value)',
       ));
     }
   });
@@ -235,6 +264,8 @@ List<FastFinding> _aggregateEverythingCentered(
       path: path,
       line: first.line,
       column: first.col,
+      snippet:
+          '${hits.length} ocorrências de Center/MainAxisAlignment.center',
     ),
   ];
 }

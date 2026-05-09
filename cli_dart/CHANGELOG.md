@@ -4,10 +4,13 @@ Todos os releases do `impeccable_flutter` (CLI). Segue [Keep a Changelog](https:
 
 ## 0.1.1
 
+### Adicionado
+
+- **Schema JSON unificado** entre `detect --fast --format=json` e `detect --format=json` (full mode). Os dois agora emitem o mesmo array `[{antipattern, name, description, file, line, snippet, severity, column}]`, com paridade ao schema do `impeccable` (web) original. Antes: o full mode emitia o schema bruto do `custom_lint` (`{version, diagnostics: [{code, location: {range: ...}, ...}]}`) e o fast mode emitia um schema próprio (`{mode, count, findings: [...]}`). Agora um único parser cobre ambos os modos para CI e ferramentas downstream.
+
 ### Documentação
 
 - README reescrito refletindo o estado real do CLI: removido o "pré-MVP, empacotamento pub.dev TODO" e a roadmap que listava `--fast`, JSON e empacotamento como TODO. Substituído pelo subcomandos atuais (detect com full e --fast e --json, skills install/update/check, live, version), workflow E2E e schema do output JSON.
-- Sem mudanças no código.
 
 ## 0.1.0
 
