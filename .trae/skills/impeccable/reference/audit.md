@@ -1,133 +1,183 @@
-Run systematic **technical** quality checks and generate a comprehensive report. Don't fix issues; document them for other commands to address.
+# Audit (Flutter)
 
-This is a code-level audit, not a design critique. Check what's measurable and verifiable in the implementation.
+Roda checagens técnicas sistemáticas e gera relatório. Não corrige; documenta para outros comandos resolverem.
+
+Code-level audit, não design critique. Cobre o mensurável e verificável na implementação Flutter.
+
+Leia [flutter-foundations.md](flutter-foundations.md) primeiro.
 
 ## Diagnostic Scan
 
-Run comprehensive checks across 5 dimensions. Score each dimension 0-4 using the criteria below.
+5 dimensões. Score 0-4 cada uma com critério abaixo.
 
-### 1. Accessibility (A11y)
+### 1. Acessibilidade (A11y)
 
 **Check for**:
-- **Contrast issues**: Text contrast ratios < 4.5:1 (or 7:1 for AAA)
-- **Missing ARIA**: Interactive elements without proper roles, labels, or states
-- **Keyboard navigation**: Missing focus indicators, illogical tab order, keyboard traps
-- **Semantic HTML**: Improper heading hierarchy, missing landmarks, divs instead of buttons
-- **Alt text**: Missing or poor image descriptions
-- **Form issues**: Inputs without labels, poor error messaging, missing required indicators
+- **Contraste**: textos com ratio <4.5:1 (ou <3:1 para large text e ícones de UI). Validar com cor RESOLVIDA via `Theme.of(context).colorScheme`, não com literal `Color(0xFF...)`. Em ambos brightness.
+- **`Semantics` ausente**: `GestureDetector`/`InkWell` que faz algo sem `Semantics(label:, button: true)` ou widget pai com label útil.
+- **Focus**: `FocusableActionDetector` em widgets interativos custom. `TextField` sem `focusNode` rastreável.
+- **Touch target <48dp**: `IconButton.iconSize` pequeno sem `MaterialTapTargetSize.padded`. `InkWell` cru com child de 24×24.
+- **`tooltip:`**: ausente em `IconButton`. Sem isso, screen reader lê "botão" sem contexto.
+- **`semanticLabel:`**: ausente em `Image`/`Icon` informativo. Decorativos devem usar `excludeFromSemantics: true`.
+- **`MediaQuery.textScaler` ignorado**: hard-code `TextScaler.noScaling`, ou layout que quebra em 130%/200%.
+- **Order de leitura**: estrutura Semantics em ordem ilógica. Use `Semantics(sortKey:)`.
+- **Cor sozinha conveying**: vermelho = erro, verde = sucesso, sem ícone ou texto adicional.
 
-**Score 0-4**: 0=Inaccessible (fails WCAG A), 1=Major gaps (few ARIA labels, no keyboard nav), 2=Partial (some a11y effort, significant gaps), 3=Good (WCAG AA mostly met, minor gaps), 4=Excellent (WCAG AA fully met, approaches AAA)
+**Tools**: `flutter analyze`, `accessibility_tools` package (overlay dev), `Semantics.debugMode`, `flutter test --semantics`.
+
+**Score 0-4**: 0=Inacessível (`MaterialApp` sem `theme`, `Colors.black` em texto sobre `Colors.white`, sem `Semantics`); 1=Major gaps (poucos labels, sem tooltip em `IconButton`); 2=Parcial (algum esforço, lacunas significativas); 3=Bom (WCAG AA mostly atendido, lacunas menores); 4=Excelente (WCAG AA atendido, `Semantics` em todo interativo, contraste validado em ambos brightness).
 
 ### 2. Performance
 
 **Check for**:
-- **Layout thrashing**: Reading/writing layout properties in loops
-- **Expensive animations**: Casual layout-property animation, unbounded blur/filter/shadow effects, or effects that visibly drop frames
-- **Missing optimization**: Images without lazy loading, unoptimized assets, missing will-change
-- **Bundle size**: Unnecessary imports, unused dependencies
-- **Render performance**: Unnecessary re-renders, missing memoization
+- **Sem `const`**: widgets literais que poderiam ser `const` rebuildando a cada `setState`. `BoxDecoration`, `TextStyle`, `EdgeInsets` literais sem `const`.
+- **`RepaintBoundary` ausente**: lista longa, área animada cercada de conteúdo estático, `CustomPainter` que repinta frequente.
+- **`AnimatedContainer` mudando width/height/padding**: causa relayout. Anime via `AnimatedAlign`, `AnimatedSlide`, `Transform`.
+- **`BackdropFilter` em fullscreen**: mata performance em devices baixo custo.
+- **`Image.network` cru em `ListView`**: sem `cacheWidth`, sem cache em disco. Use `cached_network_image` + `cacheWidth: (width * dpr).toInt()`.
+- **`StatefulWidget` que reconstrói árvore inteira por causa de uma cor animada**: separar em sub-widget. Ou usar `ValueListenableBuilder`/`AnimatedBuilder` com `child:` parâmetro.
+- **`build()` >50 linhas**: tipicamente sinal de árvore profunda que rebuilda demais. Quebrar.
+- **`setState` em frequência alta** (gestures, scroll): use `ValueNotifier` + `ListenableBuilder` em vez.
+- **Frame budget**: 16ms a 60fps; 8ms a 120fps. Conferir em `flutter run --profile` + DevTools Performance.
+- **App size**: `flutter build apk --analyze-size` ou `flutter build ios --analyze-size`. Apps >40MB são pesados em mercado emergente.
 
-**Score 0-4**: 0=Severe issues (layout thrash, unoptimized everything), 1=Major problems (no lazy loading, expensive animations), 2=Partial (some optimization, gaps remain), 3=Good (mostly optimized, minor improvements possible), 4=Excellent (fast, lean, well-optimized)
+**Tools**: DevTools Performance (rebuild count, raster timeline, build timeline), `flutter run --profile`, `flutter build --analyze-size`, Observatory.
+
+**Score 0-4**: 0=Severe (nenhum `const`, jank visível em rolagem); 1=Major (sem cache de imagem, animações pesadas); 2=Parcial; 3=Bom (60fps em devices médios, alguns gaps); 4=Excelente (60fps em low-end, app size enxuto, `RepaintBoundary` estratégico, métricas medidas).
 
 ### 3. Theming
 
 **Check for**:
-- **Hard-coded colors**: Colors not using design tokens
-- **Broken dark mode**: Missing dark mode variants, poor contrast in dark theme
-- **Inconsistent tokens**: Using wrong tokens, mixing token types
-- **Theme switching issues**: Values that don't update on theme change
+- **`Colors.black` / `Colors.white`** literal em qualquer lugar de UI.
+- **`Color(0xFF...)`** literal num widget (deveria vir de `colorScheme`).
+- **`TextStyle` cru** em `Text` (deveria vir de `textTheme`).
+- **`MaterialApp` sem `theme:`** ou com `seedColor: Colors.deepPurple` (default `flutter create`).
+- **`useMaterial3: false`** sem justificativa.
+- **`darkTheme:` ausente** ou com paleta inconsistente.
+- **`themeMode: ThemeMode.system`** ausente (app não respeita Settings do device).
+- **`ThemeExtension`** ausente para tokens fora do M3 (success/warning, spacing, motion durations, brand-secondary).
+- **Sombras custom** via `BoxShadow` em vez de `Material(elevation:)`.
 
-**Score 0-4**: 0=No theming (hard-coded everything), 1=Minimal tokens (mostly hard-coded), 2=Partial (tokens exist but inconsistently used), 3=Good (tokens used, minor hard-coded values), 4=Excellent (full token system, dark mode works perfectly)
+**Score 0-4**: 0=Sem theming; 1=Mínimo; 2=Parcial; 3=Bom; 4=Excelente (`ThemeData` completo, `ColorScheme.fromSeed`, `ThemeExtension`, dark mode validado, zero literals).
 
-### 4. Responsive Design
+### 4. Adaptive Design
 
 **Check for**:
-- **Fixed widths**: Hard-coded widths that break on mobile
-- **Touch targets**: Interactive elements < 44x44px
-- **Horizontal scroll**: Content overflow on narrow viewports
-- **Text scaling**: Layouts that break when text size increases
-- **Missing breakpoints**: No mobile/tablet variants
+- **Hard-code de width/height** que quebra em telas pequenas (<320 lógicos) ou grandes (tablet, foldable, desktop Flutter).
+- **`SafeArea` ausente** em modais/overlays full-screen.
+- **`MediaQuery.viewInsetsOf(context)`** ignorado quando teclado abre (formulário sumiu).
+- **Touch targets <48dp** (já em a11y, mas relevante aqui também).
+- **`MediaQuery.textScaler` ignorado** ou layout que quebra em escala alta.
+- **Sem `LayoutBuilder` para componentes que reagem ao container**.
+- **Sem switch entre `BottomNavigationBar`/`NavigationRail`/`NavigationDrawer`** baseado em window class.
+- **`Image.network`** sem `loadingBuilder`/`errorBuilder` em conexão lenta.
+- **`OrientationBuilder` ausente** quando relevante (galeria, mapa).
+- **`displayFeatures`** ignorado em foldables (rara mas relevante).
 
-**Score 0-4**: 0=Desktop-only (breaks on mobile), 1=Major issues (some breakpoints, many failures), 2=Partial (works on mobile, rough edges), 3=Good (responsive, minor touch target or overflow issues), 4=Excellent (fluid, all viewports, proper touch targets)
+**Score 0-4**: 0=Single-screen apenas; 1=Major (quebra em tablet); 2=Parcial; 3=Bom; 4=Excelente (responde a window class, foldable, teclado, text scale, orientation).
 
-### 5. Anti-Patterns (CRITICAL)
+### 5. Anti-padrões (CRÍTICO)
 
-Check against ALL the **DON'T** guidelines from the parent impeccable skill (already loaded in this context). Look for AI slop tells (AI color palette, gradient text, glassmorphism, hero metrics, card grids, generic fonts) and general design anti-patterns (gray on color, nested cards, bounce easing, redundant copy).
+Check contra TODOS os bans absolutos do skill parent (já carregado neste context). Plus os Flutter-specific:
 
-**Score 0-4**: 0=AI slop gallery (5+ tells), 1=Heavy AI aesthetic (3-4 tells), 2=Some tells (1-2 noticeable), 3=Mostly clean (subtle issues only), 4=No AI tells (distinctive, intentional design)
+- **`Curves.bounce*` ou `Curves.elastic*`** em product (raros em jogos OK, em product nunca).
+- **`LinearGradient` em `AppBar`** purple-blue.
+- **Splash screen com fade-in genérico** (logo + scale + 1.5s).
+- **Lottie animation genérica** de stock library (sem ser desenhada para a marca).
+- **Hero card com border-radius 24, shadow azul, eyebrow chip + headline + button** (template de Material 3 tutorial).
+- **`Card` aninhado em `Card`**.
+- **`ColorScheme.fromSeed(seedColor: Colors.deepPurple)`**.
+- **Padding monotônico**: `EdgeInsets.all(N)` repetido em ≥4 widgets adjacentes com mesmo N.
+- **Gradient em `Text` via `ShaderMask`**.
+- **Glass effect via `BackdropFilter` em todo card** (deveria ser raro e proposital).
+
+**Score 0-4**: 0=Galeria de slop (5+ tells); 1=Aesthetic AI pesada (3-4 tells); 2=Algum (1-2 notáveis); 3=Mostly clean; 4=Sem tells (distintivo, intencional).
 
 ## Generate Report
 
 ### Audit Health Score
 
 | # | Dimension | Score | Key Finding |
-|---|-----------|-------|-------------|
-| 1 | Accessibility | ? | [most critical a11y issue or "--"] |
+|---|---|---|---|
+| 1 | Accessibility | ? | [issue mais crítica ou "--"] |
 | 2 | Performance | ? | |
-| 3 | Responsive Design | ? | |
-| 4 | Theming | ? | |
+| 3 | Theming | ? | |
+| 4 | Adaptive Design | ? | |
 | 5 | Anti-Patterns | ? | |
 | **Total** | | **??/20** | **[Rating band]** |
 
-**Rating bands**: 18-20 Excellent (minor polish), 14-17 Good (address weak dimensions), 10-13 Acceptable (significant work needed), 6-9 Poor (major overhaul), 0-5 Critical (fundamental issues)
+**Rating bands**: 18-20 Excelente; 14-17 Bom; 10-13 Aceitável; 6-9 Pobre; 0-5 Crítico.
 
 ### Anti-Patterns Verdict
-**Start here.** Pass/fail: Does this look AI-generated? List specific tells. Be brutally honest.
+
+**Comece aqui.** Pass/fail: parece app Flutter de IA? Liste tells específicas. Brutalmente honesto.
 
 ### Executive Summary
 - Audit Health Score: **??/20** ([rating band])
-- Total issues found (count by severity: P0/P1/P2/P3)
-- Top 3-5 critical issues
-- Recommended next steps
+- Total issues por severidade (P0/P1/P2/P3)
+- Top 3-5 issues críticas
+- Próximos passos recomendados
 
 ### Detailed Findings by Severity
 
-Tag every issue with **P0-P3 severity**:
-- **P0 Blocking**: Prevents task completion. Fix immediately
-- **P1 Major**: Significant difficulty or WCAG AA violation. Fix before release
-- **P2 Minor**: Annoyance, workaround exists. Fix in next pass
-- **P3 Polish**: Nice-to-fix, no real user impact. Fix if time permits
-
-For each issue, document:
+Cada issue:
 - **[P?] Issue name**
-- **Location**: Component, file, line
-- **Category**: Accessibility / Performance / Theming / Responsive / Anti-Pattern
-- **Impact**: How it affects users
-- **WCAG/Standard**: Which standard it violates (if applicable)
-- **Recommendation**: How to fix it
-- **Suggested command**: Which command to use (prefer: /impeccable adapt, /impeccable animate, /impeccable audit, /impeccable bolder, /impeccable clarify, /impeccable colorize, /impeccable critique, /impeccable delight, /impeccable distill, /impeccable document, /impeccable harden, /impeccable layout, /impeccable onboard, /impeccable optimize, /impeccable overdrive, /impeccable polish, /impeccable quieter, /impeccable shape, /impeccable typeset)
+- **Location**: arquivo, linha (`lib/widgets/foo.dart:42`)
+- **Category**: A11y / Performance / Theming / Adaptive / Anti-Pattern
+- **Impact**: como afeta usuário
+- **Standard**: WCAG, Material 3, HIG, qual viola
+- **Recommendation**: como corrigir (concreto)
+- **Suggested command**: qual comando do skill resolve (`/impeccable adapt, /impeccable animate, /impeccable audit, /impeccable bolder, /impeccable clarify, /impeccable colorize, /impeccable critique, /impeccable delight, /impeccable distill, /impeccable document, /impeccable harden, /impeccable layout, /impeccable onboard, /impeccable optimize, /impeccable overdrive, /impeccable polish, /impeccable quieter, /impeccable shape, /impeccable typeset`)
+
+P0/P1/P2/P3 conforme [heuristics-scoring.md](heuristics-scoring.md).
 
 ### Patterns & Systemic Issues
 
-Identify recurring problems that indicate systemic gaps rather than one-off mistakes:
-- "Hard-coded colors appear in 15+ components, should use design tokens"
-- "Touch targets consistently too small (<44px) throughout mobile experience"
+Recorrências que indicam gap sistêmico:
+- "Hard-coded `Color(0xFF...)` aparece em 15+ widgets, deveria via `colorScheme`."
+- "Touch targets <48dp consistentemente em ícones de header."
+- "Nenhum widget usa `const`; rebuild em cascata em cada `setState`."
 
 ### Positive Findings
 
-Note what's working well: good practices to maintain and replicate.
+Note o que está bom: práticas a manter e replicar.
 
 ## Recommended Actions
 
-List recommended commands in priority order (P0 first, then P1, then P2):
+Comandos em ordem de prioridade (P0 primeiro):
 
-1. **[P?] `/command-name`**: Brief description (specific context from audit findings)
-2. **[P?] `/command-name`**: Brief description (specific context)
+1. **[P?] `/command-name`**: descrição breve (contexto específico do audit)
+2. **[P?] `/command-name`**: descrição (contexto)
 
-**Rules**: Only recommend commands from: /impeccable adapt, /impeccable animate, /impeccable audit, /impeccable bolder, /impeccable clarify, /impeccable colorize, /impeccable critique, /impeccable delight, /impeccable distill, /impeccable document, /impeccable harden, /impeccable layout, /impeccable onboard, /impeccable optimize, /impeccable overdrive, /impeccable polish, /impeccable quieter, /impeccable shape, /impeccable typeset. Map findings to the most appropriate command. End with `/impeccable polish` as the final step if any fixes were recommended.
+**Rules**: só comandos de `/impeccable adapt, /impeccable animate, /impeccable audit, /impeccable bolder, /impeccable clarify, /impeccable colorize, /impeccable critique, /impeccable delight, /impeccable distill, /impeccable document, /impeccable harden, /impeccable layout, /impeccable onboard, /impeccable optimize, /impeccable overdrive, /impeccable polish, /impeccable quieter, /impeccable shape, /impeccable typeset`. Termine com `/impeccable polish` se houve fixes.
 
-After presenting the summary, tell the user:
+Após o resumo:
 
-> You can ask me to run these one at a time, all at once, or in any order you prefer.
+> Você pode pedir para rodar uma por vez, todas, ou na ordem que preferir.
 >
-> Re-run `/impeccable audit` after fixes to see your score improve.
+> Re-rode `/impeccable audit` após fixes para ver o score subir.
 
-**IMPORTANT**: Be thorough but actionable. Too many P3 issues creates noise. Focus on what actually matters.
+**IMPORTANTE**: thorough mas acionável. Muitos P3 vira ruído. Foco no que importa.
 
-**NEVER**:
-- Report issues without explaining impact (why does this matter?)
-- Provide generic recommendations (be specific and actionable)
-- Skip positive findings (celebrate what works)
-- Forget to prioritize (everything can't be P0)
-- Report false positives without verification
+**NUNCA**:
+- Reportar sem explicar impacto (por que importa?)
+- Recomendações genéricas (seja específico).
+- Pular positive findings (celebre o que funciona).
+- Esquecer prioritizar (nem tudo é P0).
+- Reportar falsos positivos sem verificação (rode `dart analyze`/`custom_lint` antes).
 
+## Comandos auxiliares
+
+Quando disponíveis, prefira invocar:
+
+```bash
+dart analyze                                    # análise estática base
+dart run custom_lint                            # se impeccable_flutter_lints instalado
+flutter test                                    # widget tests, golden tests
+flutter test --update-goldens                   # se golden tests existirem
+flutter run --profile -d <device>               # benchmark real
+flutter build apk --analyze-size                # app size
+flutter build ios --analyze-size
+```
+
+DevTools Performance + Inspector + Network são a fonte de verdade em runtime.

@@ -191,22 +191,44 @@ Illustration or icon (not just text on blank page)
 - **No permissions**: Can't access (explain why, how to get access)
 - **Error state**: Failed to load (explain what happened, retry option)
 
-## Implementation Patterns
+## Implementation Patterns (Flutter)
 
-### Technical approaches:
+### Pacotes recomendados
 
-**Tooltip libraries**: Tippy.js, Popper.js
-**Tour libraries**: Intro.js, Shepherd.js, React Joyride
-**Modal patterns**: Focus trap, backdrop, ESC to close
-**Progress tracking**: LocalStorage for "seen" states
-**Analytics**: Track completion, drop-off points
+- **`showcaseview`**: spotlight em UI elements. Coach marks na primeira vez.
+- **`tutorial_coach_mark`**: alternativa, com mais controle de positioning.
+- **`Intro views`** custom via `PageView` + `SmoothPageIndicator`: para welcome screens multi-step.
+- **`Stepper`** widget nativo: para fluxos sequenciais (cadastro multi-passo, setup wizard).
 
-**Storage patterns**:
-```javascript
-// Track which onboarding steps user has seen
-localStorage.setItem('onboarding-completed', 'true');
-localStorage.setItem('feature-tooltip-seen-reports', 'true');
+### Persistência de "visto"
+
+```dart
+// shared_preferences ou hive para rastrear o que o usuário já viu
+final prefs = await SharedPreferences.getInstance();
+final hasSeenOnboarding = prefs.getBool('onboarding_v1_complete') ?? false;
+if (!hasSeenOnboarding && mounted) {
+  await Navigator.push(context, MaterialPageRoute(builder: (_) => const OnboardingFlow()));
+  await prefs.setBool('onboarding_v1_complete', true);
+}
 ```
+
+Versionar a key (`v1`, `v2`) para mostrar de novo quando você relança feature significativa.
+
+### Empty states em Flutter
+
+Use o widget `AppEmptyState` (de [ux-writing.md](ux-writing.md)) com ícone + título + body + `FilledButton.icon`. Alternativa: `Center(child: Column())` inline.
+
+### Modal patterns
+
+`showModalBottomSheet`, `showDialog`, `Navigator.push(... fullscreenDialog: true)`. Todos lidam com focus trap, dismiss no escape (web/desktop) ou swipe-down (mobile), e retorno de foco automático. Veja [interaction-design.md](interaction-design.md).
+
+### Analytics
+
+`firebase_analytics` ou alternativas (`amplitude_flutter`, `mixpanel_flutter`). Eventos típicos:
+- `onboarding_step_viewed` com `step_index`
+- `onboarding_skipped`
+- `onboarding_completed`
+- `first_action_completed`
 
 **IMPORTANT**: Don't show same onboarding twice (annoying). Track completion and respect dismissals.
 

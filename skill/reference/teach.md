@@ -85,8 +85,12 @@ If the signal is genuinely split (e.g. a product with a big marketing landing), 
 - How would you describe the brand personality in 3 words?
 - Reference sites or apps that capture the right feel? What specifically about them?
   - For brand, push for real-world references in the right lane (tech-minimal, editorial-magazine, consumer-warm, brutalist-grid, etc.), not generic "modern" adjectives.
-  - For product, push for category best-tool references (Linear, Figma, Notion, Raycast, Stripe).
+  - For product, push for category best-tool references (Linear, Figma, Notion, Raycast, Stripe). For mobile-only product, push for category-defining apps (Things, Linear mobile, Notion mobile, Instagram, Apple Wallet, Stripe Dashboard).
 - What should this explicitly NOT look like? Any anti-references?
+
+### Platform (Flutter projects only)
+
+If `pubspec.yaml` exists at root, ask once: "Material (Android-fluent), Cupertino (iOS-fluent), or adaptive (alternates per platform)?" Capture the answer in PRODUCT.md as `platform_strategy: material_only | cupertino_only | adaptive`. The decision shapes every downstream design choice (component vocabulary, motion, dialog style, navigation pattern). Default suggestion based on signals: if `cupertino` imports dominate, lead with `cupertino_only`; if `material` dominates, lead with `material_only`; if both, propose `adaptive`. Never silently default.
 
 ### Accessibility & Inclusion
 - Specific accessibility requirements? (WCAG level, known user needs)
@@ -107,6 +111,9 @@ Synthesize into a strategic document:
 
 product
 
+## Platform Strategy
+[Flutter projects only. Bare value: material_only | cupertino_only | adaptive. Omit section for non-Flutter projects.]
+
 ## Users
 [Who they are, their context, the job to be done]
 
@@ -126,7 +133,7 @@ product
 [WCAG level, known user needs, considerations]
 ```
 
-Register is either `brand` or `product` as a bare value. No prose, no commentary.
+Register is either `brand` or `product` as a bare value. No prose, no commentary. Same rule for `Platform Strategy`.
 
 Write to `PROJECT_ROOT/PRODUCT.md`. If `.impeccable.md` existed, the loader already renamed it; merge into that content rather than starting from scratch.
 

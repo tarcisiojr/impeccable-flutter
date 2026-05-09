@@ -6,7 +6,7 @@ Perform a meticulous final pass to catch all the small details that separate goo
 
 Aligning the feature to the design system is **not optional**. Polish without alignment is decoration on top of drift, and it makes the next person's job harder. Discovery comes before any other polish work.
 
-1. **Find the design system**: Search for design system documentation, component libraries, style guides, or token definitions. Study the core patterns: design principles, target audience, color tokens, spacing scale, typography styles, component API, motion conventions.
+1. **Find the design system**: Search for design system documentation, component libraries, style guides, or token definitions. Em Flutter, isso vive em `lib/theme/`, `lib/core/theme/`, `lib/styles/`, ou diretamente no `MaterialApp(theme: ThemeData(...))` em `lib/main.dart`. Procure por `ThemeData`, `ColorScheme.fromSeed`, `TextTheme`, e `extends ThemeExtension<T>`. Para componentes, `lib/widgets/`, `lib/components/`, ou `lib/shared/`. Study the core patterns: design principles, target audience, color tokens, spacing scale, typography styles, component API, motion conventions.
 2. **Note the conventions**: How are shared components imported? What spacing scale is used? Which colors come from tokens vs hard-coded values? What motion and interaction patterns are established? What flow shapes are used for comparable actions (modal vs full-page, inline vs route, save-on-blur vs explicit submit)?
 3. **Identify drift, then name the root cause**: For every deviation, classify it as a **missing token** (the value should exist in the system but doesn't), a **one-off implementation** (a shared component already exists but wasn't used), or a **conceptual misalignment** (the feature's flow, IA, or hierarchy doesn't match neighboring features). The fix differs by category: patch the value, swap to the shared component, or rework the flow. Fixing the symptom without naming the cause is how drift compounds.
 
@@ -144,13 +144,15 @@ Every interactive element needs all states:
 - **No content**: Handles missing data gracefully
 - **Offline**: Appropriate offline handling (if applicable)
 
-### Responsiveness
+### Adaptive (Flutter)
 
-- **All breakpoints**: Test mobile, tablet, desktop
-- **Touch targets**: 44x44px minimum on touch devices
-- **Readable text**: No text smaller than 14px on mobile
-- **No horizontal scroll**: Content fits viewport
-- **Appropriate reflow**: Content adapts logically
+- **Window classes Material 3**: compact (<600), medium (600-840), expanded (840-1200), large (1200-1600), extra-large (≥1600). Switch entre `BottomNavigationBar` / `NavigationRail` / `NavigationDrawer` permanente.
+- **Touch targets**: 48dp mínimo (Material) ou 44pt (HIG iOS). `MaterialTapTargetSize.padded` no theme.
+- **Texto legível**: `bodyLarge` M3 default 16. Honra `MediaQuery.textScaler` em todas as telas (testar 130% e 200%).
+- **Sem horizontal overflow**: `Wrap`, `Flexible`, `Expanded`, `SingleChildScrollView(scrollDirection: Axis.horizontal)` quando intencional.
+- **Reflow**: `LayoutBuilder` para componente reativo ao container; `MediaQuery.sizeOf` para reativo à viewport.
+- **`SafeArea`**: em modais, sheets, splashes, telas de câmera.
+- **Orientation**: testar landscape em pelo menos 1 device.
 
 ### Performance
 
@@ -162,12 +164,13 @@ Every interactive element needs all states:
 
 ### Code Quality
 
-- **Remove console logs**: No debug logging in production
-- **Remove commented code**: Clean up dead code
-- **Remove unused imports**: Clean up unused dependencies
-- **Consistent naming**: Variables and functions follow conventions
-- **Type safety**: No TypeScript `any` or ignored errors
-- **Accessibility**: Proper ARIA labels and semantic HTML
+- **Remove `print()` / `debugPrint()`**: no debug logging em produção. `kDebugMode` guard quando preciso.
+- **Remove commented code**: clean up dead code.
+- **Remove unused imports**: `dart fix --apply`, `dart analyze` sinaliza.
+- **Consistent naming**: snake_case files, camelCase identifiers, PascalCase classes.
+- **Type safety**: zero `dynamic` quando não justifica. Null safety honored. `late` só com razão.
+- **`const` em todo widget que pode**: o linter `prefer_const_constructors` (em `very_good_analysis`) flag.
+- **Accessibility**: `Semantics` proper em interativos custom, `tooltip` em `IconButton`, `semanticLabel` em imagens informativas. Ver [audit.md](audit.md).
 
 ## Polish Checklist
 
@@ -175,26 +178,26 @@ Go through systematically:
 
 - [ ] Aligned to the design system (drift named and resolved by root cause)
 - [ ] Information architecture and flow shape match neighboring features
-- [ ] Visual alignment perfect at all breakpoints
-- [ ] Spacing uses design tokens consistently
-- [ ] Typography hierarchy consistent
-- [ ] All interactive states implemented
-- [ ] All transitions smooth (60fps)
-- [ ] Copy is consistent and polished
-- [ ] Icons are consistent and properly sized
-- [ ] All forms properly labeled and validated
-- [ ] Error states are helpful
-- [ ] Loading states are clear
-- [ ] Empty states are welcoming
-- [ ] Touch targets are 44x44px minimum
-- [ ] Contrast ratios meet WCAG AA
-- [ ] Keyboard navigation works
-- [ ] Focus indicators visible
-- [ ] No console errors or warnings
-- [ ] No layout shift on load
-- [ ] Works in all supported browsers
-- [ ] Respects reduced motion preference
-- [ ] Code is clean (no TODOs, console.logs, commented code)
+- [ ] Visual alignment perfect at all window classes
+- [ ] Spacing usa `ThemeExtension<SpacingTokens>` ou `EdgeInsets` constantes do theme
+- [ ] Typography via `Theme.of(context).textTheme.*`, sem `TextStyle` literal
+- [ ] All `WidgetState` implementados (default, hovered, focused, pressed, disabled, selected, error)
+- [ ] Transições smooth (60fps em low-end Android via `flutter run --profile`)
+- [ ] Copy consistente e polida
+- [ ] Ícones consistentes e dimensionados (16, 20, 24 default, 32)
+- [ ] `TextFormField` com `labelText`, `helperText`, `errorText`, `validator`
+- [ ] Error states úteis (`SnackBar` com action, ou inline)
+- [ ] Loading states claros (skeleton em vez de spinner cego)
+- [ ] Empty states acolhedores (`AppEmptyState` widget)
+- [ ] Touch targets ≥48dp
+- [ ] Contraste WCAG AA validado em ambos brightness com cores RESOLVIDAS de `colorScheme`
+- [ ] Foco navegável (`FocusableActionDetector`, `Shortcuts` se desktop/web)
+- [ ] Sem warnings em `dart analyze` ou `flutter analyze`
+- [ ] Sem layout shift no startup (`flutter run --trace-startup`)
+- [ ] Funciona em iOS e Android (mínimo um de cada)
+- [ ] Respeita `MediaQuery.disableAnimationsOf`
+- [ ] Respeita `MediaQuery.textScaler` em 130% e 200%
+- [ ] Código limpo (sem TODOs, sem `print`/`debugPrint`, sem código comentado)
 
 **IMPORTANT**: Polish is about details. Zoom in. Squint at it. Use it yourself. The little things add up.
 

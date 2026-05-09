@@ -1,0 +1,20 @@
+name: impeccable_flutter_lints_example
+description: Fixture project for testing impeccable_flutter_lints rules.
+publish_to: none
+
+environment:
+  sdk: ^3.5.0
+  flutter: ">=3.16.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  google_fonts: ^6.2.1
+
+dev_dependencies:
+  custom_lint: ^0.7.0
+  impeccable_flutter_lints:
+    path: ../
+
+flutter:
+  uses-material-design: true

@@ -1,0 +1,39 @@
+analyzer:
+  plugins:
+    - custom_lint
+
+custom_lint:
+  rules:
+    # slop
+    - impeccable_ai_color_palette
+    - impeccable_border_accent_on_rounded
+    - impeccable_deep_purple_seed
+    - impeccable_bounce_elastic_curve
+    - impeccable_dark_glow
+    - impeccable_gradient_text
+    - impeccable_hero_eyebrow_chip
+    - impeccable_icon_tile_stack
+    - impeccable_overused_font
+    - impeccable_italic_serif_display
+    - impeccable_nested_cards
+    - impeccable_side_tab
+    - impeccable_single_font
+    # quality
+    - impeccable_all_caps_body
+    - impeccable_black_white_literal
+    - impeccable_cramped_padding
+    - impeccable_flat_type_hierarchy
+    - impeccable_justified_text
+    - impeccable_layout_transition
+    - impeccable_line_length
+    - impeccable_missing_const_decoration
+    - impeccable_material_baseline
+    - impeccable_missing_safe_area
+    - impeccable_missing_semantics
+    - impeccable_missing_tooltip
+    - impeccable_textstyle_outside_theme
+    - impeccable_tight_leading
+    - impeccable_tiny_text
+    - impeccable_touch_target_too_small
+    - impeccable_use_material3_false
+    - impeccable_wide_tracking

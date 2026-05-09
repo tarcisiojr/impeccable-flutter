@@ -1,179 +1,219 @@
-# Persona-Based Design Testing
+# Persona-Based Design Testing (Flutter)
 
-Test the interface through the eyes of 5 distinct user archetypes. Each persona exposes different failure modes that a single "design director" perspective would miss.
+Testar a interface pelos olhos de 6 arquétipos de usuário. Cada persona expõe modos de falha que uma única perspectiva de "design director" perde. Em mobile, o **Distracted Mobile User** sai de "secundário" para **primário**; quase todo app Flutter atende ele.
 
-**How to use**: Select 2–3 personas most relevant to the interface being critiqued. Walk through the primary user action as each persona. Report specific red flags, not generic concerns.
+**Como usar**: selecione 2–3 personas mais relevantes para a interface. Caminhe pela ação primária como cada persona. Reporte red flags específicos, não preocupações genéricas.
 
 ---
 
-## 1. Impatient Power User: "Alex"
+## 1. Distracted Mobile User: "Casey" (PRIMARY em Flutter)
 
-
-**Profile**: Expert with similar products. Expects efficiency, hates hand-holding. Will find shortcuts or leave.
+**Profile**: Phone uma mão, em movimento. Interrompido frequentemente. Talvez em conexão lenta.
 
 **Behaviors**:
-- Skips all onboarding and instructions
-- Looks for keyboard shortcuts immediately
-- Tries to bulk-select, batch-edit, and automate
-- Gets frustrated by required steps that feel unnecessary
-- Abandons if anything feels slow or patronizing
+- Polegar único; prefere ações na metade inferior da tela.
+- Interrompido no meio do fluxo, retorna depois.
+- Troca entre apps frequentemente (notificação, mensagem, voltar).
+- Atenção limitada e baixa paciência.
+- Tipa o mínimo possível, prefere taps e seleções.
 
-**Test Questions**:
-- Can Alex complete the core task in under 60 seconds?
-- Are there keyboard shortcuts for common actions?
-- Can onboarding be skipped entirely?
-- Do modals have keyboard dismiss (Esc)?
-- Is there a "power user" path (shortcuts, bulk actions)?
+**Test questions**:
+- Ações primárias estão na thumb zone (metade inferior)?
+- State é preservado se sai e volta? (`RestorationMixin`?)
+- Funciona em conexão lenta? (cached_network_image, optimistic UI?)
+- Forms usam autocomplete, smart defaults, e `TextInputType` específico (`emailAddress`, `phone`, `number`)?
+- Touch targets ≥48dp?
+- O app respeita `MediaQuery.textScaler` em 130%? 200%?
 
-**Red Flags** (report these specifically):
-- Forced tutorials or unskippable onboarding
-- No keyboard navigation for primary actions
-- Slow animations that can't be skipped
-- One-item-at-a-time workflows where batch would be natural
-- Redundant confirmation steps for low-risk actions
+**Red flags** (reporte específico):
+- Ações primárias no topo, fora do polegar (botão "Continuar" no `AppBar`).
+- Sem persistência de state; progresso perdido em background/foreground.
+- Inputs grandes de texto onde seleção (chip, dropdown) resolveria.
+- Assets pesados em cada tela (sem lazy load).
+- Touch targets minúsculos ou colados.
+- `TextField` sem `keyboardType:` correto (teclado padrão para email faz o usuário trocar de teclado manualmente).
 
 ---
 
-## 2. Confused First-Timer: "Jordan"
+## 2. Low-End Android: "Diego" (mobile-specific)
 
-**Profile**: Never used this type of product. Needs guidance at every step. Will abandon rather than figure it out.
+**Profile**: Moto G de 4 anos, RAM apertada, CPU mediana. Conexão 4G ou 3G. Bateria que dura 3 horas.
 
 **Behaviors**:
-- Reads all instructions carefully
-- Hesitates before clicking anything unfamiliar
-- Looks for help or support constantly
-- Misunderstands jargon and abbreviations
-- Takes the most literal interpretation of any label
+- Reage mal a animações pesadas (jank visível).
+- Perde paciência em loading >2s.
+- Bateria critica em viagem; toda animação custa.
+- Usuário típico de mercado emergente; representa uma fatia enorme da base global Flutter.
 
-**Test Questions**:
-- Is the first action obviously clear within 5 seconds?
-- Are all icons labeled with text?
-- Is there contextual help at decision points?
-- Does terminology assume prior knowledge?
-- Is there a clear "back" or "undo" at every step?
+**Test questions**:
+- O app rode 60fps no `flutter run --profile` em device baixo custo?
+- App size <30MB? (Devices baratos têm 16-32GB total.)
+- Imagens otimizadas via `cacheWidth`/`cacheHeight`?
+- `RepaintBoundary` em listas longas?
+- `const` constructors em todo widget que pode?
+- `BackdropFilter` confinado a áreas pequenas (não `BackdropFilter` em fullscreen)?
+- Initial route renderiza em <2s (`flutter run --trace-startup`)?
 
-**Red Flags** (report these specifically):
-- Icon-only navigation with no labels
-- Technical jargon without explanation
-- No visible help option or guidance
-- Ambiguous next steps after completing an action
-- No confirmation that an action succeeded
+**Red flags**:
+- Splash screen >2s.
+- Listas com `Image.network` cru (sem cache, sem cacheWidth).
+- `BackdropFilter` em tela inteira.
+- Widget sem `const` que faz rebuild a cada `setState`.
+- `StatefulWidget` que reconstrói toda a árvore por causa de uma seta animada.
+- App que consome >150MB de RAM em uso normal.
+- Animation que não dropa para `Duration.zero` em `disableAnimationsOf`.
 
 ---
 
-## 3. Accessibility-Dependent User: "Sam"
+## 3. Accessibility-Dependent: "Sam"
 
-**Profile**: Uses screen reader (VoiceOver/NVDA), keyboard-only navigation. May have low vision, motor impairment, or cognitive differences.
+**Profile**: TalkBack (Android) ou VoiceOver (iOS), navegação por gesto/swipe. Pode ter low vision, motor impairment, ou diferenças cognitivas. Pode ter Switch Control.
 
 **Behaviors**:
-- Tabs through the interface linearly
-- Relies on ARIA labels and heading structure
-- Cannot see hover states or visual-only indicators
-- Needs adequate color contrast (4.5:1 minimum)
-- May use browser zoom up to 200%
+- Navega linear pela árvore Semantics.
+- Depende de `Semantics(label:)` e estrutura de heading via `Semantics(header: true)`.
+- Não vê hover states ou indicadores só-visuais.
+- Precisa contraste adequado (4.5:1 mínimo).
+- Pode usar `MediaQuery.textScaler` em 200%+.
+- iOS: pode usar AssistiveTouch em vez de gestos.
 
-**Test Questions**:
-- Can the entire primary flow be completed keyboard-only?
-- Are all interactive elements focusable with visible focus indicators?
-- Do images have meaningful alt text?
-- Is color contrast WCAG AA compliant (4.5:1 for text)?
-- Does the screen reader announce state changes (loading, success, errors)?
+**Test questions**:
+- Fluxo primário inteiro completável com TalkBack/VoiceOver?
+- Todo elemento interativo tem `Semantics` com label útil?
+- `IconButton` tem `tooltip:` (que vira label de a11y)?
+- `Image`/`Icon` informativo tem `semanticLabel:`?
+- Contraste WCAG AA passa em ambos os brightness?
+- Screen reader anuncia mudanças de state (loading, success, error)? (Use `Semantics(liveRegion: true)`.)
+- Touch target 48dp? `MaterialTapTargetSize.padded` no theme?
+- App respeita 200% text scale sem quebrar layout?
 
-**Red Flags** (report these specifically):
-- Click-only interactions with no keyboard alternative
-- Missing or invisible focus indicators
-- Meaning conveyed by color alone (red = error, green = success)
-- Unlabeled form fields or buttons
-- Time-limited actions without extension option
-- Custom components that break screen reader flow
+**Red flags**:
+- `GestureDetector` sem `Semantics` envolvendo.
+- `IconButton` sem `tooltip:`.
+- Cor sozinha conveying significado (vermelho = erro, verde = sucesso).
+- `Image.asset` decorativa sem `semanticLabel: ''` (excludeFromSemantics seria limpo).
+- Custom widgets que quebram fluxo do screen reader.
+- Time-limited actions sem opção de extender.
+- Hard-code `MediaQuery.copyWith(textScaler: TextScaler.noScaling)`.
 
 ---
 
-## 4. Deliberate Stress Tester: "Riley"
+## 4. Confused First-Timer: "Jordan"
 
-**Profile**: Methodical user who pushes interfaces beyond the happy path. Tests edge cases, tries unexpected inputs, and probes for gaps in the experience.
+**Profile**: Nunca usou esse tipo de produto. Precisa guidance em cada passo. Abandona em vez de figure-out.
 
 **Behaviors**:
-- Tests edge cases intentionally (empty states, long strings, special characters)
-- Submits forms with unexpected data (emoji, RTL text, very long values)
-- Tries to break workflows by navigating backwards, refreshing mid-flow, or opening in multiple tabs
-- Looks for inconsistencies between what the UI promises and what actually happens
-- Documents problems methodically
+- Lê todas as instruções com cuidado.
+- Hesita antes de tocar em qualquer coisa não-familiar.
+- Procura ajuda ou suporte constantemente.
+- Não entende jargão e abreviações.
+- Pega a interpretação mais literal de qualquer label.
 
-**Test Questions**:
-- What happens at the edges (0 items, 1000 items, very long text)?
-- Do error states recover gracefully or leave the UI in a broken state?
-- What happens on refresh mid-workflow? Is state preserved?
-- Are there features that appear to work but produce broken results?
-- How does the UI handle unexpected input (emoji, special chars, paste from Excel)?
+**Test questions**:
+- A primeira ação é obviamente clara em 5 segundos?
+- Todos os ícones têm label de texto?
+- Há ajuda contextual em pontos de decisão (`Tooltip`, `helperText`)?
+- Terminologia assume conhecimento prévio?
+- Há "voltar" ou "desfazer" claro em cada passo?
 
-**Red Flags** (report these specifically):
-- Features that appear to work but silently fail or produce wrong results
-- Error handling that exposes technical details or leaves UI in a broken state
-- Empty states that show nothing useful ("No results" with no guidance)
-- Workflows that lose user data on refresh or navigation
-- Inconsistent behavior between similar interactions in different parts of the UI
+**Red flags**:
+- Navegação só-ícone sem labels.
+- Jargão técnico sem explicação.
+- Sem opção visível de ajuda.
+- Próximo passo ambíguo após completar uma ação.
+- Sem confirmação que ação teve sucesso (sem `SnackBar`, sem feedback visual).
 
 ---
 
-## 5. Distracted Mobile User: "Casey"
+## 5. Impatient Power User: "Alex"
 
-**Profile**: Using phone one-handed on the go. Frequently interrupted. Possibly on a slow connection.
+**Profile**: Expert em produtos similares. Espera eficiência, odeia hand-holding. Vai achar atalhos ou sair.
 
 **Behaviors**:
-- Uses thumb only; prefers bottom-of-screen actions
-- Gets interrupted mid-flow and returns later
-- Switches between apps frequently
-- Has limited attention span and low patience
-- Types as little as possible, prefers taps and selections
+- Pula todo onboarding e instructions.
+- Procura atalhos imediato.
+- Tenta bulk-select, batch-edit, automatizar.
+- Frustra com passos required que parecem desnecessários.
+- Abandona se algo parece lento ou paternalista.
 
-**Test Questions**:
-- Are primary actions in the thumb zone (bottom half of screen)?
-- Is state preserved if the user leaves and returns?
-- Does it work on slow connections (3G)?
-- Can forms use autocomplete and smart defaults?
-- Are touch targets at least 44×44pt?
+**Test questions**:
+- Alex completa a tarefa core em <60s?
+- Há atalhos de teclado para ações comuns? (Especialmente em Flutter web/desktop.)
+- Onboarding é totalmente skipável?
+- Modais têm dismiss por gesture (swipe down) e back button?
+- Há um caminho power user (gestos, bulk actions, long-press menu)?
 
-**Red Flags** (report these specifically):
-- Important actions positioned at the top of the screen (unreachable by thumb)
-- No state persistence; progress lost on tab switch or interruption
-- Large text inputs required where selection would work
-- Heavy assets loading on every page (no lazy loading)
-- Tiny tap targets or targets too close together
-
----
-
-## Selecting Personas
-
-Choose personas based on the interface type:
-
-| Interface Type | Primary Personas | Why |
-|---------------|-----------------|-----|
-| Landing page / marketing | Jordan, Riley, Casey | First impressions, trust, mobile |
-| Dashboard / admin | Alex, Sam | Power users, accessibility |
-| E-commerce / checkout | Casey, Riley, Jordan | Mobile, edge cases, clarity |
-| Onboarding flow | Jordan, Casey | Confusion, interruption |
-| Data-heavy / analytics | Alex, Sam | Efficiency, keyboard nav |
-| Form-heavy / wizard | Jordan, Sam, Casey | Clarity, accessibility, mobile |
+**Red flags**:
+- Tutoriais forçados ou onboarding não-skipável.
+- Sem keyboard nav para ações primárias (Flutter desktop/web).
+- Animações lentas que não podem ser puladas.
+- Workflows um-item-por-vez onde batch seria natural.
+- Confirmação redundante para ações low-risk.
 
 ---
 
-## Project-Specific Personas
+## 6. Deliberate Stress Tester: "Riley"
 
-If `.kiro/settings.json` contains a `## Design Context` section (generated by `impeccable teach`), derive 1–2 additional personas from the audience and brand information:
+**Profile**: Usuário metódico que empurra interfaces além do happy path. Testa edge cases, tenta inputs inesperados, busca gaps.
 
-1. Read the target audience description
-2. Identify the primary user archetype not covered by the 5 predefined personas
-3. Create a persona following this template:
+**Behaviors**:
+- Testa edge cases intencionalmente (estado vazio, strings longas, caracteres especiais).
+- Submete forms com data inesperado (emoji, RTL, valores enormes).
+- Tenta quebrar workflows: voltar, refresh, abrir em múltiplas telas, force-close mid-flow.
+- Procura inconsistências entre o que UI promete e o que entrega.
+
+**Test questions**:
+- O que acontece nos limites (0 items, 1000 items, texto muito longo)?
+- Erros recuperam graciosamente, ou deixam a UI quebrada?
+- Refresh mid-workflow preserva state?
+- Features parecem funcionar mas produzem resultados quebrados?
+- Como UI lida com input inesperado (emoji, especiais, paste)?
+- App entra em background e volta com state íntegro?
+- Sem internet, app degrada graciosamente ou trava?
+
+**Red flags**:
+- Features que parecem funcionar mas falham silencioso.
+- Error handling expondo detalhes técnicos (stack trace na UI).
+- Empty states que mostram nada útil ("Sem resultados" sem orientação).
+- Workflows que perdem dados em refresh ou navegação.
+- Comportamento inconsistente entre interações similares em partes diferentes da UI.
+- App que crash em rotação de tela.
+- App que crash sem internet e não recupera.
+
+---
+
+## Selecionando personas
+
+Escolha por tipo de interface:
+
+| Tipo | Personas primárias | Razão |
+|---|---|---|
+| App de consumo (social, e-commerce, content) | Casey, Jordan, Diego | Mobile-first, primeira impressão, performance baixa |
+| Productivity / dashboard / admin | Alex, Sam, Casey | Power users, a11y, mobile companion |
+| Onboarding | Jordan, Casey | Confusão, interrupção |
+| Form-heavy (cadastro, checkout) | Casey, Jordan, Riley | Mobile, claridade, edge cases |
+| App offline-first | Riley, Diego | Recuperação de erro, conexão pobre |
+| App crítico (saúde, financeiro) | Sam, Riley, Jordan | A11y compliance, integridade, claridade |
+| App de jogo casual | Diego, Sam | Performance, a11y |
+
+---
+
+## Personas project-specific
+
+Se `.kiro/settings.json` ou `PRODUCT.md` contém uma seção `## Design Context` (gerada por `/impeccable teach`), derive 1-2 personas adicionais:
+
+1. Leia a descrição de target audience.
+2. Identifique o arquétipo primário não coberto pelas 6 predefinidas.
+3. Crie persona seguindo o template:
 
 ```
 ### [Role]: "[Name]"
 
-**Profile**: [2-3 key characteristics derived from Design Context]
+**Profile**: [2-3 características-chave do Design Context]
 
-**Behaviors**: [3-4 specific behaviors based on the described audience]
+**Behaviors**: [3-4 comportamentos específicos baseados na audiência]
 
-**Red Flags**: [3-4 things that would alienate this specific user type]
+**Red flags**: [3-4 coisas que alienariam esse usuário específico]
 ```
 
-Only generate project-specific personas when real Design Context data is available. Don't invent audience details; use the 5 predefined personas when no context exists.
+Só gere personas project-specific quando há dados reais de Design Context. Não invente detalhes; use as 6 predefinidas quando não há contexto.

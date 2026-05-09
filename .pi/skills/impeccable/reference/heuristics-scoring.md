@@ -1,234 +1,207 @@
-# Heuristics Scoring Guide
+# Heuristics Scoring Guide (Flutter)
 
-Score each of Nielsen's 10 Usability Heuristics on a 0–4 scale. Be honest: a 4 means genuinely excellent, not "good enough."
+Pontue cada uma das 10 Heurísticas de Nielsen numa escala 0–4. Seja honesto: 4 significa genuinamente excelente, não "bom o suficiente."
 
-## Nielsen's 10 Heuristics
+Princípios universais. "Check for" reescrito em vocabulário Flutter. Leia [flutter-foundations.md](flutter-foundations.md).
 
-### 1. Visibility of System Status
+## Heurísticas de Nielsen (10)
 
-Keep users informed about what's happening through timely, appropriate feedback.
+### 1. Visibilidade do estado do sistema
 
-**Check for**:
-- Loading indicators during async operations
-- Confirmation of user actions (save, submit, delete)
-- Progress indicators for multi-step processes
-- Current location in navigation (breadcrumbs, active states)
-- Form validation feedback (inline, not just on submit)
-
-**Scoring**:
-| Score | Criteria |
-|-------|----------|
-| 0 | No feedback; user is guessing what happened |
-| 1 | Rare feedback; most actions produce no visible response |
-| 2 | Partial; some states communicated, major gaps remain |
-| 3 | Good; most operations give clear feedback, minor gaps |
-| 4 | Excellent; every action confirms, progress is always visible |
-
-### 2. Match Between System and Real World
-
-Speak the user's language. Follow real-world conventions. Information appears in natural, logical order.
+Manter usuário informado do que está acontecendo via feedback oportuno e apropriado.
 
 **Check for**:
-- Familiar terminology (no unexplained jargon)
-- Logical information order matching user expectations
-- Recognizable icons and metaphors
-- Domain-appropriate language for the target audience
-- Natural reading flow (left-to-right, top-to-bottom priority)
+- Loading indicators em operações async (`CircularProgressIndicator`, skeleton, `LinearProgressIndicator`).
+- Confirmação de ações (`SnackBar` no save, no delete).
+- Indicadores de progresso em fluxos multi-step (`Stepper`, `LinearProgressIndicator` no top).
+- Localização atual em navegação (`NavigationBar.selectedIndex`, `BottomNavigationBar.currentIndex`, breadcrumbs em desktop).
+- Validação de form inline (`TextFormField` `errorText`), não só no submit.
 
 **Scoring**:
-| Score | Criteria |
-|-------|----------|
-| 0 | Pure tech jargon, alien to users |
-| 1 | Mostly confusing; requires domain expertise to navigate |
-| 2 | Mixed; some plain language, some jargon leaks through |
-| 3 | Mostly natural; occasional term needs context |
-| 4 | Speaks the user's language fluently throughout |
+| Score | Critério |
+|---|---|
+| 0 | Sem feedback; usuário adivinha o que aconteceu |
+| 1 | Feedback raro; maioria das ações sem resposta visível |
+| 2 | Parcial; alguns estados comunicados, gaps majores |
+| 3 | Bom; maioria das operações dá feedback claro, gaps menores |
+| 4 | Excelente; toda ação confirma, progresso sempre visível |
 
-### 3. User Control and Freedom
+### 2. Match entre sistema e mundo real
 
-Users need a clear "emergency exit" from unwanted states without extended dialogue.
+Falar a linguagem do usuário. Seguir convenções reais. Informação em ordem natural.
 
 **Check for**:
-- Undo/redo functionality
-- Cancel buttons on forms and modals
-- Clear navigation back to safety (home, previous)
-- Easy way to clear filters, search, selections
-- Escape from long or multi-step processes
+- Terminologia familiar (sem jargão sem explicação).
+- Ordem lógica de informação igual à expectativa do usuário.
+- Ícones reconhecíveis (`Icons.shopping_cart`, `Icons.search`; não inventar).
+- Linguagem apropriada ao domínio para a audiência alvo.
+- Reading flow natural (top-to-bottom, start-to-end com Directionality correto).
 
 **Scoring**:
-| Score | Criteria |
-|-------|----------|
-| 0 | Users get trapped; no way out without refreshing |
-| 1 | Difficult exits; must find obscure paths to escape |
-| 2 | Some exits; main flows have escape, edge cases don't |
-| 3 | Good control; users can exit and undo most actions |
-| 4 | Full control; undo, cancel, back, and escape everywhere |
+| Score | Critério |
+|---|---|
+| 0 | Jargão tech puro, alien para usuários |
+| 1 | Mostly confuso; pede expertise para navegar |
+| 2 | Misturado; alguma linguagem clara, jargão escapando |
+| 3 | Mostly natural; termo ocasional precisa de contexto |
+| 4 | Fala a linguagem do usuário fluentemente |
 
-### 4. Consistency and Standards
+### 3. Controle e liberdade do usuário
 
-Users shouldn't wonder whether different words, situations, or actions mean the same thing.
+Saída clara de estados indesejados sem diálogo extenso.
 
 **Check for**:
-- Consistent terminology throughout the interface
-- Same actions produce same results everywhere
-- Platform conventions followed (standard UI patterns)
-- Visual consistency (colors, typography, spacing, components)
-- Consistent interaction patterns (same gesture = same behavior)
+- Undo (`SnackBarAction(label: 'Desfazer', ...)`).
+- Cancel em forms e modais.
+- Navegação clara de volta (`Navigator.pop`, back button do sistema, swipe-to-back no iOS).
+- Limpar filtros, busca, seleções facilmente.
+- Saída de fluxos longos (`AppBar.leading: IconButton(icon: Icons.close)` em fullscreen modal).
+- Predictive back gesture no Android 14+.
 
 **Scoring**:
-| Score | Criteria |
-|-------|----------|
-| 0 | Inconsistent everywhere; feels like different products stitched together |
-| 1 | Many inconsistencies; similar things look/behave differently |
-| 2 | Partially consistent; main flows match, details diverge |
-| 3 | Mostly consistent; occasional deviation, nothing confusing |
-| 4 | Fully consistent; cohesive system, predictable behavior |
+| Score | Critério |
+|---|---|
+| 0 | Usuários ficam presos; sem saída sem force-close |
+| 1 | Saídas difíceis; precisa achar caminhos obscuros |
+| 2 | Algumas saídas; flows main têm escape, edge não |
+| 3 | Bom controle; usuário escapa e undo a maioria |
+| 4 | Controle total; undo, cancel, back, escape em todo lugar |
 
-### 5. Error Prevention
+### 4. Consistência e padrões
 
-Better than good error messages is a design that prevents problems in the first place.
+Usuário não deveria se perguntar se palavras/situações/ações diferentes significam o mesmo.
 
 **Check for**:
-- Confirmation before destructive actions (delete, overwrite)
-- Constraints preventing invalid input (date pickers, dropdowns)
-- Smart defaults that reduce errors
-- Clear labels that prevent misunderstanding
-- Autosave and draft recovery
+- Terminologia consistente.
+- Mesma ação produz mesmo resultado em todo lugar.
+- Convenções de plataforma respeitadas (Material no Android, Cupertino no iOS quando appropriado).
+- Consistência visual (cores via `colorScheme`, type via `textTheme`, spacing via tokens).
+- Padrões de interação consistentes (mesmo gesto = mesmo comportamento).
 
 **Scoring**:
-| Score | Criteria |
-|-------|----------|
-| 0 | Errors easy to make; no guardrails anywhere |
-| 1 | Few safeguards; some inputs validated, most aren't |
-| 2 | Partial prevention; common errors caught, edge cases slip |
-| 3 | Good prevention; most error paths blocked proactively |
-| 4 | Excellent; errors nearly impossible through smart constraints |
+| Score | Critério |
+|---|---|
+| 0 | Inconsistente em todo lugar; parece produtos diferentes costurados |
+| 1 | Muitas inconsistências; coisas similares parecem/comportam diferente |
+| 2 | Parcialmente consistente; flows main matched, detalhes divergem |
+| 3 | Mostly consistente; desvio ocasional, nada confuso |
+| 4 | Totalmente consistente; sistema coeso, comportamento previsível |
 
-### 6. Recognition Rather Than Recall
+### 5. Prevenção de erro
 
-Minimize memory load. Make objects, actions, and options visible or easily retrievable.
+Melhor que boa mensagem de erro é design que previne o problema.
 
 **Check for**:
-- Visible options (not buried in hidden menus)
-- Contextual help when needed (tooltips, inline hints)
-- Recent items and history
-- Autocomplete and suggestions
-- Labels on icons (not icon-only navigation)
+- Confirmação antes de destrutivos (delete, overwrite).
+- Constraints prevenindo input inválido (`TextInputType.number`, `inputFormatters: [FilteringTextInputFormatter.digitsOnly]`, `DatePicker` em vez de field livre).
+- Defaults inteligentes que reduzem erros.
+- Labels claros.
+- Autosave e draft recovery (`RestorationMixin`, `SharedPreferences` para drafts).
 
-**Scoring**:
-| Score | Criteria |
-|-------|----------|
-| 0 | Heavy memorization; users must remember paths and commands |
-| 1 | Mostly recall; many hidden features, few visible cues |
-| 2 | Some aids; main actions visible, secondary features hidden |
-| 3 | Good recognition; most things discoverable, few memory demands |
-| 4 | Everything discoverable; users never need to memorize |
+**Scoring**: idêntico ao framework geral.
 
-### 7. Flexibility and Efficiency of Use
+### 6. Reconhecimento em vez de recall
 
-Accelerators, invisible to novices, speed up expert interaction.
+Minimizar load de memória. Tornar objetos, ações e opções visíveis ou facilmente recuperáveis.
 
 **Check for**:
-- Keyboard shortcuts for common actions
-- Customizable interface elements
-- Recent items and favorites
-- Bulk/batch actions
-- Power user features that don't complicate the basics
+- Opções visíveis (não enterradas em menus escondidos).
+- Ajuda contextual (`Tooltip`, `helperText`, inline hints).
+- Items recentes e history.
+- Autocomplete e sugestões (`Autocomplete<T>` widget).
+- Labels em ícones (não icon-only nav, exceto onde icon é universal: home, busca, perfil).
 
-**Scoring**:
-| Score | Criteria |
-|-------|----------|
-| 0 | One rigid path; no shortcuts or alternatives |
-| 1 | Limited flexibility; few alternatives to the main path |
-| 2 | Some shortcuts; basic keyboard support, limited bulk actions |
-| 3 | Good accelerators; keyboard nav, some customization |
-| 4 | Highly flexible; multiple paths, power features, customizable |
+**Scoring**: idêntico.
 
-### 8. Aesthetic and Minimalist Design
+### 7. Flexibilidade e eficiência
 
-Interfaces should not contain irrelevant or rarely needed information. Every element should serve a purpose.
+Aceleradores invisíveis ao novato aceleram interação experiente.
 
-**Check for**:
-- Only necessary information visible at each step
-- Clear visual hierarchy directing attention
-- Purposeful use of color and emphasis
-- No decorative clutter competing for attention
-- Focused, uncluttered layouts
+**Check for em mobile**:
+- Long-press para ações secundárias.
+- Swipe gestures (`Dismissible`) com fallback visível.
+- Pull-to-refresh em listas.
+- Items recentes/favoritos no topo.
+- Bulk actions (`SelectableText`, `MultiSelect` patterns).
 
-**Scoring**:
-| Score | Criteria |
-|-------|----------|
-| 0 | Overwhelming; everything competes for attention equally |
-| 1 | Cluttered; too much noise, hard to find what matters |
-| 2 | Some clutter; main content clear, periphery noisy |
-| 3 | Mostly clean; focused design, minor visual noise |
-| 4 | Perfectly minimal; every element earns its pixel |
+**Em desktop/web Flutter**:
+- Atalhos de teclado via `Shortcuts` + `Actions`.
+- Comandos via `SearchAnchor` (M3 search bar).
+- Customização de interface (themes, density).
 
-### 9. Help Users Recognize, Diagnose, and Recover from Errors
+**Scoring**: idêntico.
 
-Error messages should use plain language, precisely indicate the problem, and constructively suggest a solution.
+### 8. Design estético e minimalista
+
+Interfaces não devem conter informação irrelevante ou raramente necessária.
 
 **Check for**:
-- Plain language error messages (no error codes for users)
-- Specific problem identification ("Email is missing @" not "Invalid input")
-- Actionable recovery suggestions
-- Errors displayed near the source of the problem
-- Non-blocking error handling (don't wipe the form)
+- Só informação necessária visível em cada passo.
+- Hierarquia visual clara dirigindo atenção.
+- Uso proposital de cor e ênfase (`colorScheme.primary` raro).
+- Sem clutter decorativo competindo (no `Card` desnecessário, no shadow excessiva).
+- Layouts focados.
 
-**Scoring**:
-| Score | Criteria |
-|-------|----------|
-| 0 | Cryptic errors; codes, jargon, or no message at all |
-| 1 | Vague errors; "Something went wrong" with no guidance |
-| 2 | Clear but unhelpful; names the problem but not the fix |
-| 3 | Clear with suggestions; identifies problem and offers next steps |
-| 4 | Perfect recovery; pinpoints issue, suggests fix, preserves user work |
+**Scoring**: idêntico.
 
-### 10. Help and Documentation
+### 9. Ajuda usuário a reconhecer, diagnosticar e recuperar de erros
 
-Even if the system is usable without docs, help should be easy to find, task-focused, and concise.
+Mensagens de erro em linguagem clara, problema preciso, solução construtiva.
 
 **Check for**:
-- Searchable help or documentation
-- Contextual help (tooltips, inline hints, guided tours)
-- Task-focused organization (not feature-organized)
-- Concise, scannable content
-- Easy access without leaving current context
+- Linguagem clara (sem error codes para usuários).
+- Identificação específica ("Email falta @" não "Input inválido").
+- Sugestões acionáveis de recuperação.
+- Erros mostrados perto da fonte (`InputDecoration.errorText`, não diálogo separado).
+- Error handling não-bloqueante (não limpa o form, preserva input).
 
-**Scoring**:
-| Score | Criteria |
-|-------|----------|
-| 0 | No help available anywhere |
-| 1 | Help exists but hard to find or irrelevant |
-| 2 | Basic help; FAQ or docs exist, not contextual |
-| 3 | Good documentation; searchable, mostly task-focused |
-| 4 | Excellent contextual help; right info at the right moment |
+**Scoring**: idêntico.
+
+### 10. Ajuda e documentação
+
+Mesmo que o sistema seja usável sem docs, ajuda deve ser fácil de achar, focada em tarefa, concisa.
+
+**Check for**:
+- Help searchable.
+- Ajuda contextual (`Tooltip`, `Showcaseview`, inline hints, guided tours).
+- Organização por tarefa (não por feature).
+- Conteúdo conciso, scannable.
+- Acesso fácil sem deixar contexto atual.
+
+**Scoring**: idêntico.
 
 ---
 
-## Score Summary
+## Sumário do score
 
-**Total possible**: 40 points (10 heuristics × 4 max)
+**Total possível**: 40 pontos (10 heurísticas × 4 max)
 
-| Score Range | Rating | What It Means |
-|-------------|--------|---------------|
-| 36–40 | Excellent | Minor polish only; ship it |
-| 28–35 | Good | Address weak areas, solid foundation |
-| 20–27 | Acceptable | Significant improvements needed before users are happy |
-| 12–19 | Poor | Major UX overhaul required; core experience broken |
-| 0–11 | Critical | Redesign needed; unusable in current state |
+| Faixa | Rating | Significado |
+|---|---|---|
+| 36–40 | Excelente | Polish menor; ship |
+| 28–35 | Bom | Resolver áreas fracas, fundação sólida |
+| 20–27 | Aceitável | Melhorias significativas antes de usuários ficarem felizes |
+| 12–19 | Pobre | Overhaul de UX major; experience core quebrada |
+| 0–11 | Crítico | Redesign; inutilizável no estado atual |
 
 ---
 
-## Issue Severity (P0–P3)
+## Severidade de issue (P0–P3)
 
-Tag each individual issue found during scoring with a priority level:
+Tagueie cada issue encontrado durante scoring com nível de prioridade:
 
-| Priority | Name | Description | Action |
-|----------|------|-------------|--------|
-| **P0** | Blocking | Prevents task completion entirely | Fix immediately; this is a showstopper |
-| **P1** | Major | Causes significant difficulty or confusion | Fix before release |
-| **P2** | Minor | Annoyance, but workaround exists | Fix in next pass |
-| **P3** | Polish | Nice-to-fix, no real user impact | Fix if time permits |
+| Prioridade | Nome | Descrição | Ação |
+|---|---|---|---|
+| **P0** | Blocking | Impede completar tarefa inteiramente | Corrigir imediato; é showstopper |
+| **P1** | Major | Causa dificuldade ou confusão significativa | Corrigir antes do release |
+| **P2** | Minor | Annoyance, mas há workaround | Corrigir no próximo pass |
+| **P3** | Polish | Nice-to-fix, sem impacto real | Corrigir se sobra tempo |
 
-**Tip**: If you're unsure between two levels, ask: "Would a user contact support about this?" If yes, it's at least P1.
+**Tip**: Se incerto entre dois níveis, pergunte: "Usuário contataria suporte por isso?" Se sim, é pelo menos P1.
+
+## P0-P3 mobile-specific examples
+
+- **P0**: app crash em rotação. Backup falha silencioso. Botão de "comprar" sem feedback (usuário compra duas vezes). Login que perde credenciais em background.
+- **P1**: ação primária fora do thumb reach. SnackBar duration 1s (some antes de ler). Animation que não respeita `disableAnimationsOf`. Validação de form só no submit.
+- **P2**: `IconButton` sem tooltip. `Image.asset` decorativa sem `excludeFromSemantics`. Splash 1.5s onde 800ms cabia.
+- **P3**: spacing 14 onde 16 pertencia. Cor de divider ligeiramente fora do scheme. Microcopy "Tudo OK" em vez de "Salvo".

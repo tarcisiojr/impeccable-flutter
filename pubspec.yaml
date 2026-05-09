@@ -1,0 +1,28 @@
+# Pubspec raiz do monorepo `impeccable_flutter`.
+#
+# Este repo é um port em andamento do `impeccable` (web) para Flutter.
+# Veja FLUTTER-PORT.md para o status e o plano completo em
+# ~/.claude/plans/analise-o-repo-iterative-snowglobe.md.
+#
+# A raiz NÃO é publicável: ela existe apenas para
+#   1. Sinalizar ao Claude Code (e à stack `dart` global) que este projeto
+#      tem alma Flutter — habilita os comandos de validação `dart analyze
+#      && dart format` quando houver código Dart de fato.
+#   2. Servir de workspace Dart para os pacotes filhos que entram nas
+#      Fases 3 e 4 do plano (`lints/` e `cli_dart/`).
+#
+# Quando os pacotes filhos forem criados, descomente o bloco `workspace`.
+
+name: impeccable_flutter
+description: >-
+  Toolbox de design para apps Flutter — port do impeccable (web).
+  Skill de 23 comandos + lints custom_lint + CLI Dart. Em construção.
+publish_to: none
+version: 0.0.1-port
+
+environment:
+  sdk: ^3.5.0
+
+# workspace:
+#   - lints
+#   - cli_dart

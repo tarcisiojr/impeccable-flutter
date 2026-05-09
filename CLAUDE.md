@@ -1,5 +1,16 @@
 # Project Instructions for Claude
 
+## Flutter port — onde estamos (LEIA ANTES DE TOCAR EM `skill/` OU `cli/`)
+
+Este repo está sendo transformado de `impeccable` (web) para `impeccable_flutter`. Trabalho em andamento na branch `flutter-port`. Antes de editar comandos, referências, regras de detecção ou qualquer coisa do `skill/`, leia `FLUTTER-PORT.md` na raiz — ele tem o status por comando, por regra, e a estratégia (preservar / adaptar / reescrever) para cada peça. O plano completo vive em `~/.claude/plans/analise-o-repo-iterative-snowglobe.md`.
+
+Regras de coexistência durante o port:
+
+- **Web sobrevive intacta.** `cli/` (Node), `extension/`, `tests/framework-fixtures/`, `_redirects` e o pipeline Cloudflare Pages continuam funcionais até a Fase 8. Não apagar nem refatorar agressivamente.
+- **`skill/` é o front de batalha.** Reescritas conceituais vivem em `skill/reference/*.md`. Manter os cabeçalhos das seções idênticos para não quebrar o router.
+- **Validação Dart só fica obrigatória depois da Fase 3** (quando `lints/` e `cli_dart/` existirem). Até lá, o `dart analyze && dart format` do CLAUDE.md global é no-op (nada de Dart para analisar). A validação ativa nesta fase é `bun run build && bun run test` (a stack Node web).
+- **Não publicar nada (npm, pub.dev, marketplace) sem confirmação explícita.** O port roda inteiro na branch `flutter-port`; `main` segue refletindo o impeccable web em produção.
+
 ## Skill bootstrap: skip the post-update-cleanup step
 
 The `<post-update-cleanup>` block at the top of `.claude/skills/impeccable/SKILL.md` runs `scripts/cleanup-deprecated.mjs` and then self-deletes. **Do not run it in this repo, and do not delete the block.** This repo is the source of truth for the Impeccable skill; the cleanup script scans for "leftover" skill files to remove and its judgment doesn't fit a repo where the skill lives in `skill/`. The block is also regenerated from `skill/SKILL.md` on every `bun run build`, so any deletion churns back on the next build. Skip the step silently and proceed.

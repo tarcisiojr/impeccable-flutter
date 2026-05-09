@@ -32,10 +32,11 @@ Discovery must include at least one user-answer round unless PRODUCT.md, DESIGN.
 - What's the user's state of mind when they reach this feature? (Rushed? Exploring? Anxious? Focused?)
 
 ### Content & Data
-- What content or data does this feature display or collect?
-- What are the realistic ranges? (Minimum, typical, maximum, e.g., 0 items, 5 items, 500 items)
-- What are the edge cases? (Empty state, error state, first-time use, power user)
-- Is any content dynamic? What changes and how often?
+- Que conteúdo / dado essa feature exibe ou coleta?
+- Quais os ranges realistas? (Min, típico, max: 0 items, 5 items, 500 items.)
+- Edge cases? (Empty, error, first-time, power user, sem internet, conexão lenta.)
+- Conteúdo dinâmico? O que muda e com que frequência?
+- Em mobile: como o conteúdo se comporta com `MediaQuery.textScaler` em 130%/200%? Texto longo vai overflow?
 
 ### Design Direction
 
@@ -57,10 +58,11 @@ Always ask. Sketch quality and shipped quality are different outputs; don't gues
 Scope answers are task-scoped. Don't write them to PRODUCT.md or DESIGN.md; carry them through the design brief only.
 
 ### Constraints
-- Are there technical constraints? (Framework, performance budget, browser support)
-- Are there content constraints? (Localization, dynamic text length, user-generated content)
-- Mobile/responsive requirements?
-- Accessibility requirements beyond WCAG AA?
+- Restrições técnicas? (Framework, perf budget, devices alvo). Para Flutter: Material vs Cupertino vs adaptive (já em PRODUCT.md `## Platform Strategy`?), Flutter SDK constraint, packages permitidos/proibidos.
+- Restrições de conteúdo? (Localização: quais idiomas? Texto dinâmico? UGC?)
+- Requisitos adaptive/responsive? (Window classes Material 3: compact / medium / expanded / large / extra-large).
+- Requisitos A11y além de WCAG AA? Suporte a TalkBack/VoiceOver? Switch Control?
+- (Flutter) Performance budget para low-end Android? App size cap?
 
 ### Anti-Goals
 - What should this NOT be? What would be a wrong direction?

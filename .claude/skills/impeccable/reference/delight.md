@@ -73,25 +73,29 @@ Follow these guidelines:
 
 Add personality and joy through these methods:
 
-### Micro-interactions & Animation
+### Micro-interactions & Animation (Flutter)
 
 **Button delight**:
-```css
-/* Satisfying button press */
-.button {
-  transition: transform 0.1s, box-shadow 0.1s;
-}
-.button:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
+```dart
+// Press feedback satisfatório via AnimatedScale
+AnimatedScale(
+  duration: const Duration(milliseconds: 100),
+  curve: Curves.easeOutCubic,
+  scale: _pressed ? 0.97 : 1.0,
+  child: GestureDetector(
+    onTapDown: (_) => setState(() => _pressed = true),
+    onTapUp: (_) => setState(() => _pressed = false),
+    onTapCancel: () => setState(() => _pressed = false),
+    child: const FilledButton(/* ... */),
+  ),
+)
 
-/* Ripple effect on click */
-/* Smooth lift on hover */
-.button:hover {
-  transform: translateY(-2px);
-  transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1); /* ease-out-quart */
-}
+// Material ripple (default em InkWell, FilledButton, ElevatedButton, IconButton)
+// Para customizar a cor do ripple:
+Theme(
+  data: theme.copyWith(splashColor: theme.colorScheme.primary.withValues(alpha: 0.2)),
+  child: InkWell(/* ... */),
+)
 ```
 
 **Loading delight**:
@@ -260,23 +264,24 @@ Loading messages: write ones specific to your product, not generic AI filler:
 - Progress toward goals
 - Anniversary celebrations
 
-## Implementation Patterns
+## Implementation Patterns (Flutter)
 
-**Animation libraries**:
-- Framer Motion (React)
-- GSAP (universal)
-- Lottie (After Effects animations)
-- Canvas confetti (party effects)
+**Animação**:
+- `AnimationController` + `Tween` + `CurvedAnimation` (built-in, suficiente para 90% dos casos).
+- `flutter_staggered_animations` package: stagger fácil em listas.
+- `lottie` package: animações Lottie/AfterEffects para hero moments.
+- `rive` package: animações state-machine, mais leve que Lottie em runtime.
+- `confetti` package: confetti em milestones.
 
-**Sound libraries**:
-- Howler.js (audio management)
-- Use-sound (React hook)
+**Sound**:
+- `audioplayers` ou `just_audio` package: SFX e ambient.
+- `flutter_haptic` ou `HapticFeedback.lightImpact()` (built-in `dart:services`): feedback tátil em iOS/Android.
 
-**Physics libraries**:
-- React Spring (spring physics)
-- Popmotion (animation primitives)
+**Spring physics**:
+- `SpringSimulation` + `AnimationController.animateWith()` (built-in).
+- `physics-based animations` no framework.
 
-**IMPORTANT**: File size matters. Compress images, optimize animations, lazy load delight features.
+**IMPORTANTE**: file size importa. Compress imagens, lazy-load delight features (`Visibility(visible: false)` → load só quando necessário, ou `FutureBuilder` para deferred), confine `BackdropFilter` em áreas pequenas.
 
 **NEVER**:
 - Delay core functionality for delight

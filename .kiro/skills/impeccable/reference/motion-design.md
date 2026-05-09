@@ -1,109 +1,192 @@
-# Motion Design
+# Motion Design (Flutter)
 
-## Duration: The 100/300/500 Rule
+Leia [flutter-foundations.md](flutter-foundations.md) primeiro.
 
-Timing matters more than easing. These durations feel right for most UI:
+## Duração: a regra 100/250/500
 
-| Duration | Use Case | Examples |
-|----------|----------|----------|
-| **100-150ms** | Instant feedback | Button press, toggle, color change |
-| **200-300ms** | State changes | Menu open, tooltip, hover states |
-| **300-500ms** | Layout changes | Accordion, modal, drawer |
-| **500-800ms** | Entrance animations | Page load, hero reveals |
+Timing pesa mais que easing. Estes valores funcionam para a maioria de UI mobile:
 
-**Exit animations are faster than entrances.** Use ~75% of enter duration.
+| Duração | Uso | Exemplo Flutter |
+|---|---|---|
+| **100-150ms** | Feedback instantâneo | press de botão (`InkWell` ripple), troca de cor, toggle |
+| **200-300ms** | Mudança de estado | menu open, tooltip, hover (desktop), `AnimatedContainer` em selected |
+| **300-500ms** | Mudança de layout | accordion (`AnimatedSize`), modal entrance (`showDialog`), drawer |
+| **500-800ms** | Entrance | splash → home, hero reveal, primeira screen do app |
 
-## Easing: Pick the Right Curve
+**Animations de saída são mais rápidas que entrada.** Use ~75% da duração de entrada. Em Flutter isso significa `reverseDuration` mais curto:
 
-**Don't use `ease`.** It's a compromise that's rarely optimal. Instead:
-
-| Curve | Use For | CSS |
-|-------|---------|-----|
-| **ease-out** | Elements entering | `cubic-bezier(0.16, 1, 0.3, 1)` |
-| **ease-in** | Elements leaving | `cubic-bezier(0.7, 0, 0.84, 0)` |
-| **ease-in-out** | State toggles (there → back) | `cubic-bezier(0.65, 0, 0.35, 1)` |
-
-**For micro-interactions, use exponential curves.** They feel natural because they mimic real physics (friction, deceleration):
-
-```css
-/* Quart out - smooth, refined (recommended default) */
---ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
-
-/* Quint out - slightly more dramatic */
---ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
-
-/* Expo out - snappy, confident */
---ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+```dart
+AnimationController(
+  duration: const Duration(milliseconds: 400),
+  reverseDuration: const Duration(milliseconds: 280),
+  vsync: this,
+)
 ```
 
-**Avoid bounce and elastic curves.** They were trendy in 2015 but now feel tacky and amateurish. Real objects don't bounce when they stop; they decelerate smoothly. Overshoot effects draw attention to the animation itself rather than the content.
+Material 3 expressa isso em tokens. `MaterialApp.theme.pageTransitionsTheme` controla rotas. O catálogo M3 oficial:
 
-## Premium Motion Materials
+- `MotionScheme.expressive()` (M3 expressive) ou `MotionScheme.standard()`: define spring physics + durations.
+- Tokens M3 oficiais: short1=50, short2=100, short3=150, short4=200, medium1=250, medium2=300, medium3=350, medium4=400, long1=450, long2=500, long3=550, long4=600, extraLong1=700, ..., extraLong4=1000.
 
-Transform and opacity are reliable defaults, not the whole palette. Premium interfaces often need atmospheric properties: blur reveals, backdrop-filter panels, saturation or brightness shifts, shadow bloom, SVG filters, masks, clip paths, gradient-position movement, and variable font or shader-driven effects.
+Em Flutter 3.27+, `Theme.of(context).motionScheme` expõe os defaults M3. Para custom, `ThemeExtension<MotionTokens>`.
 
-Use the right material for the effect:
+## Easing: escolha a curva certa
 
-- **Transform / opacity**: movement, press feedback, simple reveals, list choreography.
-- **Blur / filter / backdrop-filter**: focus pulls, depth, glass or lens effects, softened entrances, atmospheric transitions.
-- **Clip path / masks**: wipes, reveals, editorial cropping, product-like transitions.
-- **Shadow / glow / color filters**: energy, affordance, focus, warmth, active state.
-- **Grid-template rows or FLIP-style transforms**: expanding and reflowing layout without animating `height` directly.
+**Não use `Curves.ease`.** É um compromisso raramente ótimo. Prefira:
 
-The hard rule is not "transform and opacity only." The hard rule is: avoid animating layout-driving properties casually (`width`, `height`, `top`, `left`, margins), keep expensive effects bounded to small or isolated areas, and verify in-browser that the result is smooth on the target viewports. If blur/filter makes the interaction feel significantly more premium and remains smooth, use it.
+| Curva | Uso | Flutter |
+|---|---|---|
+| **ease-out** | Entrada de elemento | `Curves.easeOutCubic`, `Curves.easeOutQuart`, `Curves.easeOutExpo` |
+| **ease-in** | Saída de elemento | `Curves.easeInCubic`, `Curves.easeInQuart` |
+| **ease-in-out** | Toggle (vai e volta) | `Curves.easeInOutCubic` |
 
-## Staggered Animations
+**Para micro-interactions, use curvas exponenciais.** Sentem natural porque imitam física (atrito, desaceleração). Em Flutter:
 
-Use CSS custom properties for cleaner stagger: `animation-delay: calc(var(--i, 0) * 50ms)` with `style="--i: 0"` on each item. **Cap total stagger time**: 10 items at 50ms = 500ms total. For many items, reduce per-item delay or cap staggered count.
+```dart
+// Quart out: refinado, recomendado default
+const Cubic easeOutQuart = Cubic(0.25, 1.0, 0.5, 1.0);
 
-## Reduced Motion
+// Quint out: pouco mais dramático
+const Cubic easeOutQuint = Cubic(0.22, 1.0, 0.36, 1.0);
 
-This is not optional. Vestibular disorders affect ~35% of adults over 40.
+// Expo out: snappy, confiante
+const Cubic easeOutExpo = Cubic(0.16, 1.0, 0.3, 1.0);
 
-```css
-/* Define animations normally */
-.card {
-  animation: slide-up 500ms ease-out;
-}
+// Material 3 emphasized (já no framework)
+Curves.easeOutCubic           // standard easing
+// Material 3 emphasized vem do MotionScheme
+```
 
-/* Provide alternative for reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  .card {
-    animation: fade-in 200ms ease-out;  /* Crossfade instead of motion */
-  }
-}
+**Banir `Curves.bounceIn`, `Curves.bounceOut`, `Curves.elasticIn`, `Curves.elasticOut`.** Foram trend em 2015 e hoje leem amador. Objetos reais não pulam quando param; desaceleram suavemente. Overshoot puxa atenção para a animação em vez do conteúdo.
 
-/* Or disable entirely */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
+Em Flutter, estes existem no framework e o autocomplete vai te oferecer. Não pegue. Em apps de jogo ou com mascote ilustrado, talvez. Em product/brand séria, nunca.
+
+## Materiais de motion premium
+
+`Transform`, `Opacity` e `AnimatedContainer` são defaults confiáveis, não a paleta inteira. Interfaces premium frequentemente precisam de propriedades atmosféricas em mobile:
+
+- **Transform / Opacity**: movimento, press feedback, reveals simples, choreography de lista.
+- **`BackdropFilter` (blur, saturation, brightness)**: depth, glass effect, focus pull. Usar parsimônia, é caro.
+- **`ClipPath` / `ClipRRect` animados**: wipes, reveals, transições editoriais.
+- **`Material(shadowColor:, surfaceTintColor:)`** para depth dinâmica em M3.
+- **Variable fonts via `FontVariation`**: animar `wght` para um peso pulsando em estado selected é polida e barata.
+- **Shaders via `flutter_shaders` + `.frag`**: GLSL para efeitos exóticos (gradient noise, parallax). Caro mas reservado para hero/brand. Veja [overdrive.md](overdrive.md).
+
+A regra dura não é "só transform e opacity". A regra dura é: **evite animar propriedades que disparam relayout casualmente** (width, height, padding, constraints), mantenha efeitos caros confinados em áreas pequenas/isoladas (`RepaintBoundary`!), e verifique no device alvo (`flutter run --profile`) que está smooth a 60fps (90/120 em devices recentes).
+
+Se `BackdropFilter` faz a interação parecer significativamente mais premium e mantém-se smooth, use.
+
+## Animações implícitas vs explícitas
+
+Em Flutter você quase sempre quer **implícitas** primeiro:
+
+```dart
+AnimatedContainer(
+  duration: const Duration(milliseconds: 200),
+  curve: Curves.easeOutCubic,
+  color: selected ? scheme.primary : scheme.surface,
+  padding: EdgeInsets.all(selected ? 16 : 12),
+)
+```
+
+Quando precisa de:
+- coordenar múltiplos widgets ao mesmo tempo,
+- triggerar animação com gesto, não com state change,
+- repetir, sequenciar, controlar com física custom,
+
+troque para **explícito** com `AnimationController` + `Tween` + `AnimatedBuilder`.
+
+Catálogo de implícitos do framework (use antes de ir explícito):
+
+`AnimatedContainer`, `AnimatedOpacity`, `AnimatedAlign`, `AnimatedPadding`, `AnimatedPositioned`, `AnimatedSize`, `AnimatedDefaultTextStyle`, `AnimatedSwitcher`, `AnimatedCrossFade`, `AnimatedRotation`, `AnimatedScale`, `AnimatedSlide`, `AnimatedTheme`, `AnimatedPhysicalModel`.
+
+Para casos específicos:
+- **Trocar conteúdo com fade**: `AnimatedSwitcher`.
+- **Continuidade entre rotas**: `Hero`.
+- **Lista que aparece um por um (stagger)**: `AnimationController` + `Interval` por item, ou `flutter_staggered_animations` package.
+
+## Stagger (escalonado)
+
+Em CSS você usa `animation-delay: calc(--i * 50ms)`. Em Flutter:
+
+```dart
+final controller = AnimationController(vsync: this, duration: 600.ms);
+final items = List.generate(8, (i) {
+  final start = (i / 8) * 0.5;        // primeira metade da timeline
+  final end = start + 0.5;
+  return CurvedAnimation(
+    parent: controller,
+    curve: Interval(start, end, curve: Curves.easeOutCubic),
+  );
+});
+```
+
+**Cap o tempo total de stagger**: 10 itens × 50ms = 500ms total já é o limite confortável. Para muitos itens, reduza delay-por-item ou cap em quantos itens stagger (resto aparece junto).
+
+## Reduce motion
+
+Não opcional. Distúrbios vestibulares afetam ~35% dos adultos acima de 40. Em Flutter:
+
+```dart
+final reduceMotion = MediaQuery.disableAnimationsOf(context);
+
+AnimatedContainer(
+  duration: reduceMotion ? Duration.zero : const Duration(milliseconds: 300),
+  curve: Curves.easeOutCubic,
+  // ...
+)
+```
+
+`MediaQuery.disableAnimationsOf(context)` reflete:
+
+- iOS: Settings → Accessibility → Motion → Reduce Motion.
+- Android: Settings → Accessibility → Remove Animations.
+
+Quando habilitado, o framework já desabilita certos transitions (page route padrão), mas suas animations explícitas ficam: você precisa honrar manualmente. **O que preservar**: animações funcionais (progress bar, loading spinner em velocidade reduzida, focus indicator). Trocar movimento espacial por crossfade (200ms `AnimatedSwitcher` simples).
+
+Padrão sugerido: helper no app
+
+```dart
+extension MotionAware on BuildContext {
+  Duration motionDuration(Duration normal) =>
+      MediaQuery.disableAnimationsOf(this) ? Duration.zero : normal;
+  Curve motionCurve(Curve normal) =>
+      MediaQuery.disableAnimationsOf(this) ? Curves.linear : normal;
 }
 ```
 
-**What to preserve**: Functional animations like progress bars, loading spinners (slowed down), and focus indicators should still work, just without spatial movement.
+Use em todo widget que anima: `duration: context.motionDuration(300.ms)`.
 
-## Perceived Performance
+## Performance percebida
 
-**Nobody cares how fast your site is, just how fast it feels.** Perception can be as effective as actual performance.
+**Ninguém liga para quão rápido seu app é, só para quão rápido ele *parece*.** Percepção pode ser tão eficaz quanto performance real.
 
-**The 80ms threshold**: Our brains buffer sensory input for ~80ms to synchronize perception. Anything under 80ms feels instant and simultaneous. This is your target for micro-interactions.
+**Threshold de 80ms**: o cérebro buffera input sensorial por ~80ms para sincronizar. Abaixo disso parece instantâneo. Esse é seu alvo para micro-interactions (press feedback, toggle response).
 
-**Active vs passive time**: Passive waiting (staring at a spinner) feels longer than active engagement. Strategies to shift the balance:
+**Tempo ativo vs passivo**: passivo (olhando para spinner) parece mais longo que ativo (vendo conteúdo aparecer). Estratégias:
 
-- **Preemptive start**: Begin transitions immediately while loading (iOS app zoom, skeleton UI). Users perceive work happening.
-- **Early completion**: Show content progressively, don't wait for everything. Video buffering, progressive images, streaming HTML.
-- **Optimistic UI**: Update the interface immediately, handle failures gracefully. Instagram likes work offline; the UI updates instantly, syncs later. Use for low-stakes actions; avoid for payments or destructive operations.
+- **Início preemptivo**: comece a transição enquanto carrega. iOS app zoom + skeleton UI. Em Flutter: `Hero` + `FutureBuilder` que exibe estrutura imediato e dados quando vêm.
+- **Conclusão precoce**: mostre conteúdo progressivamente. Image placeholders via `cached_network_image` + `placeholder:`. Stream de dados via `StreamBuilder` com primeiro frame imediato.
+- **UI otimista**: atualize a interface imediato, lide com falha graciosamente. Like no Instagram funciona offline; UI atualiza, sync depois. Usar para low-stakes (likes, follows, marcar como lido). Evitar em pagamentos, deletes destrutivos, transferências.
 
-**Easing affects perceived duration**: Ease-in (accelerating toward completion) makes tasks feel shorter because the peak-end effect weights final moments heavily. Ease-out feels satisfying for entrances, but ease-in toward a task's end compresses perceived time.
+**Easing afeta duração percebida**: ease-in (acelerando até completar) faz tarefa parecer mais curta porque o efeito peak-end pesa os momentos finais. Ease-out é satisfatório para entradas; ease-in para fechamentos comprime tempo percebido.
 
-**Caution**: Too-fast responses can decrease perceived value. Users may distrust instant results for complex operations (search, analysis). Sometimes a brief delay signals "real work" is happening.
+**Cuidado**: respostas rápidas demais podem reduzir valor percebido. Usuários desconfiam de busca instantânea ou de "AI generation" que retorna em <500ms. Às vezes um delay artificial sinaliza "trabalho real". Em Flutter, `Future.delayed(300.ms)` antes de exibir resultado de uma análise complexa tem seu lugar.
 
-## Performance
+## Performance: o real
 
-Don't use `will-change` preemptively, only when animation is imminent (`:hover`, `.animating`). For scroll-triggered animations, use Intersection Observer instead of scroll events; unobserve after animating once. Create motion tokens for consistency (durations, easings, common transitions).
+`will-change` web não tem equivalente direto, mas Flutter te dá ferramentas mais fortes:
+
+- **`RepaintBoundary`**: isola subtree que repinta, evita repaint do parent. Use envolto em qualquer widget que anima frequentemente (lista que scrolla, card animado), especialmente se cercado de conteúdo estático.
+- **`const` em todo widget que pode**: o framework reconhece `const` e pula reconstruction.
+- **`AnimatedBuilder` com `child:`**: o `child` não rebuilda em cada tick, só o `builder:` roda. Ganho enorme em animations longas.
+- **`flutter run --profile`** em device físico: o único benchmark confiável. Debug é mais lento que produção; nada de medir em emulador.
+- **DevTools → Performance → "Track Widget builds"**: mostra qual widget rebuilda quando.
+
+Para scroll-triggered: use `NotificationListener<ScrollNotification>` ou `ScrollController.position.atEdge`. Não dispare animação a cada `onPointerMove`: vai dropar frames.
+
+Tokens de motion: registre durations e curves num `ThemeExtension<MotionTokens>` e nunca hard-code `Duration(milliseconds: 300)` em código de tela. Centralizar permite mudar o feel do app inteiro mexendo um lugar só.
 
 ---
 
-**Avoid**: Animating everything (animation fatigue is real). Using >500ms for UI feedback. Ignoring `prefers-reduced-motion`. Using animation to hide slow loading.
+**Evitar**: animar tudo (motion fatigue é real). Usar >500ms para feedback de UI. Ignorar `MediaQuery.disableAnimationsOf`. Usar animação para esconder loading lento. `Curves.bounce*` ou `Curves.elastic*` em product. `Container(...)` mudando width/height direto sem `AnimatedContainer` (causa rebuild + relayout, jank). Hard-code de Duration/Curve fora dos tokens de tema.

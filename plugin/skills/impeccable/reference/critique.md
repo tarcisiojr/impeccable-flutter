@@ -39,9 +39,9 @@ Return structured findings covering: AI slop verdict, heuristic scores, cognitiv
 
 #### Assessment B: Automated Detection
 
-Run the bundled deterministic detector, which flags 27 specific patterns (AI slop tells + general design quality).
+Run the bundled deterministic detector. Two backends, escolhidos por tipo de projeto:
 
-**CLI scan**:
+**Web (HTML/JSX/TSX/Vue/Svelte)**: flags 27 padrões (AI slop + qualidade):
 ```bash
 npx impeccable --json [--fast] [target]
 ```
@@ -52,7 +52,20 @@ npx impeccable --json [--fast] [target]
 - For 500+ files, narrow scope or ask the user
 - Exit code 0 = clean, 2 = findings
 
-**Browser visualization**: **required** when browser automation tools are available AND the target is a viewable page. The `[Human]` overlay tab is the user-facing deliverable; the critique is incomplete without it. Skip only if the target is not a viewable page (CSS-only file, non-browser target).
+**Flutter (lib/*.dart)**: quando `pubspec.yaml` existe na raiz, prefira o detector Dart estático (custom_lint plugin). Cobre as mesmas categorias (slop + quality) com regras mapeadas para vocabulário Flutter (TextStyle hard-coded, ColorScheme bypass, missing Semantics, touch target <48dp, monotonous EdgeInsets, etc.):
+
+```bash
+# Se impeccable_flutter_lints estiver instalado no projeto:
+dart run custom_lint
+# Ou via CLI standalone:
+impeccable_flutter detect lib/
+```
+
+Saída humana ou JSON (`--format json`). Exit 0 = clean, 1 = findings.
+
+Se o projeto Flutter ainda não tem `impeccable_flutter_lints` configurado, faça revisão LLM-only (Assessment A) e mencione ao usuário que ele pode instalar para detecção determinística (`dart pub add --dev impeccable_flutter_lints custom_lint`).
+
+**Browser visualization** (web targets): **required** when browser automation tools are available AND the target is a viewable page. The `[Human]` overlay tab is the user-facing deliverable; the critique is incomplete without it. Skip only if the target is not a viewable page (CSS-only file, non-browser target). For Flutter mobile/desktop apps (não-web), browser overlay não se aplica; vale o output do `dart run custom_lint` + screenshots manuais do app rodando em DevTools.
 
 The overlay is a **visual aid for the user**. It highlights issues directly in their browser. Do NOT scroll through the page to screenshot overlays. Instead, read the console output to get the results programmatically.
 

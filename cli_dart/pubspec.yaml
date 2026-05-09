@@ -1,0 +1,31 @@
+name: impeccable_flutter
+description: >-
+  CLI para detectar anti-padrões de design em apps Flutter. Roda regras
+  do impeccable_flutter_lints sobre lib/ e formata o output em human ou JSON.
+  Também boota o modo live (MVP: edit + hot reload manual; v0.2 ganha overlay).
+version: 0.0.1
+homepage: https://impeccable.style/flutter
+repository: https://github.com/Tarcisiojr/impeccable-flutter
+issue_tracker: https://github.com/Tarcisiojr/impeccable-flutter/issues
+documentation: https://impeccable.style/flutter
+topics:
+  - lints
+  - design
+  - flutter
+  - cli
+publish_to: none
+
+environment:
+  sdk: ^3.5.0
+
+executables:
+  impeccable_flutter: impeccable_flutter
+
+dependencies:
+  args: ^2.6.0
+  path: ^1.9.0
+  io: ^1.0.5
+
+dev_dependencies:
+  test: ^1.25.0
+  lints: ^5.0.0

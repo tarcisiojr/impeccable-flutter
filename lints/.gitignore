@@ -1,0 +1,14 @@
+# Dart/Flutter padrão
+.dart_tool/
+.packages
+build/
+pubspec.lock
+
+# Logs do custom_lint
+custom_lint.log
+example/custom_lint.log
+
+# IDE
+.idea/
+*.iml
+.vscode/

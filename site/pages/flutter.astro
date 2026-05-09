@@ -1,0 +1,237 @@
+---
+import Base from '../layouts/Base.astro';
+import '../styles/main.css';
+import '../styles/sub-pages.css';
+
+// Status snapshot da port. Atualizar conforme FLUTTER-PORT.md evolui.
+const stats = {
+  rules: 33,           // 31 via custom_lint + 2 exclusivas via --fast (monotonous, everything_centered)
+  tests: 45,           // 32 integration + 13 unit
+  commands: 23,
+  references: 36,
+};
+
+// Tabela das regras implementadas. ⚠ = via --fast scanner; ✓ = custom_lint.
+const rules = [
+  { id: 'ai-color-palette', cat: 'slop', mech: '✓', what: 'Color(0xFF…) da família roxo/índigo IA' },
+  { id: 'border-accent-on-rounded', cat: 'slop', mech: '✓', what: 'Border.all >2 + borderRadius arredondado' },
+  { id: 'bounce-elastic-curve', cat: 'slop', mech: '✓', what: 'Curves.bounce* / elastic*' },
+  { id: 'dark-glow', cat: 'slop', mech: '✓', what: 'BoxShadow blurRadius >30' },
+  { id: 'deep-purple-seed', cat: 'slop', mech: '✓', what: 'ColorScheme.fromSeed(seedColor: Colors.deepPurple)' },
+  { id: 'everything-centered', cat: 'slop', mech: '⚠', what: '≥6 Center / *AxisAlignment.center no arquivo' },
+  { id: 'gradient-text', cat: 'slop', mech: '✓', what: 'ShaderMask + LinearGradient envolvendo Text' },
+  { id: 'hero-eyebrow-chip', cat: 'slop', mech: '✓', what: 'Container chip + Text display em Column' },
+  { id: 'icon-tile-stack', cat: 'slop', mech: '✓', what: 'Row/Wrap/GridView com 3+ Container "Icon + Text"' },
+  { id: 'italic-serif-display', cat: 'slop', mech: '✓', what: 'TextStyle italic + Fraunces/Lora + size >32' },
+  { id: 'monotonous-spacing', cat: 'slop', mech: '⚠', what: 'EdgeInsets.all(N) repetido ≥4× no arquivo' },
+  { id: 'nested-cards', cat: 'slop', mech: '✓', what: 'Card aninhado em Card' },
+  { id: 'overused-font', cat: 'slop', mech: '✓', what: 'GoogleFonts.<reflex-reject font>' },
+  { id: 'side-tab', cat: 'slop', mech: '✓', what: 'Border(left: BorderSide(width: >1)) desigual' },
+  { id: 'single-font', cat: 'slop', mech: '✓', what: 'TextTheme com mesma fontFamily em ≥4 papéis' },
+
+  { id: 'all-caps-body', cat: 'quality', mech: '✓', what: 'Text("STRING") >12 chars all-caps' },
+  { id: 'black-white-literal', cat: 'quality', mech: '✓', what: 'Colors.black / Colors.white literal' },
+  { id: 'cramped-padding', cat: 'quality', mech: '✓', what: 'EdgeInsets.all(<8)' },
+  { id: 'flat-type-hierarchy', cat: 'quality', mech: '✓', what: 'TextTheme com fontSize ratio <1.2 entre níveis' },
+  { id: 'justified-text', cat: 'quality', mech: '✓', what: 'TextAlign.justify em mobile' },
+  { id: 'layout-transition', cat: 'quality', mech: '✓', what: 'AnimatedContainer mudando width/height/padding' },
+  { id: 'line-length', cat: 'quality', mech: '✓', what: 'Text com string >100 chars sem maxLines/softWrap' },
+  { id: 'material-baseline', cat: 'quality', mech: '✓', what: 'MaterialApp/CupertinoApp sem theme:/darkTheme:' },
+  { id: 'missing-const-decoration', cat: 'quality', mech: '✓', what: 'BoxDecoration/TextStyle/EdgeInsets literal sem const' },
+  { id: 'missing-safe-area', cat: 'quality', mech: '✓', what: 'Scaffold extendBodyBehindAppBar sem SafeArea' },
+  { id: 'missing-semantics', cat: 'quality', mech: '✓', what: 'GestureDetector/InkWell interativo sem label' },
+  { id: 'missing-tooltip', cat: 'quality', mech: '✓', what: 'IconButton sem tooltip:' },
+  { id: 'textstyle-outside-theme', cat: 'quality', mech: '✓', what: 'TextStyle(...) literal em vez de textTheme.X' },
+  { id: 'tight-leading', cat: 'quality', mech: '✓', what: 'TextStyle.height <1.15' },
+  { id: 'tiny-text', cat: 'quality', mech: '✓', what: 'TextStyle.fontSize <12' },
+  { id: 'touch-target-too-small', cat: 'quality', mech: '✓', what: 'IconButton padding zero / compact density' },
+  { id: 'use-material3-false', cat: 'quality', mech: '✓', what: 'useMaterial3: false' },
+  { id: 'wide-tracking', cat: 'quality', mech: '✓', what: 'TextStyle.letterSpacing >2' },
+];
+
+const slopRules = rules.filter(r => r.cat === 'slop');
+const qualityRules = rules.filter(r => r.cat === 'quality');
+---
+
+<Base
+  title="Impeccable Flutter: design lints e skill para apps Flutter"
+  description="Port do impeccable web para Flutter. 33 regras de detecção (custom_lint + --fast scanner) + CLI Dart + skill com 23 comandos adaptados (Material 3, Cupertino, ThemeData)."
+  activeNav="flutter"
+  canonicalPath="/flutter"
+  mainId="main-content"
+  mainClass="site-content"
+  ogTitle="Impeccable Flutter"
+  ogDescription="Detector de anti-padrões + skill de design para apps Flutter."
+>
+
+<section class="hero" style="padding: 6rem 1.5rem 4rem; max-width: 920px; margin: 0 auto;">
+  <p style="font-family: monospace; font-size: 0.85rem; color: var(--color-ash); text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 1rem;">
+    impeccable_flutter · v0.0.1 (port em andamento)
+  </p>
+  <h1 style="font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 1.05; margin: 0 0 1.5rem; color: var(--color-ink);">
+    Os mesmos princípios.<br>
+    Vocabulário Flutter.
+  </h1>
+  <p style="font-size: 1.25rem; line-height: 1.5; max-width: 36em; color: var(--color-charcoal); margin: 0 0 2rem;">
+    Port do impeccable (web) para apps Flutter. Detector estático com {stats.rules} regras de anti-padrão, CLI Dart, e o mesmo skill de {stats.commands} comandos reescrito para Material 3, Cupertino, ThemeData, e MediaQuery.
+  </p>
+
+  <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+    <a href="https://github.com/Tarcisiojr/impeccable-flutter/tree/flutter-port" style="background: var(--color-ink); color: var(--color-cream); padding: 0.85rem 1.4rem; text-decoration: none; font-weight: 600;">
+      Ver no GitHub →
+    </a>
+    <a href="#regras" style="border: 1px solid var(--color-ash); padding: 0.85rem 1.4rem; text-decoration: none; color: var(--color-ink);">
+      As {stats.rules} regras
+    </a>
+    <code style="font-size: 0.85rem; color: var(--color-ash);">
+      dart pub add --dev impeccable_flutter_lints
+    </code>
+  </div>
+
+  <div style="margin-top: 4rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1.5rem; padding-top: 2rem; border-top: 1px solid var(--color-mist);">
+    <div>
+      <p style="font-size: 2.5rem; font-weight: 700; margin: 0; color: var(--color-ink);">{stats.rules}</p>
+      <p style="font-size: 0.85rem; color: var(--color-ash); margin: 0.25rem 0 0;">Regras de detecção</p>
+    </div>
+    <div>
+      <p style="font-size: 2.5rem; font-weight: 700; margin: 0; color: var(--color-ink);">{stats.commands}</p>
+      <p style="font-size: 0.85rem; color: var(--color-ash); margin: 0.25rem 0 0;">Comandos do skill</p>
+    </div>
+    <div>
+      <p style="font-size: 2.5rem; font-weight: 700; margin: 0; color: var(--color-ink);">{stats.tests}</p>
+      <p style="font-size: 0.85rem; color: var(--color-ash); margin: 0.25rem 0 0;">Testes verdes</p>
+    </div>
+    <div>
+      <p style="font-size: 2.5rem; font-weight: 700; margin: 0; color: var(--color-ink);">{stats.references}</p>
+      <p style="font-size: 0.85rem; color: var(--color-ash); margin: 0.25rem 0 0;">Referências reescritas</p>
+    </div>
+  </div>
+</section>
+
+<section style="padding: 4rem 1.5rem; max-width: 920px; margin: 0 auto;">
+  <h2 style="font-size: clamp(1.75rem, 3vw, 2.25rem); margin: 0 0 1rem; color: var(--color-ink);">
+    O que muda quando o produto é mobile
+  </h2>
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--color-charcoal); max-width: 38em; margin: 0 0 2rem;">
+    A web tem CSS, jsdom, viewports, e um navegador que quebra de formas conhecidas. Flutter tem ThemeData, MediaQuery, widget tree, e Skia/Impeller que renderiza pixel-exato em iOS, Android, e desktop. As leis de design são as mesmas. O vocabulário muda inteiro.
+  </p>
+
+  <div style="overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+      <thead>
+        <tr style="border-bottom: 2px solid var(--color-ink);">
+          <th style="text-align: left; padding: 0.75rem 0.5rem; font-weight: 600; color: var(--color-ink);">Web</th>
+          <th style="text-align: left; padding: 0.75rem 0.5rem; font-weight: 600; color: var(--color-ink);">Flutter</th>
+        </tr>
+      </thead>
+      <tbody style="color: var(--color-charcoal); font-family: monospace; font-size: 0.85rem;">
+        <tr style="border-bottom: 1px solid var(--color-mist);"><td style="padding: 0.5rem;">body {`{ color: ... }`} global</td><td style="padding: 0.5rem;">MaterialApp(theme: ThemeData(...))</td></tr>
+        <tr style="border-bottom: 1px solid var(--color-mist);"><td style="padding: 0.5rem;">{`:root { --color-... }`}</td><td style="padding: 0.5rem;">ColorScheme + ThemeExtension</td></tr>
+        <tr style="border-bottom: 1px solid var(--color-mist);"><td style="padding: 0.5rem;">getComputedStyle(el)</td><td style="padding: 0.5rem;">Theme.of(context)</td></tr>
+        <tr style="border-bottom: 1px solid var(--color-mist);"><td style="padding: 0.5rem;">display: flex; gap: 8</td><td style="padding: 0.5rem;">Row/Column + SizedBox(8)</td></tr>
+        <tr style="border-bottom: 1px solid var(--color-mist);"><td style="padding: 0.5rem;">font-family: Inter</td><td style="padding: 0.5rem;">GoogleFonts.inter() ou system stack</td></tr>
+        <tr style="border-bottom: 1px solid var(--color-mist);"><td style="padding: 0.5rem;">@media (min-width: 600px)</td><td style="padding: 0.5rem;">Material window classes (compact/medium/expanded)</td></tr>
+        <tr style="border-bottom: 1px solid var(--color-mist);"><td style="padding: 0.5rem;">prefers-reduced-motion</td><td style="padding: 0.5rem;">MediaQuery.disableAnimationsOf(context)</td></tr>
+        <tr style="border-bottom: 1px solid var(--color-mist);"><td style="padding: 0.5rem;">aria-label, role</td><td style="padding: 0.5rem;">Semantics(label:, button: true)</td></tr>
+        <tr style="border-bottom: 1px solid var(--color-mist);"><td style="padding: 0.5rem;">WCAG contrast</td><td style="padding: 0.5rem;">mesma matemática, com cores RESOLVIDAS de ColorScheme</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="regras" style="padding: 4rem 1.5rem; max-width: 920px; margin: 0 auto; background: var(--color-cream);">
+  <h2 style="font-size: clamp(1.75rem, 3vw, 2.25rem); margin: 0 0 0.5rem; color: var(--color-ink);">
+    As {stats.rules} regras de detecção
+  </h2>
+  <p style="font-size: 0.95rem; line-height: 1.6; color: var(--color-charcoal); margin: 0 0 1rem;">
+    <strong>{slopRules.length}</strong> de slop (sinais de UI gerada por IA), <strong>{qualityRules.length}</strong> de qualidade objetiva. <code>✓</code> roda via <code>dart run custom_lint</code> com IDE integration. <code>⚠</code> roda via <code>impeccable_flutter detect --fast</code> (regex puro, cobre o gap do custom_lint para regras de agregação).
+  </p>
+
+  <h3 style="font-size: 1.25rem; margin: 2rem 0 0.75rem; color: var(--color-ink);">Slop ({slopRules.length})</h3>
+  <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; font-family: monospace;">
+    <thead>
+      <tr style="border-bottom: 1px solid var(--color-ash);">
+        <th style="text-align: left; padding: 0.5rem; width: 1.5rem;"></th>
+        <th style="text-align: left; padding: 0.5rem;">id</th>
+        <th style="text-align: left; padding: 0.5rem;">detecta</th>
+      </tr>
+    </thead>
+    <tbody>
+      {slopRules.map(r => (
+        <tr style="border-bottom: 1px solid var(--color-mist);">
+          <td style="padding: 0.4rem 0.5rem;">{r.mech}</td>
+          <td style="padding: 0.4rem 0.5rem; color: var(--color-ink);">impeccable_{r.id.replace(/-/g, '_')}</td>
+          <td style="padding: 0.4rem 0.5rem; color: var(--color-charcoal);">{r.what}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+
+  <h3 style="font-size: 1.25rem; margin: 2rem 0 0.75rem; color: var(--color-ink);">Quality ({qualityRules.length})</h3>
+  <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; font-family: monospace;">
+    <thead>
+      <tr style="border-bottom: 1px solid var(--color-ash);">
+        <th style="text-align: left; padding: 0.5rem; width: 1.5rem;"></th>
+        <th style="text-align: left; padding: 0.5rem;">id</th>
+        <th style="text-align: left; padding: 0.5rem;">detecta</th>
+      </tr>
+    </thead>
+    <tbody>
+      {qualityRules.map(r => (
+        <tr style="border-bottom: 1px solid var(--color-mist);">
+          <td style="padding: 0.4rem 0.5rem;">{r.mech}</td>
+          <td style="padding: 0.4rem 0.5rem; color: var(--color-ink);">impeccable_{r.id.replace(/-/g, '_')}</td>
+          <td style="padding: 0.4rem 0.5rem; color: var(--color-charcoal);">{r.what}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</section>
+
+<section style="padding: 4rem 1.5rem; max-width: 920px; margin: 0 auto;">
+  <h2 style="font-size: clamp(1.75rem, 3vw, 2.25rem); margin: 0 0 1rem; color: var(--color-ink);">
+    Como instalar
+  </h2>
+
+  <h3 style="font-size: 1.1rem; margin: 1.5rem 0 0.5rem; color: var(--color-ink);">1. Lints (custom_lint plugin)</h3>
+  <pre style="background: var(--color-ink); color: var(--color-cream); padding: 1rem; overflow-x: auto; font-size: 0.85rem; line-height: 1.5;"><code>{`# pubspec.yaml
+dev_dependencies:
+  custom_lint: ^0.7.0
+  impeccable_flutter_lints: ^0.0.1
+
+# analysis_options.yaml
+analyzer:
+  plugins:
+    - custom_lint
+
+# Rodar:
+$ dart run custom_lint`}</code></pre>
+
+  <h3 style="font-size: 1.1rem; margin: 2rem 0 0.5rem; color: var(--color-ink);">2. CLI standalone (com --fast mode)</h3>
+  <pre style="background: var(--color-ink); color: var(--color-cream); padding: 1rem; overflow-x: auto; font-size: 0.85rem; line-height: 1.5;"><code>{`$ dart pub global activate impeccable_flutter
+$ impeccable_flutter detect lib/
+$ impeccable_flutter detect --fast lib/    # regex puro, ~50ms vs ~9s
+$ impeccable_flutter detect --format=json lib/`}</code></pre>
+
+  <h3 style="font-size: 1.1rem; margin: 2rem 0 0.5rem; color: var(--color-ink);">3. Skill (Claude Code, Cursor, Gemini, etc.)</h3>
+  <pre style="background: var(--color-ink); color: var(--color-cream); padding: 1rem; overflow-x: auto; font-size: 0.85rem; line-height: 1.5;"><code>{`$ npx impeccable skills install
+$ # Em qualquer projeto Flutter:
+/impeccable polish        # alinha à design system Material 3 + ThemeData
+/impeccable critique      # AI slop detection + Nielsen heuristics
+/impeccable audit         # roda os lints + a11y/perf checks`}</code></pre>
+</section>
+
+<section style="padding: 4rem 1.5rem; max-width: 920px; margin: 0 auto; border-top: 1px solid var(--color-mist);">
+  <h2 style="font-size: clamp(1.75rem, 3vw, 2.25rem); margin: 0 0 1rem; color: var(--color-ink);">
+    Status do port
+  </h2>
+  <p style="font-size: 0.95rem; line-height: 1.6; color: var(--color-charcoal); margin: 0 0 1.5rem;">
+    Branch <code>flutter-port</code>. Status detalhado em <code>FLUTTER-PORT.md</code>. Pendente para v0.1: 6 regras complexas (low-contrast, gray-on-color, line-length, skipped-heading, icon-tile-stack), publish em pub.dev (dry-run passa), live mode v0.2 (overlay + VM Service).
+  </p>
+
+  <p style="font-size: 0.85rem; color: var(--color-ash); margin: 2rem 0 0;">
+    impeccable_flutter é Apache 2.0. Baseado no impeccable original.
+  </p>
+</section>
+
+</Base>

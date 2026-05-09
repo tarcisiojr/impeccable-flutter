@@ -34,126 +34,159 @@ Identify weaknesses and edge cases:
 
 Systematically improve resilience:
 
-### Text Overflow & Wrapping
+### Text Overflow & Wrapping (Flutter)
 
 **Long text handling**:
-```css
-/* Single line with ellipsis */
-.truncate {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
-/* Multi-line with clamp */
-.line-clamp {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
+```dart
+// Single line com ellipsis
+Text(
+  'Texto muito longo aqui',
+  maxLines: 1,
+  overflow: TextOverflow.ellipsis,
+)
 
-/* Allow wrapping */
-.wrap {
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  hyphens: auto;
-}
+// Multi-line com clamp em 3 linhas
+Text(
+  longText,
+  maxLines: 3,
+  overflow: TextOverflow.ellipsis,
+)
+
+// Allow wrapping (default)
+Text(longText, softWrap: true)
 ```
 
-**Flex/Grid overflow**:
-```css
-/* Prevent flex items from overflowing */
-.flex-item {
-  min-width: 0; /* Allow shrinking below content size */
-  overflow: hidden;
-}
+**Row/Column overflow**:
 
-/* Prevent grid items from overflowing */
-.grid-item {
-  min-width: 0;
-  min-height: 0;
-}
+```dart
+// Prevenir Row overflow: Flexible/Expanded
+Row(children: [
+  const Icon(Icons.person),
+  const SizedBox(width: 8),
+  Flexible(child: Text(name, overflow: TextOverflow.ellipsis)),
+])
+
+// Prevenir Column overflow vertical
+Column(children: [
+  Flexible(child: Text(longText)),
+  const SizedBox(height: 8),
+  Text(footer),
+])
 ```
 
-**Responsive text sizing**:
-- Use `clamp()` for fluid typography
-- Set minimum readable sizes (14px on mobile)
-- Test text scaling (zoom to 200%)
-- Ensure containers expand with text
+**Sem `Flexible`/`Expanded`**: `Row`/`Column` overflow → "RIGHT OVERFLOWED BY N PIXELS" amarelo no debug, e clipping em produção.
+
+**Text scaling acessível**:
+- Honra `MediaQuery.textScaler` em todas as telas. Não passe `TextScaler.noScaling`.
+- Tamanho mínimo legível: `bodyLarge` M3 default = 16. Não desça.
+- Teste a 130% e 200% (`MediaQueryData.copyWith(textScaler: TextScaler.linear(2.0))` em widget tests).
+- Containers devem crescer com texto (use `IntrinsicHeight`, `Wrap`, ou layout que não trava height).
 
 ### Internationalization (i18n)
 
-**Text expansion**:
-- Add 30-40% space budget for translations
-- Use flexbox/grid that adapts to content
-- Test with longest language (usually German)
-- Avoid fixed widths on text containers
+**Text expansion (Flutter)**:
+- Adicione 30-40% de orçamento de espaço para traduções.
+- Use widgets que adaptam ao conteúdo (`IntrinsicWidth`, `Wrap`, `Flexible`).
+- Teste com idioma mais longo (geralmente alemão ou finlandês).
+- Evite `width:` hard-codado em botões/containers de texto.
 
-```jsx
-// ❌ Bad: Assumes short English text
-<button className="w-24">Submit</button>
+```dart
+// RUIM: assume texto inglês curto
+SizedBox(width: 96, child: ElevatedButton(child: Text('Submit'), ...))
 
-// ✅ Good: Adapts to content
-<button className="px-4 py-2">Submit</button>
+// BOM: adapta ao conteúdo
+ElevatedButton(child: Text(t.submit), ...)
 ```
 
-**RTL (Right-to-Left) support**:
-```css
-/* Use logical properties */
-margin-inline-start: 1rem; /* Not margin-left */
-padding-inline: 1rem; /* Not padding-left/right */
-border-inline-end: 1px solid; /* Not border-right */
+**RTL (Right-to-Left) em Flutter**:
 
-/* Or use dir attribute */
-[dir="rtl"] .arrow { transform: scaleX(-1); }
+```dart
+// Use EdgeInsetsDirectional em vez de EdgeInsets.fromLTRB
+Padding(padding: EdgeInsetsDirectional.only(start: 16, end: 8))
+
+// AlignmentDirectional em vez de Alignment
+Container(alignment: AlignmentDirectional.centerStart)
+
+// Em Row, considere `textDirection:` se precisar override local
+Row(textDirection: TextDirection.rtl, children: [...])
+
+// MaterialApp já injeta Directionality baseada na locale.
+// Para testar RTL: MaterialApp(locale: Locale('ar'))
 ```
 
-**Character set support**:
-- Use UTF-8 encoding everywhere
-- Test with Chinese/Japanese/Korean (CJK) characters
-- Test with emoji (they can be 2-4 bytes)
-- Handle different scripts (Latin, Cyrillic, Arabic, etc.)
+**Character sets**:
+- UTF-8 é default em Dart.
+- Teste com CJK characters, emoji, scripts diferentes.
+- Fontes precisam suportar os ranges. Inter cobre latin + cyrillic + greek + vietnamese; CJK precisa Noto Sans CJK; árabe precisa Noto Sans Arabic.
 
-**Date/Time formatting**:
-```javascript
-// ✅ Use Intl API for proper formatting
-new Intl.DateTimeFormat('en-US').format(date); // 1/15/2024
-new Intl.DateTimeFormat('de-DE').format(date); // 15.1.2024
+**Date/Time / number formatting (Flutter)**:
 
-new Intl.NumberFormat('en-US', { 
-  style: 'currency', 
-  currency: 'USD' 
-}).format(1234.56); // $1,234.56
+```dart
+// ✅ Use intl package
+import 'package:intl/intl.dart';
+
+DateFormat.yMd('pt_BR').format(date);       // 15/01/2024
+DateFormat.yMd('en_US').format(date);       // 1/15/2024
+
+NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$').format(1234.56);
+// R$ 1.234,56
+
+NumberFormat.compactCurrency(locale: 'en_US', symbol: '\$').format(1234567);
+// $1.23M
 ```
 
-**Pluralization**:
-```javascript
-// ❌ Bad: Assumes English pluralization
-`${count} item${count !== 1 ? 's' : ''}`
+**Pluralization (`.arb` files)**:
 
-// ✅ Good: Use proper i18n library
-t('items', { count }) // Handles complex plural rules
+```json
+// app_pt.arb
+{
+  "items": "{count, plural, one{# item} other{# itens}}",
+  "@items": { "placeholders": { "count": { "type": "int" } } }
+}
 ```
+
+```dart
+Text(AppLocalizations.of(context)!.items(count));
+```
+
+`{count, plural, ...}` cobre russo, polonês, árabe (que tem 6 formas). Não tente plural manual.
 
 ### Error Handling
 
-**Network errors**:
-- Show clear error messages
-- Provide retry button
-- Explain what happened
-- Offer offline mode (if applicable)
-- Handle timeout scenarios
+**Network errors (Flutter)**:
+- Mensagens claras.
+- Botão de retry.
+- Explicar o que aconteceu.
+- Offline mode quando aplica (`connectivity_plus` package).
+- Timeout via `Future.timeout(Duration(seconds: 10))`.
 
-```jsx
-// Error states with recovery
-{error && (
-  <ErrorMessage>
-    <p>Failed to load data. {error.message}</p>
-    <button onClick={retry}>Try again</button>
-  </ErrorMessage>
-)}
+```dart
+// Error state com recovery
+class _MyDataState extends State<MyData> {
+  AsyncValue<Data>? _state;
+  
+  @override
+  Widget build(context) {
+    if (_state is AsyncError) {
+      return Column(children: [
+        Icon(Icons.cloud_off, size: 48, color: scheme.error),
+        const SizedBox(height: 16),
+        Text('Não conseguimos carregar.', style: textTheme.bodyMedium),
+        const SizedBox(height: 16),
+        FilledButton.icon(
+          onPressed: _retry,
+          icon: const Icon(Icons.refresh),
+          label: const Text('Tentar novamente'),
+        ),
+      ]);
+    }
+    // ... loading + success
+  }
+}
 ```
+
+Em pipelines reais, considere `riverpod`/`bloc` que entregam `AsyncValue`/`AsyncSnapshot` com error handling estruturado.
 
 **Form validation errors**:
 - Inline errors near fields
@@ -232,20 +265,26 @@ t('items', { count }) // Handles complex plural rules
 - Protect against injection attacks
 - Rate limiting
 
-**Constraint handling**:
-```html
-<!-- Set clear constraints -->
-<input 
-  type="text"
-  maxlength="100"
-  pattern="[A-Za-z0-9]+"
-  required
-  aria-describedby="username-hint"
-/>
-<small id="username-hint">
-  Letters and numbers only, up to 100 characters
-</small>
+**Constraint handling (Flutter)**:
+```dart
+TextFormField(
+  decoration: const InputDecoration(
+    labelText: 'Username',
+    helperText: 'Letras e números, até 100 caracteres',
+    counterText: '',  // esconde contador automático se quer custom
+  ),
+  maxLength: 100,
+  inputFormatters: [
+    FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9]')),
+  ],
+  keyboardType: TextInputType.text,
+  textInputAction: TextInputAction.next,
+  validator: (v) => (v?.isEmpty ?? true) ? 'Obrigatório' : null,
+  autovalidateMode: AutovalidateMode.onUserInteraction,
+)
 ```
+
+`inputFormatters` rejeitam keystroke inválido em runtime. `validator` valida no submit ou onChange. Use ambos.
 
 ### Accessibility Resilience
 
@@ -261,16 +300,25 @@ t('items', { count }) // Handles complex plural rules
 - Descriptive alt text
 - Semantic HTML
 
-**Motion sensitivity**:
-```css
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+**Motion sensitivity (Flutter)**:
+```dart
+// Em todo widget que anima
+final reduceMotion = MediaQuery.disableAnimationsOf(context);
+
+AnimatedContainer(
+  duration: reduceMotion ? Duration.zero : const Duration(milliseconds: 300),
+  curve: reduceMotion ? Curves.linear : Curves.easeOutCubic,
+  // ...
+)
+
+// Helper extension recomendado:
+extension MotionAware on BuildContext {
+  Duration motionDuration(Duration normal) =>
+      MediaQuery.disableAnimationsOf(this) ? Duration.zero : normal;
 }
 ```
+
+`MediaQuery.disableAnimationsOf(context)` reflete iOS Settings → Accessibility → Motion → Reduce Motion, e Android Settings → Accessibility → Remove Animations.
 
 **High contrast mode**:
 - Test in Windows high contrast mode
@@ -285,19 +333,30 @@ t('items', { count }) // Handles complex plural rules
 - Optimistic UI updates
 - Offline support (service workers)
 
-**Memory leaks**:
-- Clean up event listeners
-- Cancel subscriptions
-- Clear timers/intervals
-- Abort pending requests on unmount
+**Memory leaks (Flutter)**:
+- `dispose()` em todo `AnimationController`, `TextEditingController`, `ScrollController`, `FocusNode`, `StreamSubscription`, `Timer`.
+- `StatefulWidget` sem `dispose()` é cheiro forte de leak.
+- `StreamBuilder` cuida da sua subscription, mas se você cria stream manual, lembre `cancel()`.
+- `mounted` check antes de `setState` em callback async (evita "setState after dispose" exception).
 
-**Throttling & Debouncing**:
-```javascript
-// Debounce search input
-const debouncedSearch = debounce(handleSearch, 300);
+**Throttling & Debouncing (Flutter)**:
+```dart
+// Debounce de busca via Timer
+Timer? _debounce;
 
-// Throttle scroll handler
-const throttledScroll = throttle(handleScroll, 100);
+void _onSearchChanged(String query) {
+  _debounce?.cancel();
+  _debounce = Timer(const Duration(milliseconds: 300), () => _search(query));
+}
+
+@override
+void dispose() {
+  _debounce?.cancel();
+  super.dispose();
+}
+
+// Para throttle de scroll, use NotificationListener com check de timestamp,
+// ou package `rxdart` com `throttleTime`/`debounceTime` em Stream.
 ```
 
 ## Testing Strategies

@@ -1,94 +1,94 @@
 {
   "craft": {
-    "description": "Full confirmed-brief-then-build flow. Runs multi-round shape discovery first, resolves visual probe and north-star mock gates when available, then builds and visually iterates. Use when building a new feature end-to-end.",
+    "description": "Full confirmed-brief-then-build flow para Flutter (ou web). Runs multi-round shape discovery first, resolves visual probe and north-star mock gates when available, then builds with Material 3, Cupertino, ThemeData, ColorScheme, TextTheme. Use when building a new Flutter feature end-to-end (widget, screen, flow).",
     "argumentHint": "[feature description]"
   },
   "teach": {
-    "description": "Gathers design context for a project. Runs a multi-round discovery interview when context is missing and writes PRODUCT.md (strategic: users, brand, principles) and, when code exists to analyze, DESIGN.md (visual: colors, typography, components). Every other command reads these files before doing work. Use once per project.",
+    "description": "Gathers design context for a project. Multi-round discovery interview when context is missing; writes PRODUCT.md (strategic: users, brand, principles, platform_strategy material/cupertino/adaptive) and DESIGN.md (visual: ColorScheme, TextTheme, components). Every other command reads these files. Use once per project.",
     "argumentHint": ""
   },
   "document": {
-    "description": "Generate a DESIGN.md file that captures the current visual design system. Auto-extracts colors, typography, spacing, radii, and component patterns from the codebase, then asks the user to confirm descriptive language for atmosphere and color character. Follows the Google Stitch DESIGN.md format so the file is tool-compatible. Use when you need a visual design spec an AI agent can follow to stay on-brand.",
+    "description": "Generate DESIGN.md from existing Flutter codebase. Auto-extracts ThemeData, ColorScheme.fromSeed seed, TextTheme M3 papéis, ThemeExtension tokens, EdgeInsets recorrentes, components em lib/widgets, motion durations. Detects Material vs Cupertino strategy. Outputs Google Stitch DESIGN.md format. Use when você precisa de um spec visual que outro agente possa seguir.",
     "argumentHint": ""
   },
   "extract": {
-    "description": "Pull reusable patterns, components, and design tokens into the design system. Identifies repeated patterns and consolidates them. Use when you have drift across the codebase and want to bring things back to a consistent system.",
+    "description": "Pull reusable Flutter widgets and design tokens em design system. Identifies repeated patterns (TextStyle hard-coded, EdgeInsets monotônicos, BoxDecoration, ListTile customizados) and consolidates em ThemeExtension/theme files/lib/widgets. Use when há drift no codebase Flutter.",
     "argumentHint": "[target]"
   },
   "live": {
-    "description": "Interactive live variant mode. Select elements in the browser, pick a design action, and get AI-generated HTML+CSS variants hot-swapped via HMR. Requires a running dev server. Use when you want to visually experiment with design alternatives in real time.",
+    "description": "Modo iterativo de variantes para Flutter. MVP v0.1: agente gera 3 variantes do widget alvo no source (lib/), usuário aplica via hot reload (`r` em flutter run) e escolhe. v0.2 planned: VM Service overlay com long-press para selecionar widget. Use para iterar UI rapidamente.",
     "argumentHint": ""
   },
   "adapt": {
-    "description": "Adapt designs to work across different screen sizes, devices, contexts, or platforms. Implements breakpoints, fluid layouts, and touch targets. Use when the user mentions responsive design, mobile layouts, breakpoints, viewport adaptation, or cross-device compatibility.",
-    "argumentHint": "[target] [context (mobile, tablet, print...)]"
+    "description": "Adaptar design Flutter para diferentes window classes (compact <600 / medium / expanded / large / extra-large), foldables, orientações, ou plataforma (Material vs Cupertino vs adaptive). Switch entre BottomNavigationBar / NavigationRail / NavigationDrawer. Use quando user menciona adaptive, responsive, tablet, foldable, plataforma-correctness, SafeArea, MediaQuery.",
+    "argumentHint": "[target] [context (tablet, foldable, desktop, ios, android...)]"
   },
   "animate": {
-    "description": "Review a feature and enhance it with purposeful animations, micro-interactions, and motion effects that improve usability and delight. Use when the user mentions adding animation, transitions, micro-interactions, motion design, hover effects, or making the UI feel more alive.",
+    "description": "Add purposeful Flutter animations: implicit (AnimatedContainer, AnimatedOpacity, AnimatedSwitcher, Hero) ou explicit (AnimationController + Tween + CurvedAnimation). Honors MediaQuery.disableAnimationsOf. Use quando user menciona animation, transitions, micro-interactions, motion, Hero, Material Motion.",
     "argumentHint": "[target]"
   },
   "audit": {
-    "description": "Run technical quality checks across accessibility, performance, theming, responsive design, and anti-patterns. Generates a scored report with P0-P3 severity ratings and actionable plan. Use when the user wants an accessibility check, performance audit, or technical quality review.",
-    "argumentHint": "[area (feature, page, component...)]"
+    "description": "Roda quality checks técnicos em código Flutter: a11y (Semantics, tooltip, contraste WCAG sobre cores resolvidas), performance (RepaintBoundary, const, rebuild count, frame budget 16ms), theming (ThemeData/ColorScheme/TextTheme, sem literals), adaptive (window classes, SafeArea, textScaler), anti-patterns (Curves.bounce, Colors.deepPurple seed, side-stripe). Score 0-4 por dimensão + P0-P3 issues. Use quando user pede a11y check, perf audit, technical review.",
+    "argumentHint": "[area (feature, screen, widget...)]"
   },
   "bolder": {
-    "description": "Amplify safe or boring designs to make them more visually interesting and stimulating. Increases impact while maintaining usability. Use when the user says the design looks bland, generic, too safe, lacks personality, or wants more visual impact and character.",
+    "description": "Amplificar designs Flutter tímidos/genéricos. Tipografia (FontWeight.w900 vs w200, FontVariation, display fonts, escala dramática), cor (seedColor saturado, ColorScheme drenched, surfaceTint), spatial (assimétrico via Stack/Positioned, generous spacing), motion (Hero, SliverAppBar colapsável). Use quando design parece bland, genérico, sem personalidade.",
     "argumentHint": "[target]"
   },
   "clarify": {
-    "description": "Improve unclear UX copy, error messages, microcopy, labels, and instructions to make interfaces easier to understand. Use when the user mentions confusing text, unclear labels, bad error messages, hard-to-follow instructions, or wanting better UX writing.",
+    "description": "Melhorar UX copy em Flutter: InputDecoration labels/hint/helper/errorText, SnackBar action verbs, AlertDialog actions específicos (verbo + objeto não OK/Cancel), tooltip em IconButton, semanticLabel em Image. Brevidade mobile (SnackBar 80 chars, push notification 30/120 chars). Use quando user menciona texto confuso, labels ruins, error messages, UX writing mobile.",
     "argumentHint": "[target]"
   },
   "colorize": {
-    "description": "Add strategic color to features that are too monochromatic or lack visual interest, making interfaces more engaging and expressive. Use when the user mentions the design looking gray, dull, lacking warmth, needing more color, or wanting a more vibrant or expressive palette.",
+    "description": "Adicionar cor estratégica a UI Flutter monocromática. ColorScheme.fromSeed M3, surfaceTint, primaryContainer/tertiaryContainer, semantic colors via ThemeExtension (success/warning/info), gradients intencionais (não purple-blue genérico). Bane Colors.deepPurple, gradient AppBar. Use quando design parece cinza, sem warmth, precisa palette mais expressiva.",
     "argumentHint": "[target]"
   },
   "critique": {
-    "description": "Evaluate design from a UX perspective, assessing visual hierarchy, information architecture, emotional resonance, cognitive load, and overall quality with quantitative scoring, persona-based testing, automated anti-pattern detection, and actionable feedback. Use when the user asks to review, critique, evaluate, or give feedback on a design or component.",
-    "argumentHint": "[area (feature, page, component...)]"
+    "description": "Avaliar design Flutter de uma perspectiva UX: hierarquia visual via TextTheme/colorScheme, IA, carga cognitiva, ressonância emocional, AI slop detection (Material baseline default, gradient AppBar, splash genérico, deepPurple seed). Score Nielsen 0-4, persona testing (Casey mobile, Diego low-end, Sam a11y), feedback acionável. Use quando user pede review/critique/feedback de design.",
+    "argumentHint": "[area (feature, screen, widget...)]"
   },
   "delight": {
-    "description": "Add moments of joy, personality, and unexpected touches that make interfaces memorable and enjoyable to use. Elevates functional to delightful. Use when the user asks to add polish, personality, animations, micro-interactions, delight, or make an interface feel fun or memorable.",
+    "description": "Adicionar moments de joy em Flutter: AnimatedScale press feedback, HapticFeedback.lightImpact, confetti package em milestones, Lottie/Rive em hero moments, custom ripple, Hero entre rotas, easter eggs. Use quando user pede polish/personality, micro-interactions, fazer interface feel fun ou memorável.",
     "argumentHint": "[target]"
   },
   "distill": {
-    "description": "Strip designs to their essence by removing unnecessary complexity. Great design is simple, powerful, and clean. Use when the user asks to simplify, declutter, reduce noise, remove elements, or make a UI cleaner and more focused.",
+    "description": "Strip Flutter UI para essência. Remove Card aninhado, EdgeInsets arbitrários fora de tokens, TextStyle literals, decorações sem função. Reduz `Container > Padding > Container > Padding` aninhamento. Consolida em ThemeExtension. Use quando user pede simplify, declutter, reduce noise, cleaner UI.",
     "argumentHint": "[target]"
   },
   "harden": {
-    "description": "Make interfaces production-ready: error handling, i18n, text overflow, edge case management, and resilience under real-world data. Use when the user asks to harden, make production-ready, handle edge cases, add error states, or fix overflow and i18n issues.",
+    "description": "Tornar UI Flutter production-ready: text overflow (Flexible/Wrap/maxLines+ellipsis), MediaQuery.textScaler em 130%/200%, RTL via EdgeInsetsDirectional, intl + .arb plurals, error states com retry, optimistic UI com rollback, dispose() em controllers, mounted check, connectivity_plus para offline. Use quando user pede harden, production-ready, edge cases, i18n, RTL.",
     "argumentHint": "[target]"
   },
   "onboard": {
-    "description": "Design onboarding flows, first-run experiences, and empty states that guide new users to value. Covers welcome screens, account setup, progressive disclosure, contextual tooltips, feature announcements, and activation moments. Use when the user mentions onboarding, first-time users, empty states, activation, getting started, new user flows, or the aha moment.",
+    "description": "Design first-run flows em Flutter: welcome screens via PageView + SmoothPageIndicator, Stepper, showcaseview/tutorial_coach_mark para spotlight, empty states com FilledButton.icon, RestorationMixin para state preservation. SharedPreferences para track 'onboarding_v1_complete'. Use quando user menciona onboarding, first-time, empty states, activation, aha moment.",
     "argumentHint": "[target]"
   },
   "layout": {
-    "description": "Improve layout, spacing, and visual rhythm. Fixes monotonous grids, inconsistent spacing, and weak visual hierarchy. Use when the user mentions layout feeling off, spacing issues, visual hierarchy, crowded UI, alignment problems, or wanting better composition.",
+    "description": "Melhorar layout/spacing/ritmo em Flutter. EdgeInsets via ThemeExtension<SpacingTokens> (4/8/16/24/32), SizedBox tokens, Row/Column com spacing: (3.27+), Wrap/GridView.builder com SliverGridDelegateWithMaxCrossAxisExtent, LayoutBuilder para container queries. Bane EdgeInsets.all(N) monotônico, Card aninhado, everything-centered. Use quando layout parece off, spacing inconsistente, hierarquia fraca.",
     "argumentHint": "[target]"
   },
   "optimize": {
-    "description": "Diagnoses and fixes UI performance across loading speed, rendering, animations, images, and bundle size. Use when the user mentions slow, laggy, janky, performance, bundle size, load time, or wants a faster, smoother experience.",
+    "description": "Diagnose+fix performance Flutter: const widgets, RepaintBoundary, AnimatedBuilder com child:, evitar AnimatedContainer mudando width/height (relayout), cached_network_image + cacheWidth, ListView.builder com itemExtent, ValueListenableBuilder vs setState global, isolates para work pesado. DevTools Performance, flutter run --profile, --analyze-size. Use quando user menciona slow, laggy, janky, app size, frame drops.",
     "argumentHint": "[target]"
   },
   "overdrive": {
-    "description": "Pushes interfaces past conventional limits with technically ambitious implementations — shaders, spring physics, scroll-driven reveals, 60fps animations. Use when the user wants to wow, impress, go all-out, or make something that feels extraordinary.",
+    "description": "Push Flutter UI além do convencional: flutter_shaders + .frag GLSL, CustomPainter avançado, Impeller-aware effects, SpringSimulation physics, Hero shared element, SliverAppBar parallax, FFI para near-native, isolates para compute. Honra disableAnimationsOf, fallback estático. Use quando user quer wow, impress, all-out, extraordinary.",
     "argumentHint": "[target]"
   },
   "polish": {
-    "description": "Performs a final quality pass fixing alignment, spacing, consistency, and micro-detail issues before shipping. Use when the user mentions polish, finishing touches, pre-launch review, something looks off, or wants to go from good to great.",
+    "description": "Final quality pass em Flutter pré-shipping. Alignment via ThemeExtension<SpacingTokens>, sem TextStyle/Color literal, WidgetState completo, Curves M3, MediaQuery.textScaler/disableAnimationsOf honored, touch target 48dp, contraste WCAG validado em ambos brightness, dart analyze zero, flutter test passa, 60fps em low-end. Use quando user menciona polish, finishing touches, pré-launch.",
     "argumentHint": "[target]"
   },
   "quieter": {
-    "description": "Tones down visually aggressive or overstimulating designs, reducing intensity while preserving quality. Use when the user mentions too bold, too loud, overwhelming, aggressive, garish, or wants a calmer, more refined aesthetic.",
+    "description": "Reduzir intensidade visual em Flutter. Reduzir saturação seedColor, dessaturar tertiary ou remover, dominância de surfaceContainer*, hairline borders/dividers (thickness 0.5), reduzir FontWeight (w900→w600), motion mais sutil (distâncias menores, easeOutCubic). Use quando design parece loud, aggressive, garish, overstimulating.",
     "argumentHint": "[target]"
   },
   "shape": {
-    "description": "Plan UX and UI before code. Runs a required multi-round discovery interview, uses visual probes when available, and produces a user-confirmed design brief for implementation.",
+    "description": "Plan UX/UI antes do código Flutter. Multi-round discovery interview com perguntas sobre platform strategy (material/cupertino/adaptive), window classes alvo, MediaQuery.textScaler behavior, perf budget low-end Android, A11y. Produz design brief confirmado pelo user. Use antes de craft, ou para planning standalone.",
     "argumentHint": "[feature to shape]"
   },
   "typeset": {
-    "description": "Improves typography by fixing font choices, hierarchy, sizing, weight, and readability so text feels intentional. Use when the user mentions fonts, type, readability, text hierarchy, sizing looks off, or wants more polished, intentional typography.",
+    "description": "Melhorar tipografia em Flutter: TextTheme M3 (15 papéis displayLarge→labelSmall), GoogleFonts ou bundle .ttf, FontVariation para variable fonts, TextStyle.height para line-height, FontFeature.tabularFigures para listas, MediaQuery.textScaler honored, 50-75 chars por linha em mobile. Use quando user menciona fonts, type, readability, hierarchy, ALL-CAPS letterSpacing.",
     "argumentHint": "[target]"
   }
 }
