@@ -1,3 +1,12 @@
+# CI do impeccable-flutter.
+#
+# Roda em paralelo:
+#   - skill-build:           build do skill multi-provider + suite Bun/Node
+#   - cli-dart-test:         dart analyze + dart test em cli_dart/
+#   - lints-integration:     custom_lint integration tests em lints/
+#
+# Sobe artifact `dist/` em pushes para main para facilitar inspeção pós-build.
+
 name: CI
 
 on:
@@ -7,35 +16,60 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  skill-build:
+    name: Skill build (Node + Bun)
     runs-on: ubuntu-latest
-    
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-
-      - name: Install dependencies
-        run: bun install
-
-      - name: Run tests
-        run: bun run test
-        
-      - name: Build
-        run: bun run build
-        
-      - name: Upload build artifacts
+      - run: bun install --frozen-lockfile
+      - run: bun run test
+      - run: bun run build
+      - name: Upload dist artifact
+        if: github.event_name == 'push'
         uses: actions/upload-artifact@v4
         with:
-          name: impeccable-dist
+          name: impeccable-flutter-dist
           path: dist/
           retention-days: 7
+
+  cli-dart-test:
+    name: CLI Dart unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+      - run: dart pub get
+        working-directory: cli_dart
+      - run: dart analyze
+        working-directory: cli_dart
+      - run: dart test
+        working-directory: cli_dart
+
+  lints-integration-test:
+    name: Lints integration tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter --version
+      # Resolve deps do package raiz e do example.
+      - run: dart pub get
+        working-directory: lints
+      - run: flutter pub get
+        working-directory: lints/example
+      - run: dart analyze
+        working-directory: lints
+      # Roda as integration tests (boota custom_lint contra example/).
+      - run: dart test
+        working-directory: lints
+        timeout-minutes: 5

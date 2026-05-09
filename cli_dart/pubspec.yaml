@@ -1,8 +1,10 @@
 name: impeccable_flutter
 description: >-
-  CLI para detectar anti-padrões de design em apps Flutter. Roda regras
-  do impeccable_flutter_lints sobre lib/ e formata o output em human ou JSON.
-  Também boota o modo live (MVP: edit + hot reload manual; v0.2 ganha overlay).
+  CLI Dart para detectar anti-padrões de design em apps Flutter. Modo --fast
+  faz scan regex incluindo dois checks de agregação cross-file (monotonous
+  spacing, everything centered) e formata em human ou JSON. Para o conjunto
+  completo de checks AST inline, use o pacote irmão impeccable_flutter_lints
+  via custom_lint. Inclui também o modo live (v0.1: edit + hot reload manual).
 version: 0.0.1
 homepage: https://impeccable.style/flutter
 repository: https://github.com/tarcisiojr/impeccable-flutter
