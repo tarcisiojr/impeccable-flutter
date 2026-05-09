@@ -52,53 +52,80 @@ Create a systematic plan:
 - **Weight strategy**: Which weights serve which roles? (Regular for body, Semibold for labels, Bold for headings, or whatever fits)
 - **Spacing**: Line-heights, letter-spacing, and margins between typographic elements
 
-## Improve Typography Systematically
+## Improve Typography Systematically (Flutter)
 
 ### Font Selection
 
-If fonts need replacing:
-- Choose fonts that reflect the brand personality
-- Pair with genuine contrast (serif + sans, geometric + humanist), or use a single family in multiple weights
-- Ensure web font loading doesn't cause layout shift (`font-display: swap`, metric-matched fallbacks)
+Se as fontes precisam ser trocadas:
+- Escolha fontes que refletem a personalidade da marca (procedimento em [brand.md](brand.md)).
+- Pareie com contraste genuíno (serif + sans, geometric + humanist), ou use uma família só em múltiplos pesos.
+- Em Flutter, carregue via `google_fonts` package (runtime fetch desabilitado em produção, com TTFs bundlados em `assets/`) ou bundle direto via `pubspec.yaml > flutter > fonts`. Veja [typography.md](typography.md).
+- Para variable fonts: declare em `pubspec.yaml` e use `FontVariation('wght', 480)` para pesos fracionários.
 
-### Establish Hierarchy
+### Hierarquia via TextTheme
 
-Build a clear type scale:
-- **5 sizes cover most needs**: caption, secondary, body, subheading, heading
-- **Use a consistent ratio** between levels (1.25, 1.333, or 1.5)
-- **Combine dimensions**: Size + weight + color + space for strong hierarchy. Don't rely on size alone
-- **App UIs**: Use a fixed `rem`-based type scale, optionally adjusted at 1-2 breakpoints. Fluid sizing undermines the spatial predictability that dense, container-based layouts need
-- **Marketing / content pages**: Use fluid sizing via `clamp(min, preferred, max)` for headings and display text. Keep body text fixed
+**Use os 15 papéis Material 3** em vez de inventar paralelo:
 
-### Fix Readability
+```dart
+// Acessar
+Text('Título', style: Theme.of(context).textTheme.headlineMedium);
 
-- Set `max-width` on text containers using `ch` units (`max-width: 65ch`)
-- Adjust line-height per context: tighter for headings (1.1-1.2), looser for body (1.5-1.7)
-- Increase line-height slightly for light-on-dark text
-- Ensure body text is at least 16px / 1rem
+// Customizar TextTheme inteiro
+ThemeData(
+  textTheme: GoogleFonts.interTextTheme(),  // base inteira
+  // ou override por papel:
+  textTheme: TextTheme(
+    displayLarge: GoogleFonts.fraunces(fontWeight: FontWeight.w900),
+    // resto vem do default M3
+  ),
+)
+```
 
-### Refine Details
+- **15 papéis cobrem tudo**: display(L/M/S), headline(L/M/S), title(L/M/S), body(L/M/S), label(L/M/S).
+- **Razão consistente**: M3 entrega 1.125-1.27 entre vizinhos. Se customiza, mantenha 1.2-1.333.
+- **Combine dimensões**: tamanho + peso + cor + espaço para hierarquia forte. Não dependa só de tamanho.
+- **App UIs**: escala fixa via `TextTheme`. Não tente fluid type em mobile (jank em scroll).
+- **Brand surfaces (marketing screen, splash)**: ajuste `displayLarge` para tamanho dramático.
 
-- Use `tabular-nums` for data tables and numbers that should align
-- Apply proper `letter-spacing`: slightly open for small caps and uppercase, default or tight for large display text
-- Use semantic token names (`--text-body`, `--text-heading`), not value names (`--font-16`)
-- Set `font-kerning: normal` and consider OpenType features where appropriate
+### Readability
 
-### Weight Consistency
+- Não há `ch` em Flutter. Aproxime: para `bodyLarge` (16), 50-75 chars cabem em 280-420 lógicos. Em tablet/desktop, `ConstrainedBox(maxWidth: 600)` para não passar de 75 em prosa.
+- `TextStyle.height` para line-height. M3 default em body: 1.5. Headings: 1.1-1.2. Coluna larga: 1.5-1.6.
+- Body claro em fundo escuro: aumentar `height` em 0.05-0.1, adicionar `letterSpacing` 0.01-0.02, considerar reduzir peso em um nível.
+- Body text mínimo 16 (`bodyLarge` M3 default).
+- **Honra `MediaQuery.textScaler`** sempre. Nunca `noScaling`.
 
-- Define clear roles for each weight and stick to them
-- Don't use more than 3-4 weights (Regular, Medium, Semibold, Bold is plenty)
-- Load only the weights you actually use (each weight adds to page load)
+### Refinar detalhes
 
-**NEVER**:
-- Use more than 2-3 font families
-- Pick sizes arbitrarily; commit to a scale
-- Set body text below 16px
-- Use decorative/display fonts for body text
-- Disable browser zoom (`user-scalable=no`)
-- Use `px` for font sizes; use `rem` to respect user settings
-- Default to Inter/Roboto/Open Sans when personality matters
-- Pair fonts that are similar but not identical (two geometric sans-serifs)
+```dart
+TextStyle(
+  fontFeatures: const [
+    FontFeature.tabularFigures(),    // dígitos alinhados em listas/tabelas
+    FontFeature.enable('frac'),       // frações reais
+    FontFeature.disable('liga'),      // tira ligaduras (em código)
+  ],
+  letterSpacing: 0.5,                 // ALL-CAPS labels precisam +5-12% (= 0.05-0.12 em em-multiplier)
+  height: 1.4,                        // line-height
+)
+```
+
+`textHeightBehavior: TextHeightBehavior(applyHeightToFirstAscent: false)` corrige leading desnecessária em headers grandes.
+
+### Weight consistency
+
+- Defina papéis claros para cada peso e mantenha.
+- Não use mais que 3-4 pesos (Regular, Medium, Semibold, Bold). Para variable fonts, `FontVariation` permite fracionário, mas ainda discipline.
+- Bundle só os pesos que usa (cada peso adiciona kilobytes).
+
+**NEVER (Flutter)**:
+- Mais que 2-3 famílias.
+- Tamanhos arbitrários; commit a `TextTheme` M3 ou customização derivada.
+- Body abaixo de 14 (`bodyMedium` M3); idealmente 16 (`bodyLarge`).
+- Display fonts em body text.
+- Hard-code `MediaQuery.textScaler: TextScaler.noScaling` (quebra A11y).
+- `TextStyle(fontSize: ...)` cru; sempre via `Theme.of(context).textTheme`.
+- Default para Inter/Roboto/Plus Jakarta Sans quando personalidade importa.
+- Pareie fontes parecidas mas diferentes (dois geométricos sans).
 
 ## Verify Typography Improvements
 
@@ -111,14 +138,14 @@ Build a clear type scale:
 
 When the type carries the hierarchy on its own, hand off to `$impeccable polish` for the final pass.
 
-## Live-mode signature params
+## Live-mode (Flutter MVP)
 
-Each variant MUST declare a `scale` param controlling the hierarchy ratio. Express all font sizes in the variant's scoped CSS through `calc(var(--p-scale, 1) * <base>)` or, better, scale the type ramp via `clamp(min, calc(var(--p-scale, 1) * Npx), max)`. Users slide from subdued to commanding.
+No MVP de live mode (v0.1), variantes são source-level e o usuário escolhe via hot reload. Variantes de typography devem nomear:
 
-```json
-{"id":"scale","kind":"range","min":0.85,"max":1.3,"step":0.05,"default":1,"label":"Scale"}
+```dart
+// _OnboardingHeroSubdued: TextTheme conservadora, displayMedium em vez de displayLarge
+// _OnboardingHeroCommanding: displayLarge w900, letterSpacing -0.02
+// _OnboardingHeroEditorial: pareamento serif Fraunces + sans body, italic acent
 ```
 
-Where the variant riffs on a specific pairing, expose the pairing choice as a `steps` param (e.g. "serif display + sans body" vs. "mono display + sans body" vs. "all-sans"). Each branch routes through `:scope[data-p-pairing="X"]` selectors in scoped CSS.
-
-See `reference/live.md` for the full params contract.
+Roadmap (v0.2 com VM Service): cada variante exporá params equivalentes (scale como `range`, pairing como `steps`). Veja [live.md](live.md).

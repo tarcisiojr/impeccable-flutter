@@ -1,195 +1,301 @@
-# Interaction Design
+# Interaction Design (Flutter)
 
-## The Eight Interactive States
+Leia [flutter-foundations.md](flutter-foundations.md) primeiro.
 
-Every interactive element needs these states designed:
+## Os oito estados interativos
 
-| State | When | Visual Treatment |
-|-------|------|------------------|
-| **Default** | At rest | Base styling |
-| **Hover** | Pointer over (not touch) | Subtle lift, color shift |
-| **Focus** | Keyboard/programmatic focus | Visible ring (see below) |
-| **Active** | Being pressed | Pressed in, darker |
-| **Disabled** | Not interactive | Reduced opacity, no pointer |
-| **Loading** | Processing | Spinner, skeleton |
-| **Error** | Invalid state | Red border, icon, message |
-| **Success** | Completed | Green check, confirmation |
+Todo elemento interativo precisa destes estados desenhados:
 
-**The common miss**: Designing hover without focus, or vice versa. They're different. Keyboard users never see hover states.
+| Estado | Quando | Tratamento |
+|---|---|---|
+| **Default** | Em repouso | Estilo base |
+| **Hovered** | Ponteiro sobre (desktop/web Flutter; mobile não tem) | Lift sutil, shift de cor |
+| **Focused** | Foco de teclado / programático | Focus ring visível |
+| **Pressed** | Sendo pressionado | Mais escuro, ripple no Material |
+| **Disabled** | Não interativo | Opacidade reduzida, sem ripple |
+| **Selected** | Item selecionado em group | Cor de container ou borda |
+| **Error** | Estado inválido | Borda `colorScheme.error`, ícone, mensagem |
+| **Loading** | Processando | Skeleton, spinner inline, ou disabled state |
 
-## Focus Rings: Do Them Right
+A confusão mais comum: desenhar hover sem focus, ou vice-versa. Em mobile puro, `hovered` raramente importa (a não ser que rode em iPad com Magic Keyboard ou em desktop). `focused` importa sempre: usuário com Switch Control, teclado bluetooth, ou screen reader navega assim.
 
-**Never `outline: none` without replacement.** It's an accessibility violation. Instead, use `:focus-visible` to show focus only for keyboard users:
+## WidgetState e WidgetStateProperty
 
-```css
-/* Hide focus ring for mouse/touch */
-button:focus {
-  outline: none;
-}
+Em Flutter, os 8 estados são unificados em `WidgetState` (antigo `MaterialState`). Para customizar comportamento por estado, use `WidgetStateProperty.resolveWith`:
 
-/* Show focus ring for keyboard */
-button:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-}
+```dart
+ElevatedButton(
+  style: ButtonStyle(
+    backgroundColor: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.disabled)) return scheme.surfaceContainerLow;
+      if (states.contains(WidgetState.pressed)) return scheme.primaryContainer;
+      if (states.contains(WidgetState.hovered)) return scheme.primary.withValues(alpha: 0.92);
+      return scheme.primary;
+    }),
+    foregroundColor: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.disabled)) return scheme.onSurface.withValues(alpha: 0.38);
+      return scheme.onPrimary;
+    }),
+  ),
+  onPressed: () {},
+  child: const Text('Salvar'),
+)
 ```
 
-**Focus ring design**:
-- High contrast (3:1 minimum against adjacent colors)
-- 2-3px thick
-- Offset from element (not inside it)
-- Consistent across all interactive elements
+Não monte `if (isPressed) ...` em `build` manualmente: você vai esquecer um estado.
 
-## Form Design: The Non-Obvious
+## Focus ring: faça direito
 
-**Placeholders aren't labels.** They disappear on input. Always use visible `<label>` elements. **Validate on blur**, not on every keystroke (exception: password strength). Place errors **below** fields with `aria-describedby` connecting them.
+**`FocusableActionDetector`** é a ferramenta canônica para widgets custom interativos. Ela combina `Focus`, `FocusableActionDetector`, `MouseRegion` e atalhos de teclado. Para widgets que herdam de `InkWell`/`Material`, o ring vem de graça.
 
-## Loading States
+Nunca remova o focus indicator sem substituto:
 
-**Optimistic updates**: Show success immediately, rollback on failure. Use for low-stakes actions (likes, follows), not payments or destructive actions. **Skeleton screens > spinners**: they preview content shape and feel faster than generic spinners.
-
-## Modals: The Inert Approach
-
-Focus trapping in modals used to require complex JavaScript. Now use the `inert` attribute:
-
-```html
-<!-- When modal is open -->
-<main inert>
-  <!-- Content behind modal can't be focused or clicked -->
-</main>
-<dialog open>
-  <h2>Modal Title</h2>
-  <!-- Focus stays inside modal -->
-</dialog>
+```dart
+FocusableActionDetector(
+  actions: { ActivateIntent: CallbackAction(onInvoke: (_) => onTap()) },
+  shortcuts: { LogicalKeySet(LogicalKeyboardKey.enter): const ActivateIntent() },
+  child: Builder(builder: (context) {
+    final hasFocus = Focus.of(context).hasFocus;
+    return Container(
+      decoration: BoxDecoration(
+        border: hasFocus
+            ? Border.all(color: scheme.primary, width: 2)
+            : Border.all(color: Colors.transparent, width: 2),
+      ),
+      // ...
+    );
+  }),
+)
 ```
 
-Or use the native `<dialog>` element:
+Critérios do focus ring:
+- Alto contraste (3:1 mínimo contra cores adjacentes).
+- 2-3 lógicos de espessura.
+- Offset em vez de inset (use `Border.all` com cor de fundo do container, ou `Stack` com `Positioned` para anel externo).
+- Consistente entre todos os widgets interativos.
 
-```javascript
-const dialog = document.querySelector('dialog');
-dialog.showModal();  // Opens with focus trap, closes on Escape
+## Form design: o não-óbvio
+
+**Hint não é label.** `InputDecoration(hintText: 'email')` desaparece no input. Sempre use `labelText:` (que floats) ou `Text` separada acima do `TextFormField`. Se você precisa do hint, ele é exemplo de formato (`'jane@example.com'`), não nome do campo.
+
+**Validar no blur**, não em cada keystroke. Em Flutter, isso significa `Form.onChanged: null` + `validator:` que dispara em `Form.validate()` (chamado no submit ou no `onFocusChange: (has) => !has ? ...`).
+
+Exceção: força de senha, autocomplete contextual, busca incremental: esses validam em real-time porque é a função.
+
+**Errors abaixo do field**, não em diálogo. Em Flutter, `InputDecoration(errorText: ...)` faz isso direto e expõe `Semantics` correto para screen reader. Para erros que cobrem múltiplos campos, `SnackBar` ou banner no topo.
+
+```dart
+TextFormField(
+  decoration: InputDecoration(
+    labelText: 'Email',
+    hintText: 'jane@example.com',
+    helperText: 'Usado para login',         // ajuda persistente
+    errorText: _emailError,                 // erro condicional
+  ),
+  autovalidateMode: AutovalidateMode.onUserInteraction,
+  validator: (v) => v?.contains('@') == true ? null : 'Endereço inválido',
+)
 ```
 
-## The Popover API
+`autovalidateMode: AutovalidateMode.onUserInteraction` é o sweet spot: valida só depois que o usuário tocou no campo, não ao primeiro render.
 
-For tooltips, dropdowns, and non-modal overlays, use native popovers:
+## Loading states
 
-```html
-<button popovertarget="menu">Open menu</button>
-<div id="menu" popover>
-  <button>Option 1</button>
-  <button>Option 2</button>
-</div>
-```
+**Updates otimistas**: mostre sucesso imediato, rollback em falha. Use para low-stakes (likes, follows, marcar como lido). Em Flutter:
 
-**Benefits**: Light-dismiss (click outside closes), proper stacking, no z-index wars, accessible by default.
-
-## Dropdown & Overlay Positioning
-
-Dropdowns rendered with `position: absolute` inside a container that has `overflow: hidden` or `overflow: auto` will be clipped. This is the single most common dropdown bug in generated code.
-
-### CSS Anchor Positioning
-
-The modern solution uses the CSS Anchor Positioning API to tether an overlay to its trigger without JavaScript:
-
-```css
-.trigger {
-  anchor-name: --menu-trigger;
-}
-
-.dropdown {
-  position: fixed;
-  position-anchor: --menu-trigger;
-  position-area: block-end span-inline-end;
-  margin-top: 4px;
-}
-
-/* Flip above if no room below */
-@position-try --flip-above {
-  position-area: block-start span-inline-end;
-  margin-bottom: 4px;
-}
-```
-
-Because the dropdown uses `position: fixed`, it escapes any `overflow` clipping on ancestor elements. The `@position-try` block handles viewport edges automatically. **Browser support**: Chrome 125+, Edge 125+. Not yet in Firefox or Safari - use a fallback for those browsers.
-
-### Popover + Anchor Combo
-
-Combining the Popover API with anchor positioning gives you stacking, light-dismiss, accessibility, and correct positioning in one pattern:
-
-```html
-<button popovertarget="menu" class="trigger">Open</button>
-<div id="menu" popover class="dropdown">
-  <button>Option 1</button>
-  <button>Option 2</button>
-</div>
-```
-
-The `popover` attribute places the element in the **top layer**, which sits above all other content regardless of z-index or overflow. No portal needed.
-
-### Portal / Teleport Pattern
-
-In component frameworks, render the dropdown at the document root and position it with JavaScript:
-
-- **React**: `createPortal(dropdown, document.body)`
-- **Vue**: `<Teleport to="body">`
-- **Svelte**: Use a portal library or mount to `document.body`
-
-Calculate position from the trigger's `getBoundingClientRect()`, then apply `position: fixed` with `top` and `left` values. Recalculate on scroll and resize.
-
-### Fixed Positioning Fallback
-
-For browsers without anchor positioning support, `position: fixed` with manual coordinates avoids overflow clipping:
-
-```css
-.dropdown {
-  position: fixed;
-  /* top/left set via JS from trigger's getBoundingClientRect() */
+```dart
+Future<void> _toggleLike() async {
+  setState(() => _liked = !_liked);    // UI imediata
+  try {
+    await api.setLike(_liked);
+  } catch (e) {
+    setState(() => _liked = !_liked);  // rollback
+    showSnackBar('Não foi possível salvar');
+  }
 }
 ```
 
-Check viewport boundaries before rendering. If the dropdown would overflow the bottom edge, flip it above the trigger. If it would overflow the right edge, align it to the trigger's right side instead.
+**Skeleton > spinner**: skeleton dá preview do shape do conteúdo e parece mais rápido que `CircularProgressIndicator` no meio da tela. Pacotes: `shimmer`, `skeletonizer`. Para casos simples, `Container` cinza com `BorderRadius` no shape do widget final + `AnimatedOpacity` quando dados chegam.
 
-### Anti-Patterns
+**`CircularProgressIndicator`** continua válido para:
+- Botões enquanto submetem (`ElevatedButton` com `child: SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))`).
+- Estados terminais onde skeleton não faz sentido (refresh em pull-to-refresh já usa via `RefreshIndicator`).
 
-- **`position: absolute` inside `overflow: hidden`** - The dropdown will be clipped. Use `position: fixed` or the top layer instead.
-- **Arbitrary z-index values** like `z-index: 9999` - Use a semantic z-index scale: `dropdown (100) -> sticky (200) -> modal-backdrop (300) -> modal (400) -> toast (500) -> tooltip (600)`.
-- **Rendering dropdown markup inline** without an escape hatch from the parent's stacking context. Either use `popover` (top layer), a portal, or `position: fixed`.
+## Modais: bottom sheets, dialogs, full-screen
 
-## Destructive Actions: Undo > Confirm
+Em mobile, **bottom sheet costuma vencer dialog**. Está mais perto do polegar, ocupa espaço previsível, suporta drag-to-dismiss.
 
-**Undo is better than confirmation dialogs.** Users click through confirmations mindlessly. Remove from UI immediately, show undo toast, actually delete after toast expires. Use confirmation only for truly irreversible actions (account deletion), high-cost actions, or batch operations.
-
-## Keyboard Navigation Patterns
-
-### Roving Tabindex
-
-For component groups (tabs, menu items, radio groups), one item is tabbable; arrow keys move within:
-
-```html
-<div role="tablist">
-  <button role="tab" tabindex="0">Tab 1</button>
-  <button role="tab" tabindex="-1">Tab 2</button>
-  <button role="tab" tabindex="-1">Tab 3</button>
-</div>
+```dart
+showModalBottomSheet(
+  context: context,
+  isScrollControlled: true,                  // permite altura customizada
+  showDragHandle: true,                      // M3 dragger no topo
+  builder: (context) => _MyBottomSheetContent(),
+)
 ```
 
-Arrow keys move `tabindex="0"` between items. Tab moves to the next component entirely.
+Para conteúdo que precisa decisão sim/não simples, `AlertDialog` (Material) ou `CupertinoAlertDialog` (iOS-fluente). Para tela inteira de fluxo, `Navigator.push` com `fullscreenDialog: true` (transição vem de baixo, botão de close em vez de back).
 
-### Skip Links
+### Focus trap automático
 
-Provide skip links (`<a href="#main-content">Skip to main content</a>`) for keyboard users to jump past navigation. Hide off-screen, show on focus.
+`Dialog`, `showModalBottomSheet`, `showMenu`, `showDatePicker`: todos lidam com focus trap, dismiss no escape, retorno de foco para o trigger. Você não precisa montar nada manual. Diferente de web: zero `inert`, zero JS de focus trap.
 
-## Gesture Discoverability
+### Cuidado com `BackdropFilter` em modal
 
-Swipe-to-delete and similar gestures are invisible. Hint at their existence:
+Se a sheet ou dialog tem blur de fundo via `BackdropFilter`, contraste do conteúdo abaixo fica imprevisível. Sempre componha com um `Container(color: scheme.scrim)` por baixo do blur. M3 já entrega `colorScheme.scrim` calibrado.
 
-- **Partially reveal**: Show delete button peeking from edge
-- **Onboarding**: Coach marks on first use
-- **Alternative**: Always provide a visible fallback (menu with "Delete")
+## Tooltips e menus
 
-Don't rely on gestures as the only way to perform actions.
+Para tooltips:
+
+```dart
+Tooltip(
+  message: 'Excluir item',
+  child: IconButton(icon: Icon(Icons.delete), onPressed: ...),
+)
+```
+
+`Tooltip` aparece no long-press em mobile (default), no hover em desktop. Long-press para tooltip não é descobrible: sempre dê alternativa visual quando possível (label visível, ícone + texto).
+
+Para menus de opção:
+
+```dart
+MenuAnchor(
+  builder: (context, controller, child) => IconButton(
+    icon: const Icon(Icons.more_vert),
+    onPressed: controller.open,
+  ),
+  menuChildren: [
+    MenuItemButton(child: const Text('Editar'), onPressed: () {}),
+    MenuItemButton(child: const Text('Excluir'), onPressed: () {}),
+  ],
+)
+```
+
+`MenuAnchor` (M3) é a ferramenta moderna. `PopupMenuButton` ainda funciona mas é M2. Para menus contextuais em ícone, prefira `MenuAnchor`.
+
+## Posicionamento de overlay
+
+Em web isso é o problema crônico (`position: absolute` clipado por `overflow: hidden`). **Em Flutter o equivalente direto não existe**: `Overlay` (top layer) é onde tudo flutua. `Tooltip`, `showMenu`, `MenuAnchor`, `Dialog` usam por baixo. Para sua própria UI flutuante:
+
+```dart
+final overlay = Overlay.of(context);
+final entry = OverlayEntry(builder: (_) => Positioned(
+  left: 100, top: 200,
+  child: Material(elevation: 8, child: ...),
+));
+overlay.insert(entry);
+// ... mais tarde:
+entry.remove();
+```
+
+Para "menu ancorado a este botão" sem montar manual, `MenuAnchor` resolve com posicionamento automático que considera bordas da viewport.
+
+### Anti-padrões equivalentes
+
+- `Overlay` esquecido removido. Vazamento. Sempre `entry.remove()` quando fechar.
+- `Stack` profundo com `Positioned` para emular dropdown. Use `Overlay` ou `MenuAnchor` em vez.
+- `showDialog` sem `useRootNavigator: true` quando há nested `Navigator`. Diálogo aparece no Navigator errado (atrás de bottom sheet, por exemplo).
+- Z-index mental "tooltip > modal > snackbar". Em Flutter, ordem é definida pelo `Overlay` em que cada um insere. `ScaffoldMessenger` > `Navigator overlay` > etc. Documentação Flutter cobre.
+
+## Ações destrutivas: undo > confirm
+
+**Undo bate diálogo de confirmação.** Usuários clicam through confirmação no piloto automático. Remover da UI imediato, mostrar `SnackBar` com action "Desfazer", deletar de fato após o snack expirar:
+
+```dart
+void _delete(Item item) {
+  setState(() => items.remove(item));
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text('"${item.title}" excluído'),
+      action: SnackBarAction(
+        label: 'Desfazer',
+        onPressed: () => setState(() => items.add(item)),
+      ),
+      duration: const Duration(seconds: 5),
+      onVisible: () {},
+    ),
+  );
+  // schedule actual delete after snackbar duration
+  Future.delayed(const Duration(seconds: 5, milliseconds: 300), () {
+    if (mounted && !items.contains(item)) _api.delete(item.id);
+  });
+}
+```
+
+Use diálogo de confirmação só para:
+- Ações realmente irreversíveis (deletar conta, deletar workspace inteiro).
+- Ações de alto custo (compra, transferência).
+- Operações em batch (deletar 50 items).
+
+## Navegação por teclado
+
+### Roving tabindex equivalente
+
+Em Flutter, `FocusTraversalGroup` com `policy: WidgetOrderTraversalPolicy()` ou `OrderedTraversalPolicy()` controla a ordem do tab. Para grupos onde uma seta (não tab) move entre items (tabs, menu, radio):
+
+```dart
+FocusTraversalGroup(
+  policy: OrderedTraversalPolicy(),
+  child: Row(children: [
+    for (final tab in tabs) FocusTraversalOrder(
+      order: NumericFocusOrder(tab.index.toDouble()),
+      child: TabButton(tab),
+    ),
+  ]),
+)
+```
+
+Para arrow-key navigation entre items de uma lista/menu, `Shortcuts` + `Actions`:
+
+```dart
+Shortcuts(
+  shortcuts: {
+    LogicalKeySet(LogicalKeyboardKey.arrowDown): const NextFocusIntent(),
+    LogicalKeySet(LogicalKeyboardKey.arrowUp): const PreviousFocusIntent(),
+  },
+  child: Actions(
+    actions: {
+      NextFocusIntent: CallbackAction(onInvoke: (_) => FocusScope.of(context).nextFocus()),
+      // ...
+    },
+    child: ...,
+  ),
+)
+```
+
+`MenuAnchor` e `TabBar` já fazem isso por dentro.
+
+### Skip links
+
+Em mobile costuma ser desnecessário; o screen reader tem rotor (iOS) ou navigation gestures (Android) para pular grupos. Para apps com side nav grande no tablet, `Semantics(sortKey:)` controla a ordem que TalkBack/VoiceOver lê.
+
+## Descobribilidade de gestos
+
+Swipe-to-delete e similares são invisíveis. Insinue:
+
+- **Reveal parcial**: `Dismissible` com `background:` colorido visível durante drag: mostra a ação que vai disparar.
+- **Onboarding**: tooltips coach mark na primeira vez (`showcaseview` package).
+- **Alternativa visível**: sempre dê opção menu "..." com "Excluir" para usuários que não descobrem o swipe.
+
+Não confie em gesto como única forma de fazer ação.
+
+```dart
+Dismissible(
+  key: ValueKey(item.id),
+  direction: DismissDirection.endToStart,
+  background: Container(
+    color: scheme.errorContainer,
+    alignment: AlignmentDirectional.centerEnd,
+    padding: const EdgeInsets.symmetric(horizontal: 24),
+    child: Icon(Icons.delete, color: scheme.onErrorContainer),
+  ),
+  confirmDismiss: (_) async => /* show confirm if irreversible */,
+  onDismissed: (_) => _deleteWithUndo(item),
+  child: ListTile(title: Text(item.title)),
+)
+```
 
 ---
 
-**Avoid**: Removing focus indicators without alternatives. Using placeholder text as labels. Touch targets <44x44px. Generic error messages. Custom controls without ARIA/keyboard support.
+**Evitar**: remover focus indicators sem alternativa. Hint text como label. Touch target <48dp. Mensagens de erro genéricas. Widgets interativos custom sem `Semantics`/keyboard handling. Diálogo de confirmação para ações reversíveis. `setState` ignorando rollback em UI otimista.

@@ -54,27 +54,28 @@ Create a systematic plan:
 
 ## Improve Layout Systematically
 
-### Establish a Spacing System
+### Estabelecer um Sistema de Espaçamento (Flutter)
 
-- Use a consistent spacing scale (framework scales like Tailwind, rem-based tokens, or a custom scale all work). What matters is that values come from a defined set, not arbitrary numbers.
-- Name tokens semantically if using custom properties: `--space-xs` through `--space-xl`, not `--spacing-8`
-- Use `gap` for sibling spacing instead of margins; eliminates margin collapse hacks
-- Apply `clamp()` for fluid spacing that breathes on larger screens
+- Use uma escala consistente. Em Flutter: `ThemeExtension<SpacingTokens>` ou classe estática `AppSpacing`. Valores tipicamente 4, 8, 12, 16, 24, 32, 48, 64, 96 lógicos.
+- Nomes semânticos: `spacing.md`, `spacing.lg`, não `spacing16`.
+- Use `Padding` + `SizedBox` ou parâmetro `spacing:` (Flutter 3.27+ em `Row`/`Column`/`Wrap`) entre irmãos. Não use `Container(margin:)` para irmãos (confuso e dificulta alinhamento).
+- Não há `clamp()` em Flutter. Para variar spacing por window class, switch via `LayoutBuilder` ou `MediaQuery.sizeOf`.
 
-### Create Visual Rhythm
+### Criar Ritmo Visual
 
-- **Tight grouping** for related elements (8-12px between siblings)
-- **Generous separation** between distinct sections (48-96px)
-- **Varied spacing** within sections (not every row needs the same gap)
-- **Asymmetric compositions**: break the predictable centered-content pattern when it makes sense
+- **Tight grouping** para items relacionados (8-12 lógicos entre siblings via `SizedBox`).
+- **Generous separation** entre seções distintas (32-64 lógicos em mobile, 48-96 em tablet/desktop).
+- **Varied spacing** dentro das seções; não toda linha precisa do mesmo gap.
+- **Composições assimétricas**: `Stack` + `Positioned`, `Align` em pontos não-óbvios, `SliverAppBar` colapsável.
 
-### Choose the Right Layout Tool
+### Escolher a ferramenta certa de layout
 
-- **Use Flexbox for 1D layouts**: Rows of items, nav bars, button groups, card contents, most component internals. Flex is simpler and more appropriate for the majority of layout tasks.
-- **Use Grid for 2D layouts**: Page-level structure, dashboards, data-dense interfaces, anything where rows AND columns need coordinated control.
-- **Don't default to Grid** when Flexbox with `flex-wrap` would be simpler and more flexible.
-- Use `repeat(auto-fit, minmax(280px, 1fr))` for responsive grids without breakpoints.
-- Use named grid areas (`grid-template-areas`) for complex page layouts; redefine at breakpoints.
+- **`Row` / `Column` para 1D**: rows de items, nav bars, grupos de botão, conteúdo de card, internals de componente. É a ferramenta default e correta para a maioria.
+- **`GridView` / `Wrap` para 2D**: estrutura page-level, dashboards, telas data-dense, qualquer coisa onde rows E columns precisam controle coordenado.
+- **`Wrap` em vez de `Row` quando items podem quebrar**: tags, chips, lista horizontal que pode wrap.
+- **`GridView.builder(SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent: 280))`** para grids responsivos sem breakpoint.
+- **`CustomMultiChildLayout`** para layouts realmente intricados (raro). `Stack` com `Positioned`/`AnimatedPositioned` resolve a maioria.
+- **`Flexible` / `Expanded`** para overflow safety. Sem isso, `Row` com `Text` longo crasha visualmente.
 
 ### Break Card Grid Monotony
 
@@ -88,26 +89,28 @@ Create a systematic plan:
 - Be aware of reading flow: in LTR languages, the eye naturally scans top-left to bottom-right, but primary action placement depends on context (e.g., bottom-right in dialogs, top in navigation).
 - Create clear content groupings through proximity and separation.
 
-### Manage Depth & Elevation
+### Gerenciar Depth & Elevation (Flutter)
 
-- Create a semantic z-index scale (dropdown → sticky → modal-backdrop → modal → toast → tooltip)
-- Build a consistent shadow scale (sm → md → lg → xl); shadows should be subtle
-- Use elevation to reinforce hierarchy, not as decoration
+- Em Flutter, ordem visual é decidida pela árvore (o que vem depois fica em cima). Para "camada acima de tudo", use `Overlay`/`OverlayEntry` (que `Tooltip`, `showMenu`, `showModalBottomSheet`, `Dialog` usam por baixo).
+- Material 3 entrega 6 níveis de elevation (0, 1, 3, 6, 8, 12) que mapeiam a `surfaceContainer*`. Use `Material(elevation:)` ou widgets que herdam (`Card`, `MenuAnchor`, `Drawer`).
+- Sombras devem ser sutis. Em dark mode, sombras quase desaparecem; profundidade vem da `surfaceContainer*` mais clara.
+- Use elevation para reforçar hierarquia, não decoração.
 
 ### Optical Adjustments
 
-- If an icon looks visually off-center despite being geometrically centered, nudge it. But only if you're confident it actually looks wrong. Don't adjust speculatively.
+- Se um ícone parece off-center apesar de geometricamente centrado, nudge via `Transform.translate(offset: Offset(2, 0))`. Só quando você tem certeza visual; não ajuste especulativamente.
+- `IconButton`, `ListTile.leading`, `AppBar.title` em Flutter já tem ajustes ópticos para muitos glyphs.
 
-**NEVER**:
-- Use arbitrary spacing values outside your scale
-- Make all spacing equal (variety creates hierarchy)
-- Wrap everything in cards (not everything needs a container)
-- Nest cards inside cards (use spacing and dividers for hierarchy within)
-- Use identical card grids everywhere (icon + heading + text, repeated)
-- Center everything (left-aligned with asymmetry feels more designed)
-- Default to the hero metric layout (big number, small label, stats, gradient) as a template. If showing real user data, a prominent metric can work, but it should display actual data, not decorative numbers.
-- Default to CSS Grid when Flexbox would be simpler; use the simplest tool for the job
-- Use arbitrary z-index values (999, 9999); build a semantic scale
+**NEVER (Flutter)**:
+- Valores de spacing arbitrários fora da sua escala (`EdgeInsets.all(7)`, `EdgeInsets.all(13)`).
+- Todo spacing igual (variedade cria hierarquia; `EdgeInsets.all(16)` repetido em N widgets adjacentes é o anti-pattern `monotonous-spacing`).
+- Embrulhar tudo em `Card` (não tudo precisa container).
+- `Card` aninhado em `Card`.
+- Grids idênticos de Card icon + heading + text repetidos (anti-pattern `icon-tile-stack`).
+- Centralizar tudo (`Center`/`MainAxisAlignment.center` em ≥80% dos containers é o anti-pattern `everything-centered`).
+- Hero card com gradient + big number + label + sparkline como template (a menos que seja dado real e justificado).
+- `GridView` quando `Row` ou `Wrap` resolveriam mais simples.
+- `Stack` + `Positioned` quando `Align` resolve.
 
 ## Verify Layout Improvements
 
@@ -120,22 +123,14 @@ Create a systematic plan:
 
 When the rhythm and hierarchy land, hand off to `/impeccable polish` for the final pass.
 
-## Live-mode signature params
+## Live-mode (Flutter MVP)
 
-Each variant MUST declare a `density` param. Drive all spacing tokens in the variant's scoped CSS through `calc(var(--p-density, 1) * <base>)`: paddings, gaps, column widths. Users slide from airy to packed and see layout re-breathe with no regeneration.
+No MVP de live mode, variantes são source-level. Variantes de layout devem nomear estrutura E densidade:
 
-```json
-{"id":"density","kind":"range","min":0.6,"max":1.4,"step":0.05,"default":1,"label":"Density"}
+```dart
+// _DashboardStackedAiry: Column, EdgeInsets.all(spacing.lg), gap spacing.lg
+// _DashboardGridDense: GridView.count(crossAxisCount: 2), EdgeInsets.all(spacing.sm)
+// _DashboardBentoAsymmetric: Stack + Positioned, varied spacing
 ```
 
-For variants whose topology genuinely changes (stacked vs. side-by-side, grid vs. bento), use a `steps` param whose scoped CSS branches via `:scope[data-p-structure="X"]`. One structure param + one density param is a powerful combo; resist adding a third.
-
-```json
-{"id":"structure","kind":"steps","default":"grid","label":"Structure","options":[
-  {"value":"stacked","label":"Stacked"},
-  {"value":"grid","label":"Grid"},
-  {"value":"bento","label":"Bento"}
-]}
-```
-
-See `reference/live.md` for the full params contract.
+Roadmap v0.2: cada variante exporá `density` (range) + `structure` (steps stacked/grid/bento). Veja [live.md](live.md).

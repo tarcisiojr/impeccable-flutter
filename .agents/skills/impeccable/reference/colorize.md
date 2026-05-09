@@ -67,13 +67,13 @@ Add color systematically across these dimensions:
 - **Headers/titles**: Add color to section headers or key labels
 - **Hover states**: Introduce color on interaction
 
-### Background & Surfaces
-- **Tinted backgrounds**: Replace pure gray (`#f5f5f5`) with warm neutrals (`oklch(97% 0.01 60)`) or cool tints (`oklch(97% 0.01 250)`)
-- **Colored sections**: Use subtle background colors to separate areas
-- **Gradient backgrounds**: Add depth with subtle, intentional gradients (not generic purple-blue)
-- **Cards & surfaces**: Tint cards or surfaces slightly for warmth
+### Background & Surfaces (Flutter)
+- **Tinted neutrals**: M3 entrega via `surfaceTint` automático. Não desligue. Para customizar, override `colorScheme.surface` mantendo chroma 0.005-0.01 puxando para a `primary`.
+- **Seções coloridas**: `Container(color: scheme.surfaceContainerLow)` para uma faixa, `surfaceContainerHigh` para a próxima. M3 já entrega 5 níveis prontos.
+- **Gradients**: `LinearGradient(colors: [scheme.primary, scheme.tertiary], stops: [0, 1])` intencional. NÃO purple-to-blue genérico.
+- **Cards**: `Card.filled` (M3) ou `Material(color: scheme.surfaceContainer, elevation: 0)`.
 
-**Use OKLCH for color**: It's perceptually uniform, meaning equal steps in lightness *look* equal. Great for generating harmonious scales.
+**OKLCH como modelo mental**: escolha cores em oklch.com (perceptualmente uniforme), depois cole hex no `Color(0xFF...)` ou `seedColor`. Flutter 3.27+ tem `Color.from(... colorSpace: ColorSpace.displayP3)` para apps que precisam de wide gamut em iPhones recentes.
 
 ### Data Visualization
 - **Charts & graphs**: Use color to encode categories or values
@@ -120,16 +120,16 @@ Ensure color addition improves rather than overwhelms:
 - **Systematic application**: Same color meanings throughout (green always = success)
 - **Temperature consistency**: Warm palette stays warm, cool stays cool
 
-**NEVER**:
-- Use every color in the rainbow (choose 2-4 colors beyond neutrals)
-- Apply color randomly without semantic meaning
-- Put gray text on colored backgrounds. It looks washed out; use a darker shade of the background color or transparency instead
-- Use pure gray for neutrals. Add subtle color tint (warm or cool) for depth
-- Use pure black (`#000`) or pure white (`#fff`) for large areas
-- Violate WCAG contrast requirements
-- Use color as the only indicator (accessibility issue)
-- Make everything colorful (defeats the purpose)
-- Default to purple-blue gradients (AI slop aesthetic)
+**NEVER (Flutter)**:
+- Usar arco-íris (escolha 2-4 cores além dos neutros).
+- Aplicar cor aleatória sem significado semântico.
+- Texto cinza sobre fundo colorido (use `onPrimary`/`onSecondary` que M3 já calibra).
+- Cinza puro em neutros (M3 já tinta via `surfaceTint`; não desligue).
+- `Colors.black` ou `Colors.white` literal em qualquer lugar de UI.
+- Violar contraste WCAG (validar com cor RESOLVIDA de `colorScheme`, não com literal).
+- Cor sozinha como único indicador (issue de A11y).
+- `seedColor: Colors.deepPurple` (default `flutter create`).
+- `LinearGradient(colors: [purple, blue])` em qualquer AppBar ou hero (AI slop).
 
 ## Verify Color Addition
 
@@ -145,10 +145,12 @@ When the palette earns its place, hand off to `$impeccable polish` for the final
 
 ## Live-mode signature params
 
-When invoked from live mode, each variant MUST declare a `color-amount` param so the user can dial between a restrained accent and a drenched surface without regeneration. Author the variant's CSS against `var(--p-color-amount, 0.5)`, typically as the alpha multiplier on backgrounds, or as a scaling factor on the chroma axis in an OKLCH expression. 0 = neutral/monochrome, 1 = full saturation / dominant coverage.
+Live mode no MVP Flutter (v0.1) é manual: agente edita variantes inline e usuário escolhe via hot reload. Variantes de cor devem declarar uma direção clara em comentário:
 
-```json
-{"id":"color-amount","kind":"range","min":0,"max":1,"step":0.05,"default":0.5,"label":"Color amount"}
+```dart
+// _ProductCardRestrained: accent ≤10%, scheme.primary só no badge
+// _ProductCardCommitted: scheme.primary domina o card inteiro
+// _ProductCardDrenched: scheme.primary é a tela; texto em onPrimary
 ```
 
-Layer 1-2 variant-specific params on top: palette selection (`steps` with named options), temperature warmth, or tint vs. true color. See `reference/live.md` for the full params contract.
+Quando v0.2 chegar com VM Service, cada variante vai declarar params equivalentes (color-amount como `range`, palette selection como `steps`). Veja [live.md](live.md) e o roadmap.

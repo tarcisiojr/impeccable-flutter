@@ -43,6 +43,7 @@ If the user has already run {{command_prefix}}impeccable shape and has a confirm
 
 Based on the design brief's "Recommended References" section, consult the relevant impeccable reference files. At minimum, always consult:
 
+- [flutter-foundations.md](flutter-foundations.md) for Flutter projects (auto-detected via `pubspec.yaml`)
 - [spatial-design.md](spatial-design.md) for layout and spacing
 - [typography.md](typography.md) for type hierarchy
 
@@ -50,7 +51,7 @@ Then add references based on the brief's needs:
 - Complex interactions or forms? Consult [interaction-design.md](interaction-design.md)
 - Animation or transitions? Consult [motion-design.md](motion-design.md)
 - Color-heavy or themed? Consult [color-and-contrast.md](color-and-contrast.md)
-- Responsive requirements? Consult [responsive-design.md](responsive-design.md)
+- Adaptive (multi-window-class)? Consult [responsive-design.md](responsive-design.md)
 - Heavy on copy, labels, or errors? Consult [ux-writing.md](ux-writing.md)
 
 ## Step 3: Land the Visual Direction (Capability-Gated)
@@ -133,20 +134,20 @@ Usually **1 to 5** extracted assets is enough. If the design can be built cleanl
 
 Implement the feature following the design brief. Build in passes so structure, visual system, states, motion/media, and responsive behavior each get deliberate attention. The list below is the definition of done, not inspiration.
 
-### Production bar
+### Production bar (Flutter)
 
-- Use real or realistic content. Remove placeholder copy, placeholder images, dead links, fake controls, and unused scaffold before presenting.
-- Preserve the approved mock's major ingredients. Missing hero objects, missing world/product imagery, different section structure, downgraded CTA/nav treatment, or generic replacements for distinctive motifs are blocking defects unless the user accepted the change.
-- Build semantically first: real headings, landmarks, labels, form associations, button/link semantics, accessible names, and state announcements where needed.
-- Calibrate spacing, alignment, grid placement, and vertical rhythm deliberately. Do not accept default gaps, arbitrary margins, unbalanced whitespace, or accidental optical misalignment.
-- Make typography intentional: chosen font loading strategy, clear hierarchy, readable measure, stable line breaks, tuned wrapping, and no overflow at mobile or large desktop sizes.
-- Design realistic state coverage: default, hover where supported, focus-visible, active, disabled, loading, error, success, empty, overflow, long text, short text, and first-run states where relevant.
-- Make interaction quality feel finished: keyboard paths, touch targets, feedback timing, scroll behavior, transitions between states, and no hover-only functionality.
-- Use icons from the project's established icon set when available. If no set exists, choose a coherent library or use accessible text controls; do not mix unrelated icon styles.
-- Optimize imagery and media: correct dimensions, useful alt text, lazy loading below the fold, modern formats when practical, responsive `srcset` / `picture` for raster assets, and no project-referenced asset left outside the workspace.
-- Make motion feel premium: use atmospheric blur, filter, mask, shadow, or reveal effects when they improve the experience; avoid casual layout-property animation, bound expensive effects, verify smoothness in-browser, respect reduced motion, and avoid choreography that blocks task completion.
-- Preserve maintainability: reusable local patterns, clear component boundaries, project conventions, no rasterized UI text, and no hard-coded one-off hacks when a better local pattern exists.
-- Fit the technical context: production build passes, no obvious console errors, no avoidable layout shift, no needless dependency, and no broken asset path.
+- Use conteúdo real ou realista. Remova placeholder copy, placeholder images, dead links, fake controls, scaffold não usado.
+- Preserve os ingredientes major do mock aprovado.
+- Build semanticamente primeiro: `Semantics(header: true, ...)`, `tooltip:` em `IconButton`, `semanticLabel:` em `Image` informativa, `Form` + `validator`, `FocusableActionDetector` em interativos custom.
+- Calibre spacing, alignment, ritmo vertical deliberadamente via `ThemeExtension<SpacingTokens>`. Não aceite `EdgeInsets.all(N)` arbitrários, `Padding` random, sem ritmo entre seções.
+- Faça tipografia intencional: `TextTheme` M3, `MediaQuery.textScaler` honrado, sem overflow em texto longo (`Flexible`/`Wrap`/`maxLines`+`ellipsis`), sem `TextStyle` literal cru.
+- Cobertura de estados realista: default, hovered (desktop), focused, pressed, disabled, loading, error, success, empty, selected, overflow text, texto curto, first-run.
+- Interação polida: keyboard paths, touch targets ≥48dp, feedback timing, scroll behavior (`physics:`), transições entre estados (`AnimatedSwitcher`, `Hero`).
+- Use ícones do set Material padrão (`Icons.*`) ou Cupertino (`CupertinoIcons.*`) ou bundle SVG via `flutter_svg`. Não misture estilos.
+- Otimize imagens: `Image.network` com `cacheWidth`/`cacheHeight`, `cached_network_image` em produção, `loadingBuilder`/`errorBuilder`, resolution-aware assets (`assets/2.0x/`, `3.0x/`).
+- Motion premium: implicit animations primeiro (`AnimatedContainer`, `AnimatedSwitcher`); explicit (`AnimationController` + `Tween`) quando precisa control. Honra `MediaQuery.disableAnimationsOf`. Evite animar width/height casualmente. `RepaintBoundary` em áreas animadas.
+- Preserve manutenibilidade: padrões locais reusáveis (`AppButton`, `AppCard`, `AppEmptyState`), boundaries claros, convenções do projeto, sem hard-code one-off quando padrão local existe.
+- Fit tech: `flutter analyze` zero, `flutter test` passa, `flutter run --profile -d <real device>` 60fps, sem dependências sem motivo.
 - If you discover a design question that materially changes the brief or approved direction, stop and ask rather than guessing.
 
 ## Step 6: Browser-Based Iteration

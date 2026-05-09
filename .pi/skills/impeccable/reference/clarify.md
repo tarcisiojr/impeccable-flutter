@@ -57,17 +57,17 @@ Refine text across these common areas:
 
 ### Form Labels & Instructions
 **Bad**: "DOB (MM/DD/YYYY)"
-**Good**: "Date of birth" (with placeholder showing format)
+**Good**: "Date of birth" (com `hintText: 'DD/MM/AAAA'` mostrando formato)
 
 **Bad**: "Enter value here"
-**Good**: "Your email address" or "Company name"
+**Good**: "Your email address" ou "Company name"
 
 **Principles**:
-- Use clear, specific labels (not generic placeholders)
-- Show format expectations with examples
-- Explain why you're asking (when not obvious)
-- Put instructions before the field, not after
-- Keep required field indicators clear
+- Use clear, specific labels (não placeholders genéricos). Em Flutter: `InputDecoration(labelText: ...)` que floats, não só `hintText`.
+- Show format expectations with `hintText:` e `helperText:` para o porquê.
+- Explain why you're asking when not obvious (`helperText: 'Usado apenas para verificação'`).
+- Put instructions before the field, not after: `helperText` aparece embaixo mas é OK porque é persistente; `Text` separado acima vai melhor para instruções longas.
+- Required field indicators claros: asterisco no `labelText` ou `Text` "(obrigatório)".
 
 ### Button & CTA Text
 **Bad**: "Click here" | "Submit" | "OK"
@@ -91,12 +91,12 @@ Refine text across these common areas:
 
 ### Empty States
 **Bad**: "No items"
-**Good**: "No projects yet. Create your first project to get started."
+**Good**: "Nenhum projeto ainda. Crie o primeiro para começar."
 
 **Principles**:
-- Explain why it's empty (if not obvious)
-- Show next action clearly
-- Make it welcoming, not dead-end
+- Explain why it's empty (if not obvious).
+- Show next action clearly. Em Flutter, padrão é `Center(child: Column())` com ícone + título + body + `FilledButton.icon`. Veja [ux-writing.md](ux-writing.md) para o widget completo.
+- Make it welcoming, not dead-end.
 
 ### Success Messages
 **Bad**: "Success"
@@ -120,13 +120,14 @@ Refine text across these common areas:
 
 ### Confirmation Dialogs
 **Bad**: "Are you sure?"
-**Good**: "Delete 'Project Alpha'? This can't be undone."
+**Good**: "Excluir 'Projeto Alpha'? Não pode ser desfeito."
 
 **Principles**:
-- State the specific action
-- Explain consequences (especially for destructive actions)
-- Use clear button labels ("Delete project" not "Yes")
-- Don't overuse confirmations (only for risky actions)
+- State the specific action.
+- Explain consequences (especially for destructive actions).
+- Use clear button labels ("Excluir projeto" not "Sim"). Em Flutter, `AlertDialog.actions:` recebe `TextButton` ou `FilledButton` com `child: Text('Verbo + objeto')`.
+- Para ações destrutivas, estilize o confirm com `colorScheme.error`: `FilledButton(style: FilledButton.styleFrom(backgroundColor: scheme.error))`.
+- Don't overuse confirmations (only for risky actions). Prefira `SnackBar` com `SnackBarAction(label: 'Desfazer')`.
 
 ### Navigation & Wayfinding
 **Bad**: Generic labels like "Items" | "Things" | "Stuff"

@@ -1,114 +1,146 @@
 # Brand register
 
-When design IS the product: brand sites, landing pages, marketing surfaces, campaign pages, portfolios, long-form content, about pages. The deliverable is the design itself; a visitor's impression is the thing being made.
+Quando o design IS o produto. Em mobile isso é um nicho real, embora menor que em web: app de marca (Liquid Death, Patagonia), app de campanha, app de uma exposição ou turnê, app de portfólio (artista, fotógrafo, estúdio), app companion de uma marca física (loja, restaurante, hotel), splash + onboarding branded de qualquer app que se leva a sério como identidade visual.
 
-The register spans every genre. A tech brand (Stripe, Linear, Vercel). A luxury brand (a hotel, a fashion house). A consumer product (a restaurant, a travel site, a CPG packaging page). A creative studio, an agency portfolio, a band's album page. They all share the stance (*communicate, not transact*) and diverge wildly in aesthetic. Don't collapse them into a single look.
+Leia [flutter-foundations.md](flutter-foundations.md) primeiro.
 
-## The brand slop test
+O register cobre vários gêneros. Tech (Linear app, Vercel app), luxo (hotel, fashion), consumo (restaurante, travel, CPG), criativos (estúdio, agência, banda). Compartilham a postura (*comunicar, não transacionar*) e divergem totalmente no estético. Não colapsar tudo num único look.
 
-If someone could look at this and say "AI made that" without hesitation, it's failed. The bar is distinctiveness; a visitor should ask "how was this made?", not "which AI made this?"
+## O teste de slop em brand (mobile)
 
-Brand isn't a neutral register. AI-generated landing pages have flooded the internet, and average is no longer findable. Restraint without intent now reads as mediocre, not refined. Brand surfaces need a POV, a specific audience, a willingness to risk strangeness. Go big or go home.
+Se alguém olha sem hesitar e diz "isso é um app Flutter de IA", falhou. A barra é distinção. O visitante deve perguntar "como fizeram isso?", não "qual modelo gerou isso?".
 
-**The second slop test: aesthetic lane.** Before committing to moves, name the reference. A Klim-style specimen page is one lane; Stripe-minimal is another; Liquid-Death-acid-maximalism is another. Don't drift into editorial-magazine aesthetics on a brief that isn't editorial. A hiking brand with Cormorant italic drop caps has the wrong register within the register.
+Brand não é um register neutro. Apps de campanha gerados por LLM já existem e são intercambiáveis. Restraint sem intenção lê como mediano, não refinado. Brand surfaces precisam de POV, audiência específica, vontade de arriscar estranheza. Vai grande ou vai pra casa.
 
-## Typography
+**O segundo teste, lane estética**: antes de comprometer com movimentos, nomeie a referência. "Tipo o app da Liquid Death, ácido maximalista". "Tipo o app do Hermès, editorial preto e branco". "Tipo a abertura do Apple Maps, mapas tipográficos". Não derive para editorial-magazine num brief que não pede magazine. Um app de campanha de hiking com Cormorant italic em drop caps tem o register errado dentro do register.
 
-### Font selection procedure
+## O slop específico de brand em Flutter
 
-Every project. Never skip.
+Três fingerprints de "Flutter brand app gerado por IA" para banir antes de começar:
 
-1. Read the brief. Write three concrete brand-voice words. Not "modern" or "elegant," but "warm and mechanical and opinionated" or "calm and clinical and careful." Physical-object words.
-2. List the three fonts you'd reach for by reflex. If any appear in the reflex-reject list below, reject them; they are training-data defaults and they create monoculture.
-3. Browse a real catalog (Google Fonts, Pangram Pangram, Future Fonts, Adobe Fonts, ABC Dinamo, Klim, Velvetyne) with the three words in mind. Find the font for the brand as a *physical object*: a museum caption, a 1970s terminal manual, a fabric label, a cheap-newsprint children's book, a concert poster, a receipt from a mid-century diner. Reject the first thing that "looks designy."
-4. Cross-check. "Elegant" is not necessarily serif. "Technical" is not necessarily sans. "Warm" is not Fraunces. If the final pick lines up with the original reflex, start over.
+1. **Splash screen com gradiente roxo-azul + logo centralizada com `FadeInScale`.** O splash mais comum gerado é exatamente isso. Se você quer brand, splash ou é matemática (logo bold em fundo flat brand-color, sem animação) ou é arte (loop Lottie/Rive de 600ms desenhado para a marca).
+2. **AppBar com `LinearGradient` purple → blue + `Text` branco bold.** Se a barra de cima é gradiente, você está copiando 2018 Material Design tutorials. Brand mobile em 2026 ou é cor flat saturada da marca, ou é transparente com `SliverAppBar` colapsável.
+3. **Hero card com border-radius 24, sombra suave azul-clara, padding 24, "eyebrow" pequeno em maiúsculas, headline bold, botão arredondado abaixo.** Esse layout é o equivalente Flutter do `<section class="hero">` web genérico. Brand pede composição assimétrica, hierarquia tipográfica forte, ou imagem que carrega a tela.
 
-### Reflex-reject list
+## Tipografia
 
-Training-data defaults. Ban list. Look further:
+### Procedimento de seleção de fonte
+
+Todo projeto. Nunca pular.
+
+1. Ler o brief. Escrever três palavras concretas de voz da marca. Não "moderno" ou "elegante", mas "quente e mecânico e opinionado" ou "calmo e clínico e cuidadoso". Palavras de objeto físico.
+2. Listar as três fontes que viriam por reflexo. Se aparecerem na lista de reflex-reject abaixo, rejeitar. São defaults de training data e criam monocultura.
+3. Procurar num catálogo real (Google Fonts, Pangram Pangram, Future Fonts, Adobe Fonts, ABC Dinamo, Klim, Velvetyne) com as três palavras em mente. Achar a fonte para a marca como objeto físico: legenda de museu, manual de terminal dos anos 70, etiqueta de tecido, livro infantil em jornal barato, poster de show, recibo de diner mid-century. Rejeitar a primeira coisa que "parece de design".
+4. Cross-check. "Elegante" não é necessariamente serif. "Técnico" não é necessariamente sans. "Quente" não é Fraunces. Se a escolha final bate com o reflexo original, recomeçar.
+
+### Em Flutter, como carregar
+
+Duas vias razoáveis, decidir cedo:
+
+- **`google_fonts` package**: pega de runtime ou cacheia local. Bom para protótipos e marcas que aceitam dependência de Google. Usar `GoogleFonts.config.allowRuntimeFetching = false` em produção; embedar TTFs no `assets/fonts/` para garantia.
+- **Bundle direto via `pubspec.yaml > flutter > fonts`**: licença na sua mão, controle total, suporta `axes` de variable font. Para marcas sérias, é o caminho.
+
+Variable fonts são suportadas. `FontVariation('wght', 480)` para peso fracionário. Um variable file costuma ser menor que três pesos estáticos.
+
+### Lista reflex-reject
+
+Defaults de training data. Lista de proibidos. Procurar mais fundo.
 
 Fraunces · Newsreader · Lora · Crimson · Crimson Pro · Crimson Text · Playfair Display · Cormorant · Cormorant Garamond · Syne · IBM Plex Mono · IBM Plex Sans · IBM Plex Serif · Space Mono · Space Grotesk · Inter · DM Sans · DM Serif Display · DM Serif Text · Outfit · Plus Jakarta Sans · Instrument Sans · Instrument Serif
 
-### Reflex-reject aesthetic lanes
+### Lanes estéticas reflex-reject (em mobile)
 
-Parallel to the font list. Currently saturated aesthetic families that have flooded brand surfaces. If a brief lands in one of these lanes without a register reason that *requires* it (a literal magazine, a literal terminal, a literal industrial signage system), it's the second-order training reflex: the trap one tier deeper than picking a Fraunces font. Look further.
+Paralelo à lista de fontes. Famílias estéticas saturadas em apps mobile. Se o brief cai numa destas sem razão de register que *exija*, é reflexo de segunda ordem. Procurar mais fundo.
 
-- **Editorial-typographic.** Display serif (often italic) + small mono labels + ruled separators + monochromatic restraint. Klim-influenced, magazine-cover affectation. By 2026, every Stripe-adjacent and Notion-adjacent brand has landed here. The fingerprint: three rule-separated columns, an italic Fraunces / Recoleta / Newsreader headline, lowercase track-spaced metadata, no imagery.
+- **Editorial-tipográfico mobile.** Display serif italic + mono labels pequenos + linhas horizontais ruled + restraint monocromático. A versão Stripe/Linear app reduzida. Fingerprint: três blocos separados por divider line, headline italic Fraunces/Recoleta/Newsreader, metadata em uppercase track-spaced, sem imagem.
+- **Material baseline polished.** Card com elevation, FAB redondo brand-color, BottomNavigationBar 4 tabs com ícones outlined. Parece "bem feito" porque é o tutorial Material 3. Se sua marca tem voz, isso esconde a voz.
+- **Splash + onboarding "página 1 de 3" com Lottie genérico.** Padrão de 100% dos templates. Se brand, ou tem ilustração própria ou começa direto na tela 1 sem onboarding.
 
-(More entries land here on the same cadence the font list updates. Brutalist-utility and acid-maximalism may join when they saturate. Removing entries when they fall back below saturation is also fine.)
+(Mais entradas aterrissam aqui no mesmo cadência da lista de fonte. Brutalist-utility e acid-maximalism podem entrar quando saturarem. Remover quando saírem da saturação também é OK.)
 
-The reflex-reject lists apply to **new design choices**. When the existing brand has already committed to a font or a lane as part of its identity, identity-preservation wins; variants on an existing surface don't second-guess what's already shipping. The reflex-reject lists are for greenfield decisions and for departure-mode variants in [live.md](live.md).
+As listas reflex-reject valem para **decisões novas**. Quando a marca já comprometeu com uma fonte ou lane como parte da identidade, identidade-vence. Variantes em superfície existente não questionam o que já está shippado. Reflex-reject é para greenfield.
 
-### Pairing and voice
+### Pairing e voz
 
-Distinctive + refined is the goal. The specific shape depends on the brand:
+Distinto + refinado é o objetivo. Forma específica depende da marca:
 
-- **Editorial / long-form / luxury**: display serif + sans body (a magazine shape).
-- **Tech / dev tools / fintech**: one committed sans, usually; custom-tight tracking, strong weight contrast inside a single family.
-- **Consumer / food / travel**: warmer pairings, often a humanist sans plus a script or display serif.
-- **Creative studios / agencies**: rule-breaking welcome. Mono-only, or display-only, or custom-drawn type as voice.
+- **Editorial / long-form / luxo**: display serif + sans body. Em Flutter: dois `TextStyle` diferentes, um para `displayLarge` (serif), outro para `bodyLarge` (sans).
+- **Tech / dev tools / fintech**: um sans comprometido. Tracking apertado, contraste forte de peso dentro da família.
+- **Consumer / food / travel**: pares quentes, humanist sans + script display.
+- **Estúdios criativos / agências**: quebra de regra bem-vinda. Mono-only, display-only, type custom desenhado.
 
-Two families minimum is the rule *only* when the voice needs it. A single well-chosen family with committed weight/size contrast is stronger than a timid display+body pair.
+Mínimo duas famílias só *quando a voz pede*. Uma família bem escolhida com contraste comprometido de peso/tamanho é mais forte que um par display+body tímido.
 
-Vary across projects. If the last brief was a serif-display landing page, this one isn't.
+Variar entre projetos. Se o último brief foi serif-display-landing, esse não é.
 
-### Scale
+### Escala
 
-Modular scale, fluid `clamp()` for headings, ≥1.25 ratio between steps. Flat scales (1.1× apart) read as uncommitted.
+Modular scale. Em Flutter mobile: razão ≥1.25 entre níveis do `TextTheme` quando você customiza. Escalas planas (1.1x apart) leem como sem comprometimento.
 
-Light text on dark backgrounds: add 0.05–0.1 to line-height. Light type reads as lighter weight and needs more breathing room.
+Não há `clamp()` em Flutter. Para variar tamanho por viewport, use `LayoutBuilder` ou breakpoints Material (compact/medium/expanded) para trocar de `TextTheme` ou aplicar fator. Não tente fluid type por código (fica jank em scroll).
 
-## Color
+Texto claro em fundo escuro: adicionar 0.05 a 0.1 em `height`. Texto leve lê como mais leve e precisa de mais respiro.
 
-Brand surfaces have permission for Committed, Full palette, and Drenched strategies. Use them. A single saturated color spread across a hero is not excess; it's voice. A beige-and-muted-slate landing page ignores the register.
+## Cor
 
-- Name a real reference before picking a strategy. "Klim Type Foundry #ff4500 orange drench", "Stripe purple-on-white restraint", "Liquid Death acid-green full palette", "Mailchimp yellow full palette", "Condé Nast Traveler muted navy restraint", "Vercel pure black monochrome". Unnamed ambition becomes beige.
-- Palette IS voice. A calm brand and a restless brand should not share palette mechanics.
-- When the strategy is Committed or Drenched, color carries the brand. Don't hedge with neutrals around the edges. Commit.
-- Don't converge across projects. If the last brand surface was restrained-on-cream, this one is not.
+Brand surfaces têm permissão para Committed, Full palette e Drenched. Usar. Uma única cor saturada espalhada pelo hero não é excesso, é voz. Um app brand bege-com-azul-claro ignora o register.
+
+- Nomear referência real antes de pegar estratégia. "Liquid Death app, verde ácido drenched". "Patagonia app, terra-vermelha committed". "Hermès app, laranja saturado em fundo creme". "MUBI app, preto puro com posters dominando". Ambição sem nome vira bege.
+- Em Flutter, isso significa **não começar pelo `ColorScheme.fromSeed` se brand**. `fromSeed` é a ferramenta certa para product. Brand pode pedir `ColorScheme.fromSeed` com semente brand E **override manual** de `primary`, `surface`, `surfaceContainer` para a paleta-marca exata. Ou montar `ColorScheme.fromSwatch` à mão.
+- Paleta É voz. Marca calma e marca inquieta não compartilham mecânica de paleta.
+- Quando a estratégia é Committed ou Drenched, cor carrega a marca. Não hedge com neutros nas bordas. Comprometer.
+- Não convergir entre projetos. Se a última marca foi restrained-on-cream, essa não é.
 
 ## Layout
 
-- Asymmetric compositions are one option. Break the grid intentionally for emphasis.
-- Fluid spacing with `clamp()` that breathes on larger viewports. Vary for rhythm: generous separations, tight groupings.
-- Alternative: a strict, visible grid as the voice (brutalist / Swiss / tech-spec aesthetics). Either asymmetric or rigorously-gridded can be "designed"; the failure mode is splitting the difference into a generic centered stack.
-- Don't default to centering everything. Left-aligned with asymmetric layouts feels more designed; a strict grid reads as confident structure. A centered-stack hero with icon-title-subtitle cards reads as template.
-- When cards ARE the right affordance, use `grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))` for breakpoint-free responsiveness.
+- Composição assimétrica é uma opção real. `Stack` + `Positioned` + `Align` resolvem 80% das composições "quebradas" que importam em mobile.
+- `SliverAppBar` colapsável + `CustomScrollView` é a ferramenta brand de scroll-driven em mobile. Vale para hero que vira AppBar fixa.
+- Espaçamento generoso em mobile é mais raro que em web (tela é menor) mas em brand é diferencial. Padding 32-48 horizontal num hero comunica "esse app vale o pixel".
+- Alternativa: grid estrito visível como voz (brutalist / Swiss / tech-spec). Em Flutter: `GridView` com gap fixo, separadores `Divider` com `thickness: 0.5`, números monoespaçados.
+- Não centralizar tudo. Left-aligned com asymmetric ou strict-grid passa "designed". Centered-stack com card-icon-title-subtitle passa template.
+- Quando cards SÃO a affordance, `GridView.builder` com `SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent: 280)` dá responsivo sem breakpoint.
 
-## Imagery
+## Imagem
 
-Brand surfaces lean on imagery. A restaurant, hotel, magazine, or product landing page without any imagery reads as incomplete, not as restrained. A solid-color rectangle where a hero image should go is worse than a representative stock photo.
+Brand surfaces se apoiam em imagem. Um app de restaurante, hotel, magazine ou produto sem nenhuma imagem lê como incompleto, não restrained. Um `Container` colorido onde uma hero image deveria estar é pior que uma foto stock representativa.
 
-**When the brief implies imagery (restaurants, hotels, magazines, photography, hobbyist communities, food, travel, fashion, product), you must ship imagery.** Zero images is a bug, not a design choice. "Restraint" is not an excuse.
+**Quando o brief implica imagem (restaurante, hotel, magazine, fotografia, comunidade hobbyista, food, travel, fashion, produto), você precisa shippar imagem.** Zero imagens é bug, não escolha de design.
 
-- **For greenfield work without local assets, use stock imagery.** Unsplash is the default. The URL shape is `https://images.unsplash.com/photo-{id}?auto=format&fit=crop&w=1600&q=80`. Pick real Unsplash photo IDs you're confident exist (`photo-1559339352-11d035aa65de`, `photo-1590490360182-c33d57733427`, etc.); if unsure, pick fewer photos but don't substitute colored `<div>` placeholders.
-- **Search for the brand's physical object**, not the generic category: "handmade pasta on a scratched wooden table" beats "Italian food"; "cypress trees above a limestone hotel facade at dusk" beats "luxury hotel".
-- **One decisive photo beats five mediocre ones.** Hero imagery should commit to a mood; padding with more stock doesn't rescue an indecisive one.
-- **Alt text is part of the voice.** "Coastal fettuccine, hand-cut, served on the terrace" beats "pasta dish".
+- **Para greenfield sem assets locais, use `cached_network_image` + Unsplash.** URL: `https://images.unsplash.com/photo-{id}?auto=format&fit=crop&w=1600&q=80`. Pegue IDs reais que você sabe que existem (`photo-1559339352-11d035aa65de`, etc.). Se em dúvida, menos fotos, mas não substitua por `Container` colorido.
+- **Buscar pelo objeto físico da marca**, não pela categoria genérica. "fettuccine costeira cortada à mão na varanda" bate "comida italiana".
+- **Uma foto decisiva bate cinco medianas.** Hero comprometido com mood vence padding com mais stock.
+- **`semanticLabel:` em `Image` é parte da voz.** "Fettuccine costeira, cortada à mão, servida na varanda" bate "prato de massa".
 
-Tech / dev-tool brands are the exception where zero imagery can be correct; a developer landing page often carries its voice through typography, code samples, diagrams. Know which kind of brand you're working on.
+Apps tech / dev tools são exceção onde zero imagem pode ser certo. Saiba qual marca você tem.
 
 ## Motion
 
-- One well-orchestrated page-load with staggered reveals beats scattered micro-interactions, when the brand invites it. Tech-minimal brands often skip entrance motion entirely; the restraint is the voice.
-- For collapsing/expanding sections, transition `grid-template-rows` rather than `height`.
+- Splash + onboarding orquestrados. Brand pode pagar 1.5s de coreografia se a marca pede. `Hero` para continuidade de identidade entre rotas.
+- Para colapsar/expandir seções, `AnimatedSize` ou `SliverAnimatedList` são mais corretos que rebuild com `setState`.
+- Tech-minimal brands podem pular entrance motion. O restraint é a voz. Apple App Store opening: zero animation, isso ESSA decisão.
+- Em brand, motion pode ser custom: `CustomPainter` desenhando, Rive embedado, `AnimationController` orquestrado em fases. Em product nada disso.
 
-## Brand bans (on top of the shared absolute bans)
+Detalhes em [motion-design.md](motion-design.md).
 
-- Monospace as lazy shorthand for "technical / developer." If the brand isn't technical, mono reads as costume.
-- Large rounded-corner icons above every heading. Screams template.
-- Single-family pages that picked the family by reflex, not voice. (A single family chosen deliberately is fine.)
-- All-caps body copy. Reserve caps for short labels and headings.
-- Timid palettes and average layouts. Safe = invisible.
-- Zero imagery on a brief that implies imagery (restaurant, hotel, food, travel, fashion, photography, hobbyist). Colored blocks where a hero photo belongs.
-- Defaulting to editorial-magazine aesthetics (display serif + italic + drop caps + broadsheet grid) on briefs that aren't magazine-shaped. Editorial is ONE aesthetic lane, not the default brand aesthetic.
+## Banimentos do brand mobile (sobre os bans compartilhados)
 
-## Brand permissions
+- Mono como atalho preguiçoso para "técnico / developer". Se a marca não é técnica, mono lê como fantasia.
+- Ícone redondo grande arredondado acima de cada heading. Grita template.
+- Apps single-family que escolheram a família por reflexo, não voz. (Single family deliberada é fina.)
+- All-caps em body. Reservar caps para labels curtos e headings.
+- Paletas tímidas e layouts médios. Safe = invisível.
+- Zero imagem em brief que pede imagem (restaurante, hotel, food, travel, fashion, fotografia, hobbyista). Blocos coloridos onde foto-hero pertence.
+- Default para editorial-magazine (display serif + italic + drop caps + grid broadsheet) em briefs que não são magazine. Editorial é UMA lane, não default.
+- Splash genérico (logo + fade-in + duração 2s). Ou tem desenho próprio, ou nem tem splash.
+- `LinearGradient` purple-blue em qualquer lugar (AppBar, FAB, Card). Talvez a maior bandeira de "Flutter app de tutorial".
 
-Brand can afford things product can't. Take them.
+## Permissões do brand mobile
 
-- Ambitious first-load motion. Reveals, scroll-triggered transitions, typographic choreography.
-- Single-purpose viewports. One dominant idea per fold, long scroll, deliberate pacing.
-- Typographic risk. Enormous display type, unexpected italic cuts, mixed cases, hand-drawn headlines, a single oversize word as a hero.
-- Unexpected color strategies. Palette IS voice; a calm brand and a restless brand should not share palette mechanics.
-- Art direction per section. Different sections can have different visual worlds if the narrative demands it. Consistency of voice beats consistency of treatment.
+Coisas que brand pode e product não precisa.
+
+- Splash + onboarding com motion ambicioso. Reveals, scroll-triggered, coreografia tipográfica.
+- Telas single-purpose. Uma ideia dominante por scroll, scroll longo, pacing deliberado.
+- Risco tipográfico. Display enorme, italic inesperado, mistura de cases, headlines desenhadas à mão, palavra única gigante como hero.
+- Estratégias de cor inesperadas. Paleta É voz; marca calma e inquieta não compartilham mecânica.
+- Direção de arte por seção. Seções diferentes podem ter mundos visuais diferentes se a narrativa pede. Consistência de voz vence consistência de tratamento.
+- Plataforma-overrides ousados. Pode shippar `CupertinoApp` puro mesmo no Android se a marca pede iOS-aesthetic, ou Material puro mesmo no iPhone se a marca é Android-first declarado.

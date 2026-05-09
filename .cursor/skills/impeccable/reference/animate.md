@@ -117,49 +117,69 @@ Use appropriate techniques for each animation:
 
 **Exit animations are faster than entrances.** Use ~75% of enter duration.
 
-### CSS Animations
-```css
-/* Prefer for simple, declarative animations */
-- transitions for state changes
-- @keyframes for complex sequences
-- transform and opacity for reliable movement
-- blur, filters, masks, clip paths, shadows, and color shifts for premium atmospheric effects when verified smooth
+### Animações implícitas (preferir)
+```dart
+// Simples, declarativas, automaticamente animam quando state muda
+AnimatedContainer(duration: 300.ms, curve: Curves.easeOutCubic, color: ...)
+AnimatedOpacity(duration: 200.ms, opacity: visible ? 1.0 : 0.0, child: ...)
+AnimatedSwitcher(duration: 250.ms, child: KeyedSubtree(key: ValueKey(state), child: ...))
+AnimatedAlign(duration: 300.ms, alignment: ...)
+AnimatedSlide(duration: 200.ms, offset: ...)
+AnimatedScale(duration: 150.ms, scale: pressed ? 0.96 : 1.0)
 ```
 
-### JavaScript Animation
-```javascript
-/* Use for complex, interactive animations */
-- Web Animations API for programmatic control
-- Framer Motion for React
-- GSAP for complex sequences
-```
+Catálogo completo em [motion-design.md](motion-design.md).
 
-### Performance
-- **Motion materials**: Use transform/opacity for reliable movement, but use blur, filters, masks, shadows, and color shifts when they materially improve the effect
-- **Layout safety**: Avoid casual animation of layout-driving properties (`width`, `height`, `top`, `left`, margins)
-- **will-change**: Add sparingly for known expensive animations
-- **Bound expensive effects**: Keep blur/filter/shadow areas small or isolated, use `contain` where appropriate
-- **Monitor FPS**: Ensure 60fps on target devices
+### Animações explícitas (quando precisa de controle)
+```dart
+// Para sequência, repeat, custom physics, gesto-driven
+class _S extends State<...> with SingleTickerProviderStateMixin {
+  late final _controller = AnimationController(vsync: this, duration: 600.ms);
+  late final _tween = Tween<Offset>(begin: Offset(0, 0.1), end: Offset.zero)
+      .animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
 
-### Accessibility
-```css
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+  @override Widget build(context) =>
+      SlideTransition(position: _tween, child: const Hero(/*...*/));
+
+  @override void dispose() { _controller.dispose(); super.dispose(); }
 }
 ```
 
-**NEVER**:
-- Use bounce or elastic easing curves; they feel dated and draw attention to the animation itself
-- Animate layout properties casually (`width`, `height`, `top`, `left`, margins) when transform, FLIP, or grid-based techniques would work
-- Use durations over 500ms for feedback (it feels laggy)
-- Animate without purpose (every animation needs a reason)
-- Ignore `prefers-reduced-motion` (this is an accessibility violation)
-- Animate everything (animation fatigue makes interfaces feel exhausting)
-- Block interaction during animations unless intentional
+### Hero (continuidade entre rotas)
+```dart
+// Tela A
+Hero(tag: 'product-${id}', child: Image.network(url))
+// Tela B
+Hero(tag: 'product-${id}', child: Image.network(url, fit: BoxFit.cover))
+// Flutter anima a transição automática entre rotas
+```
+
+### Performance
+- **Materiais de motion**: `Transform`/`Opacity`/`Color` confiáveis; `BackdropFilter`/`ColorFiltered`/`ShaderMask` quando agregam polish e são bounded.
+- **Safety de layout**: evite animar `width`/`height`/`padding` casualmente (causa relayout). Use `Transform.scale`, `AnimatedAlign`, ou estruturas que não disparam relayout.
+- **`RepaintBoundary`**: envolva o widget animado, especialmente cercado de conteúdo estático.
+- **`AnimatedBuilder` com `child:`**: o child não rebuilda em cada tick.
+- **Monitorar FPS**: `flutter run --profile` + DevTools Performance → Frame chart. 60fps em targets, 120fps em premium.
+
+### Acessibilidade
+```dart
+// Em todo widget que anima
+final reduceMotion = MediaQuery.disableAnimationsOf(context);
+AnimatedContainer(
+  duration: reduceMotion ? Duration.zero : 300.ms,
+  curve: reduceMotion ? Curves.linear : Curves.easeOutCubic,
+)
+```
+
+**NEVER (Flutter)**:
+- `Curves.bounce*` ou `Curves.elastic*` em product. Em jogos OK, em product nunca.
+- Animar `width`/`height`/`padding` casualmente (`AnimatedContainer` mudando size = relayout em cada frame). Prefira `Transform.scale`, `AnimatedAlign`, ou `AnimatedSize`.
+- Durações >500ms para feedback (sente lag).
+- Animar sem propósito (toda animação precisa razão; veja shared design law em SKILL.md).
+- Ignorar `MediaQuery.disableAnimationsOf` (violação A11y).
+- Animar tudo (motion fatigue real).
+- Bloquear interação durante animação a menos que intencional.
+- Esquecer `dispose()` em `AnimationController` (vazamento garantido).
 
 ## Verify Quality
 

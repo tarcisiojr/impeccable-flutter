@@ -47,20 +47,20 @@ Create a strategy to reduce intensity while maintaining impact:
 
 Systematically reduce intensity across these dimensions:
 
-### Color Refinement
-- **Reduce saturation**: Shift from fully saturated to 70-85% saturation
-- **Soften palette**: Replace bright colors with muted tones
-- **Reduce color variety**: Use fewer colors more thoughtfully
-- **Neutral dominance**: Let neutrals do more work, use color as accent (10% rule)
-- **Gentler contrasts**: High contrast only where it matters most
-- **Tinted grays**: Use warm or cool tinted grays instead of pure gray. Adds depth without loudness
-- **Never gray on color**: If you have gray text on a colored background, use a darker shade of that color or transparency instead
+### Color Refinement (Flutter)
+- **Reduzir saturação**: shift de chroma alta para 70-85%. Em `ColorScheme.fromSeed`, escolha hue mais quieto (azul-grafite em vez de azul-cobalto).
+- **Suavizar paleta**: substituir `tertiary` brilhante por tom mais muted; ou tirar `tertiary` e ficar só com primary + neutros.
+- **Menos variedade**: M3 já entrega 30 papéis, mas nem todos precisam aparecer na tela. Default para Restrained: `surface` + `onSurface` + `primary` (10%).
+- **Dominância neutra**: deixe `surface` / `surfaceContainer*` ocuparem 70%+ da tela. Cor só em ação primária e indicador de estado.
+- **Contrastes gentis**: alto contraste só onde importa (CTA, error). Para metadata, `onSurfaceVariant` em vez de `onSurface` total.
+- **Tinted neutrals**: M3 já entrega via `surfaceTint`. Não desligue.
+- **Nunca cinza sobre cor**: gray sobre `colorScheme.primary` fica washed-out. Use `onPrimary` (M3 garante contraste correto) ou `primary.withValues(alpha: 0.6)`.
 
-### Visual Weight Reduction
-- **Typography**: Reduce font weights (900 → 600, 700 → 500), decrease sizes where appropriate
-- **Hierarchy through subtlety**: Use weight, size, and space instead of color and boldness
-- **White space**: Increase breathing room, reduce density
-- **Borders & lines**: Reduce thickness, decrease opacity, or remove entirely
+### Visual Weight Reduction (Flutter)
+- **Tipografia**: reduzir `fontWeight` (w900 → w600, w700 → w500). Para variable fonts, `FontVariation('wght', 480)` em vez de bold cheio. Reduzir tamanho de `displayLarge` para `headlineLarge` se for hero.
+- **Hierarquia por sutileza**: peso + tamanho + espaço, não por cor e bold.
+- **White space**: subir tokens de spacing (md → lg, lg → xl). `Padding` mais generoso entre seções.
+- **Borders & lines**: reduzir `Border.all(width: 0.5)` (hairline), ou remover. `Divider(thickness: 0.5, color: scheme.outlineVariant)` em vez de `Divider(thickness: 2)`.
 
 ### Simplification
 - **Remove decorative elements**: Gradients, shadows, patterns, textures that don't serve purpose
@@ -68,12 +68,12 @@ Systematically reduce intensity across these dimensions:
 - **Reduce layering**: Flatten visual hierarchy where possible
 - **Clean up effects**: Reduce or remove blur effects, glows, multiple shadows
 
-### Motion Reduction
-- **Reduce animation intensity**: Shorter distances (10-20px instead of 40px), gentler easing
-- **Remove decorative animations**: Keep functional motion, remove flourishes
-- **Subtle micro-interactions**: Replace dramatic effects with gentle feedback
-- **Refined easing**: Use ease-out-quart for smooth, understated motion. Never bounce or elastic
-- **Remove animations entirely** if they're not serving a clear purpose
+### Motion Reduction (Flutter)
+- **Reduzir intensidade**: distâncias menores (`Tween(begin: Offset(0, 0.05), end: Offset.zero)` em vez de 0.2), easing gentle (`Curves.easeOutCubic` em vez de `Curves.easeOutExpo`).
+- **Remover decorativas**: manter motion funcional (state change, entrance, transition entre rotas), remover flourishes (parallax exagerado, stagger longo, scale-pop em buttons).
+- **Micro-interactions sutis**: ripple default do Material, `AnimatedScale(scale: pressed ? 0.98 : 1)` em vez de scale-bounce.
+- **Easing refinado**: `Curves.easeOutCubic` ou `Curves.easeOutQuart`. **Nunca** bounce ou elastic.
+- **Remover totalmente**: se a animação não serve propósito, `Duration.zero` ou widget sem animation.
 
 ### Composition Refinement
 - **Reduce scale jumps**: Smaller contrast between sizes creates calmer feeling

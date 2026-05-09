@@ -19,9 +19,16 @@ This command has the highest potential to misfire. Do NOT jump straight into imp
 
 Skipping this step risks building something embarrassing that needs to be thrown away.
 
-### Iterate with Browser Automation
+### Iterate with Hot Reload + DevTools
 
-Technically ambitious effects almost never work on the first try. You MUST actively use browser automation tools to preview your work, visually verify the result, and iterate. Do not assume the effect looks right, check it. Expect multiple rounds of refinement. The gap between "technically works" and "looks extraordinary" is closed through visual iteration, not code alone.
+Efeitos tecnicamente ambiciosos quase nunca funcionam de primeira. Você DEVE usar `flutter run --profile -d <real device>` + DevTools Performance para preview e iterar. Não assuma que o efeito está certo, confira:
+
+- Hot reload (`r`) para ajustar valores rápidos.
+- Hot restart (`R`) quando state muda fundamental.
+- DevTools Performance → Frame chart para garantir 60fps (vermelho = jank).
+- Em device físico, NUNCA emulador. Shaders e `BackdropFilter` rodam diferente.
+
+Espere múltiplas rodadas de refinamento. O gap entre "tecnicamente funciona" e "parece extraordinário" fecha por iteração visual, não código sozinho.
 
 ---
 
@@ -47,77 +54,95 @@ Charts and dashboards: the "wow" is in fluidity: GPU-accelerated rendering via C
 
 Organized by what you're trying to achieve, not by technology name.
 
-### Make transitions feel cinematic
-- **View Transitions API** (same-document: all browsers; cross-document: no Firefox): shared element morphing between states. A list item expanding into a detail page. A button morphing into a dialog. This is the closest thing to native FLIP animations.
-- **`@starting-style`** (all browsers): animate elements from `display: none` to visible with CSS only, including entry keyframes
-- **Spring physics**: natural motion with mass, tension, and damping instead of cubic-bezier. Libraries: motion (formerly Framer Motion), GSAP, or roll your own spring solver.
+### Make transitions feel cinematic (Flutter)
+- **`Hero` widget**: shared element morphing entre rotas. `Hero(tag: 'product-$id', child: Image(...))` em ambas as telas. Flutter anima automaticamente. Para customizar a curva, `flightShuttleBuilder`.
+- **`PageRouteBuilder` + `SlideTransition`/`FadeTransition`**: transições custom entre rotas.
+- **`SharedAxisTransition`** (animations package): Material 3 emphasized motion para transições de tab/fluxo.
+- **Spring physics**: `SpringSimulation` + `AnimationController.animateWith()`. Mass, stiffness, damping. Built-in, sem package.
 
 ### Tie animation to scroll position
-- **Scroll-driven animations** (`animation-timeline: scroll()`): CSS-only, no JS. Parallax, progress bars, reveal sequences all driven by scroll position. (Chrome/Edge/Safari; Firefox: flag only; always provide a static fallback)
+- **`SliverAppBar(pinned, floating, snap)`**: AppBar que colapsa via scroll, built-in.
+- **`CustomScrollView` + `Sliver*`**: composição parallax.
+- **`NotificationListener<ScrollUpdateNotification>`**: dispara animation baseada em offset.
+- **`flutter_parallax_pro` ou implementação manual via `Transform.translate(offset: Offset(0, scroll * 0.5))`**.
 
-### Render beyond CSS
-- **WebGL** (all browsers): shader effects, post-processing, particle systems. Libraries: Three.js, OGL (lightweight), regl. Use for effects CSS can't express.
-- **WebGPU** (Chrome/Edge; Safari partial; Firefox: flag only): next-gen GPU compute. More powerful than WebGL but limited browser support. Always fall back to WebGL2.
-- **Canvas 2D / OffscreenCanvas**: custom rendering, pixel manipulation, or moving heavy rendering off the main thread entirely via Web Workers + OffscreenCanvas.
-- **SVG filter chains**: displacement maps, turbulence, morphology for organic distortion effects. CSS-animatable.
+### Render além do framework
+
+- **`CustomPainter`**: pixel-level via Canvas API. Particle systems, generative art, custom charts. Built-in, no package.
+- **`flutter_shaders` package + `.frag` files**: shaders GLSL custom (Skia ou Impeller). Dispatch como `FragmentShaderBuilder`. Para post-processing, gradient noise, ondas, lens distortion.
+- **`Impeller`** (Flutter render engine): muito mais rápido que Skia em iOS, gradativo em Android. Default em Flutter 3.13+. Para animation pesada, escolha runtime que rode bem em Impeller.
+- **`flutter_svg`**: SVG complexos com gradient, paths, filters. Animar via `AnimatedBuilder` reconstruindo SVG.
 
 ### Make data feel alive
-- **Virtual scrolling**: render only visible rows for tables/lists with tens of thousands of items. No library required for simple cases; TanStack Virtual for complex ones.
-- **GPU-accelerated charts**: Canvas or WebGL-rendered data visualization for datasets too large for SVG/DOM. Libraries: deck.gl, regl-based custom renderers.
-- **Animated data transitions**: morph between chart states rather than replacing. D3's `transition()` or View Transitions for DOM-based charts.
+- **Virtual scrolling built-in**: `ListView.builder`, `GridView.builder`, `Sliver*` builders. Constroem só o visível. Para listas de 50k+ items, use `itemExtent:` para max performance.
+- **GPU-accelerated charts**: `fl_chart` package usa `CustomPainter` (rápido); `flutter_charts`, `syncfusion_flutter_charts` para datasets grandes.
+- **Animated data transitions**: `TweenAnimationBuilder<Map<String, double>>` para morph entre states de gráfico, ou `AnimatedBuilder` envolvendo o painter.
 
 ### Animate complex properties
-- **`@property`** (all browsers): register custom CSS properties with types, enabling animation of gradients, colors, and complex values that CSS can't normally interpolate.
-- **Web Animations API** (all browsers): JavaScript-driven animations with the performance of CSS. Composable, cancellable, reversible. The foundation for complex choreography.
+- **`Tween<T>`** customizada: implemente `Tween<MyClass>` para interpolar gradients, paletas inteiras, geometrias. Supera o que CSS/styled-components fazem.
+- **`AnimationController` + `AnimatedBuilder`**: a fundação de toda choreography complexa. Combinable, cancellable, reversível.
 
 ### Push performance boundaries
-- **Web Workers**: move computation off the main thread. Heavy data processing, image manipulation, search indexing: anything that would cause jank.
-- **OffscreenCanvas**: render in a Worker thread. The main thread stays free while complex visuals render in the background.
-- **WASM**: near-native performance for computation-heavy features. Image processing, physics simulations, codecs.
+- **Isolates** (`compute()` ou `Isolate.spawn()`): processamento pesado fora da UI thread. Image processing, search indexing, JSON parsing grande.
+- **`flutter_isolate` package**: mais conveniente para use cases comuns.
+- **Native code via Method Channels** (`MethodChannel`): chamar Swift/Kotlin/C++ para SDKs ou processamento extremo.
+- **FFI (`dart:ffi`)**: linkar C/C++/Rust direto, near-native performance para image processing, codecs, ML inference.
 
-### Interact with the device
-- **Web Audio API**: spatial audio, audio-reactive visualizations, sonic feedback. Requires user gesture to start.
-- **Device APIs**: orientation, ambient light, geolocation. Use sparingly and always with user permission.
+### Interact com o device
+- **`HapticFeedback`** (built-in `dart:services`): vibração tátil. `lightImpact()`, `mediumImpact()`, `heavyImpact()`, `selectionClick()`. Use em delight moments e confirmações.
+- **`audioplayers` / `just_audio`**: spatial audio, audio-reactive visualizations, sonic feedback.
+- **`sensors_plus` package**: orientation, accelerometer, gyroscope. Use parsimônia e com permissão.
+- **`camera` / `geolocator`**: APIs do device com permissão clara.
 
 **NOTE**: This command is about enhancing how an interface FEELS, not changing what a product DOES. Adding real-time collaboration, offline support, or new backend capabilities are product decisions, not UI enhancements. Focus on making existing features feel extraordinary.
 
 ## Implement with Discipline
 
-### Progressive enhancement is non-negotiable
+### Progressive enhancement (Flutter)
 
-Every technique must degrade gracefully. The experience without the enhancement must still be good.
+Cada técnica deve degradar graciosamente. A experiência sem o enhancement deve continuar boa.
 
-```css
-@supports (animation-timeline: scroll()) {
-  .hero { animation-timeline: scroll(); }
+```dart
+// Detect platform/capability
+final canShader = !kIsWeb || /* shader support em web é limitado */ true;
+
+if (canShader) {
+  return FragmentShaderBuilder(/* effect */);
 }
+return _StaticFallback();   // que ainda tem que ser bonito
 ```
 
-```javascript
-if ('gpu' in navigator) { /* WebGPU */ }
-else if (canvas.getContext('webgl2')) { /* WebGL2 fallback */ }
-/* CSS-only fallback must still look good */
+`MediaQuery.disableAnimationsOf(context)` desliga toda animation pesada. Sempre honra:
+
+```dart
+final reduceMotion = MediaQuery.disableAnimationsOf(context);
+if (reduceMotion) return _StaticHero();
+return _AnimatedHero();
 ```
 
 ### Performance rules
 
-- Target 60fps. If dropping below 50, simplify.
-- Respect `prefers-reduced-motion`, always. Provide a beautiful static alternative.
-- Lazy-initialize heavy resources (WebGL contexts, WASM modules) only when near viewport.
-- Pause off-screen rendering. Kill what you can't see.
-- Test on real mid-range devices, not just your development machine.
+- Target 60fps em devices mid-range (Moto G4 era, Pixel 4a). Se cai abaixo de 50, simplifique.
+- Respect `MediaQuery.disableAnimationsOf`, sempre. Forneça alternativa estática bonita.
+- Lazy-init recursos pesados (`flutter_shaders` `.frag`, Lottie compositions, audio buffers) só quando perto do viewport.
+- Pause off-screen rendering. `VisibilityDetector` + dispose de `AnimationController` quando some da tela.
+- Teste em devices mid-range físicos, não só máquina de dev.
+- `flutter run --profile` + DevTools Performance é a única medida confiável. Debug é mais lento; release não tem instrumentation.
+- `RepaintBoundary` envolvendo qualquer área animada cara para evitar repaint do parent.
 
 ### Polish is the difference
 
 The gap between "cool" and "extraordinary" is in the last 20% of refinement: the easing curve on a spring animation, the timing offset in a staggered reveal, the subtle secondary motion that makes a transition feel physical. Don't ship the first version that works; ship the version that feels inevitable.
 
-**NEVER**:
-- Ignore `prefers-reduced-motion`. This is an accessibility requirement, not a suggestion
-- Ship effects that cause jank on mid-range devices
-- Use bleeding-edge APIs without a functional fallback
-- Add sound without explicit user opt-in
-- Use technical ambition to mask weak design fundamentals; fix those first with other commands
-- Layer multiple competing extraordinary moments. Focus creates impact, excess creates noise
+**NEVER (Flutter)**:
+- Ignorar `MediaQuery.disableAnimationsOf`. É requisito de acessibilidade, não sugestão.
+- Shippar efeitos que causam jank em devices mid-range (`flutter run --profile` mostra).
+- Usar APIs bleeding-edge sem fallback (Impeller bugs raros em alguns shaders Android, sempre teste em ambos).
+- Adicionar som sem opt-in explícito do usuário.
+- Usar ambição técnica para mascarar fundamentos fracos de design; resolva esses com outros comandos primeiro.
+- Layer múltiplos extraordinary moments competindo. Foco cria impacto, excesso cria ruído.
+- Esquecer `dispose()` em `AnimationController`, `VideoPlayerController`, `AudioPlayer`. Vazamento garantido.
+- `BackdropFilter` em fullscreen num device baixo custo.
 
 ## Verify the Result
 

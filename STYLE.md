@@ -23,6 +23,10 @@ The bar: **for every paragraph, point to the sentence that makes it specifically
 
 The build's `validateProse` step (in `scripts/build.js`) fails the build on these. The list is the editorial brief, enforced. Add a rule here when you ban a new pattern; remove a rule when the term has earned a real meaning here. **Do not silently allowlist** by working around the regex.
 
+## Code samples in references
+
+Reference files in `skill/reference/*.md` carry code examples in **Dart** since the port to Flutter (branch `flutter-port`). Web vocabulary (CSS selectors, jsdom, `getComputedStyle`, `clamp()`, viewport queries) is preserved only where it explains the historical origin of a concept, immediately followed by the Flutter equivalent. When in doubt: write Dart. The web `cli/` and `extension/` keep their original CSS/HTML examples in `cli/engine/` and `extension/`; do not delete those during the port transition.
+
 ### Stolen-engineer diction
 Engineering words that became AI flavor once they leaked into training data around late 2024.
 

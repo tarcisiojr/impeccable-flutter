@@ -1,0 +1,13 @@
+# Dart/Flutter padrão
+.dart_tool/
+.packages
+build/
+
+# pubspec.lock: aplicações commitam, libs não.
+# cli_dart é executável publicado no pub.dev — committamos.
+# (sem regra p/ pubspec.lock)
+
+# IDE
+.idea/
+*.iml
+.vscode/

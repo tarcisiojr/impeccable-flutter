@@ -1,190 +1,212 @@
+# Adapt (Flutter)
+
 > **Additional context needed**: target platforms/devices and usage contexts.
 
-Adapt an existing design to a different context: another screen size, device, platform, or use case. The trap is treating adaptation as scaling. The job is rethinking the experience for the new context.
+Adaptar um design existente para outro contexto: outra classe de window, outro device, outra plataforma, outro use case. A trap é tratar adaptação como escala. O job é repensar a experiência para o novo contexto.
 
+Em Flutter, "adaptive" é o termo nativo (e o título do guia oficial). Cobre: telas (compact/medium/expanded/large/extra-large), foldables, orientação, input method, plataforma (Material vs Cupertino).
 
----
+Leia [flutter-foundations.md](flutter-foundations.md) e [responsive-design.md](responsive-design.md) primeiro.
 
-## Assess Adaptation Challenge
+## Avaliar o desafio
 
-Understand what needs adaptation and why:
+1. **Source context**:
+   - Para que foi desenhado originalmente? Phone portrait? Tablet? Desktop?
+   - Quais assumptions? Touch único? Mouse? Conexão rápida?
+   - O que funciona bem hoje?
 
-1. **Identify the source context**:
-   - What was it designed for originally? (Desktop web? Mobile app?)
-   - What assumptions were made? (Large screen? Mouse input? Fast connection?)
-   - What works well in current context?
+2. **Target context**:
+   - **Window class**: Compact (<600), Medium, Expanded, Large, Extra-large.
+   - **Input**: Touch, mouse + keyboard, gamepad, voz, Switch Control.
+   - **Orientation**: Portrait apenas, ou ambos.
+   - **Plataforma**: iOS, Android, Web Flutter, Desktop Flutter (macOS/Windows/Linux), foldable.
+   - **Conexão**: Wi-Fi rápido, 4G, 3G, offline-first.
+   - **Contexto de uso**: caminhando vs sentado, glance rápido vs leitura focada.
+   - **Expectativa**: o que usuário espera nesta plataforma?
 
-2. **Understand target context**:
-   - **Device**: Mobile, tablet, desktop, TV, watch, print?
-   - **Input method**: Touch, mouse, keyboard, voice, gamepad?
-   - **Screen constraints**: Size, resolution, orientation?
-   - **Connection**: Fast wifi, slow 3G, offline?
-   - **Usage context**: On-the-go vs desk, quick glance vs focused reading?
-   - **User expectations**: What do users expect on this platform?
+3. **Adaptation challenges**:
+   - O que não cabe? (Conteúdo, navegação, features.)
+   - O que não funciona? (Hover em touch, touch targets pequenos, swipe-back colidindo com gesture custom.)
+   - O que é inapropriado? (Padrões desktop em mobile, padrões mobile em desktop, Material em iPhone que ignora gesto iOS.)
 
-3. **Identify adaptation challenges**:
-   - What won't fit? (Content, navigation, features)
-   - What won't work? (Hover states on touch, tiny touch targets)
-   - What's inappropriate? (Desktop patterns on mobile, mobile patterns on desktop)
+**CRÍTICO**: adaptação é repensar a experiência. Não estica pixel.
 
-**CRITICAL**: Adaptation is rethinking the experience for the new context, not scaling pixels.
+## Estratégias por target
 
-## Plan Adaptation Strategy
+### Compact → Medium / Expanded (Phone → Tablet)
 
-Create context-appropriate strategy:
+**Layout**:
+- `BottomNavigationBar` / `NavigationBar` (M3) → `NavigationRail` (compact ou expandida).
+- Single column → 2 colunas (master-detail é o padrão tablet ouro).
+- `Card` full-width → grid `GridView.builder(SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent: 280))`.
+- `Drawer` modal → `Drawer` permanente em `Row`.
 
-### Mobile Adaptation (Desktop → Mobile)
+**Pattern**:
+```dart
+final width = MediaQuery.sizeOf(context).width;
+return Scaffold(
+  body: Row(children: [
+    if (width >= 600) NavigationRail(extended: width >= 840, /* ... */),
+    Expanded(child: width >= 600
+        ? Row(children: [
+            SizedBox(width: 320, child: _MasterList()),
+            const VerticalDivider(width: 1),
+            Expanded(child: _DetailPane()),
+          ])
+        : _SingleColumnList()),
+  ]),
+  bottomNavigationBar: width < 600 ? const NavigationBar(/* ... */) : null,
+);
+```
 
-**Layout Strategy**:
-- Single column instead of multi-column
-- Vertical stacking instead of side-by-side
-- Full-width components instead of fixed widths
-- Bottom navigation instead of top/side navigation
+### Compact → Expanded / Large (Phone → Desktop Flutter)
 
-**Interaction Strategy**:
-- Touch targets 44x44px minimum (not hover-dependent)
-- Swipe gestures where appropriate (lists, carousels)
-- Bottom sheets instead of dropdowns
-- Thumbs-first design (controls within thumb reach)
-- Larger tap areas with more spacing
+**Layout**:
+- `NavigationDrawer` permanente em `Row`.
+- Multi-column dense.
+- `Padding` horizontal generoso (max-width no conteúdo, tipo 1024).
+- `MouseRegion` para hover affordance (cursor pointer, tint sutil).
 
-**Content Strategy**:
-- Progressive disclosure (don't show everything at once)
-- Prioritize primary content (secondary content in tabs/accordions)
-- Shorter text (more concise)
-- Larger text (16px minimum)
+**Interaction**:
+- Atalhos de teclado via `Shortcuts` + `Actions`.
+- Right-click via `GestureDetector(onSecondaryTapDown:)`.
+- Drag-and-drop via `Draggable` + `DragTarget`.
+- Multi-select com Shift/Cmd.
 
-**Navigation Strategy**:
-- Hamburger menu or bottom navigation
-- Reduce navigation complexity
-- Sticky headers for context
-- Back button in navigation flow
+**Content**:
+- Mais info upfront (menos disclosure progressiva).
+- `DataTable2` para tabelas densas.
+- Visualizações ricas (charts, mais columns).
 
-### Tablet Adaptation (Hybrid Approach)
+### Material → Cupertino (Android → iOS plataforma-correctness)
 
-**Layout Strategy**:
-- Two-column layouts (not single or three-column)
-- Side panels for secondary content
-- Master-detail views (list + detail)
-- Adaptive based on orientation (portrait vs landscape)
+```dart
+final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
 
-**Interaction Strategy**:
-- Support both touch and pointer
-- Touch targets 44x44px but allow denser layouts than phone
-- Side navigation drawers
-- Multi-column forms where appropriate
+isIOS
+  ? CupertinoButton.filled(child: Text('Salvar'), onPressed: ...)
+  : FilledButton(child: Text('Salvar'), onPressed: ...)
+```
 
-### Desktop Adaptation (Mobile → Desktop)
+Pacote `flutter_platform_widgets` ajuda quando você quer um único API com fallback. Use quando o código de tela ficaria muito ramificado, e quando paridade visual entre platforms importa menos que velocidade de desenvolvimento.
 
-**Layout Strategy**:
-- Multi-column layouts (use horizontal space)
-- Side navigation always visible
-- Multiple information panels simultaneously
-- Fixed widths with max-width constraints (don't stretch to 4K)
+**Sempre alterne**:
+- `AlertDialog` ↔ `CupertinoAlertDialog`.
+- `Switch` ↔ `CupertinoSwitch`.
+- `DatePicker` ↔ `CupertinoDatePicker`.
+- `BottomNavigationBar` ↔ `CupertinoTabBar` + `CupertinoTabScaffold`.
+- `Slider` ↔ `CupertinoSlider`.
+- Page transition: `MaterialPageRoute` ↔ `CupertinoPageRoute` (este último entrega swipe-back automaticamente).
 
-**Interaction Strategy**:
-- Hover states for additional information
-- Keyboard shortcuts
-- Right-click context menus
-- Drag and drop where helpful
-- Multi-select with Shift/Cmd
+### Foldables (Surface Duo, Z Fold, Pixel Fold)
 
-**Content Strategy**:
-- Show more information upfront (less progressive disclosure)
-- Data tables with many columns
-- Richer visualizations
-- More detailed descriptions
+```dart
+final features = MediaQuery.of(context).displayFeatures;
+final hinge = features.firstWhereOrNull((f) =>
+    f.type == DisplayFeatureType.hinge || f.type == DisplayFeatureType.fold);
 
-### Print Adaptation (Screen → Print)
+if (hinge != null) {
+  // Layout em duas regiões evitando o hinge
+  return TwoPaneLayout(hingeBounds: hinge.bounds, /* ... */);
+}
+```
 
-**Layout Strategy**:
-- Page breaks at logical points
-- Remove navigation, footer, interactive elements
-- Black and white (or limited color)
-- Proper margins for binding
+Pacote `dual_screen` (oficial da Microsoft para Surface Duo) facilita.
 
-**Content Strategy**:
-- Expand shortened content (show full URLs, hidden sections)
-- Add page numbers, headers, footers
-- Include metadata (print date, page title)
-- Convert charts to print-friendly versions
+### Print / Export PDF
 
-### Email Adaptation (Web → Email)
+Não é o caso típico mobile, mas Flutter app pode gerar PDF via package `pdf` (não confundir com renderizar PDF, que é `pdfx`). Estrutura separada de UI:
 
-**Layout Strategy**:
-- Narrow width (600px max)
-- Single column only
-- Inline CSS (no external stylesheets)
-- Table-based layouts (for email client compatibility)
+```dart
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
 
-**Interaction Strategy**:
-- Large, obvious CTAs (buttons not text links)
-- No hover states (not reliable)
-- Deep links to web app for complex interactions
+final doc = pw.Document();
+doc.addPage(pw.Page(build: (context) => pw.Center(/* ... */)));
+final bytes = await doc.save();
+```
 
-## Implement Adaptations
+Princípios: page breaks lógicos, sem nav/footer, P&B ou cor limitada, margens para encadernação, page numbers.
 
-Apply changes systematically:
+## Implementar
 
-### Responsive Breakpoints
+### Window classes (Material 3 oficial)
 
-Choose appropriate breakpoints:
-- Mobile: 320px-767px
-- Tablet: 768px-1023px
-- Desktop: 1024px+
-- Or content-driven breakpoints (where design breaks)
+Use os 5 windows: compact / medium / expanded / large / extra-large. Detalhes em [responsive-design.md](responsive-design.md).
 
-### Layout Adaptation Techniques
+```dart
+WindowSizeClass _classFor(double w) {
+  if (w < 600) return WindowSizeClass.compact;
+  if (w < 840) return WindowSizeClass.medium;
+  if (w < 1200) return WindowSizeClass.expanded;
+  if (w < 1600) return WindowSizeClass.large;
+  return WindowSizeClass.extraLarge;
+}
+```
 
-- **CSS Grid/Flexbox**: Reflow layouts automatically
-- **Container Queries**: Adapt based on container, not viewport
-- **`clamp()`**: Fluid sizing between min and max
-- **Media queries**: Different styles for different contexts
-- **Display properties**: Show/hide elements per context
+### LayoutBuilder vs MediaQuery
 
-### Touch Adaptation
+- **`LayoutBuilder`**: componente reage ao container que recebe (equivalente container queries CSS). Use sempre que possível.
+- **`MediaQuery.sizeOf(context)`**: componente reage à viewport real. Use para decisões de página/scaffold.
 
-- Increase touch target sizes (44x44px minimum)
-- Add more spacing between interactive elements
-- Remove hover-dependent interactions
-- Add touch feedback (ripples, highlights)
-- Consider thumb zones (easier to reach bottom than top)
+### SafeArea
 
-### Content Adaptation
+```dart
+SafeArea(
+  top: true, bottom: true, left: true, right: true,    // default todos true
+  minimum: const EdgeInsets.all(0),
+  child: ...,
+)
+```
 
-- Use `display: none` sparingly (still downloads)
-- Progressive enhancement (core content first, enhancements on larger screens)
-- Lazy loading for off-screen content
-- Responsive images (`srcset`, `picture` element)
+`Scaffold` aplica em `body` por padrão. Modais full-screen, splash, telas de câmera precisam declarar.
 
-### Navigation Adaptation
+### Touch adaptation
 
-- Transform complex nav to hamburger/drawer on mobile
-- Bottom nav bar for mobile apps
-- Persistent side navigation on desktop
-- Breadcrumbs on smaller screens for context
+- Tap targets ≥48dp (já no theme via `MaterialTapTargetSize.padded`).
+- Espaçamento entre interativos.
+- Sem dependência de hover.
+- `InkWell` ripple (Material) ou `CupertinoButton` highlight (iOS).
+- Considere thumb zones: bottom é mais alcançável que top em phones grandes.
 
-**IMPORTANT**: Test on real devices. Device emulation in DevTools is helpful but not perfect.
+### Image responsivo
 
-**NEVER**:
-- Hide core functionality on mobile (if it matters, make it work)
-- Assume desktop = powerful device (consider accessibility, older machines)
-- Use different information architecture across contexts (confusing)
-- Break user expectations for platform (mobile users expect mobile patterns)
-- Forget landscape orientation on mobile/tablet
-- Use generic breakpoints blindly (use content-driven breakpoints)
-- Ignore touch on desktop (many desktop devices have touch)
+Não há `srcset` em Flutter. Use:
+- `Image.asset` com `assets/2.0x/`, `3.0x/` (resolution-aware automático).
+- `Image.network(url, cacheWidth: (300 * dpr).toInt())` para reduzir memória.
+- `cached_network_image` para cache em disco.
+- CDN com transformação (Cloudinary, imgix): construa URL com `width: (sizeOf(context).width * dpr).toInt()`.
 
-## Verify Adaptations
+### Navigation transformation
 
-Test thoroughly across contexts:
+3 estágios canônicos:
 
-- **Real devices**: Test on actual phones, tablets, desktops
-- **Different orientations**: Portrait and landscape
-- **Different browsers**: Safari, Chrome, Firefox, Edge
-- **Different OS**: iOS, Android, Windows, macOS
-- **Different input methods**: Touch, mouse, keyboard
-- **Edge cases**: Very small screens (320px), very large screens (4K)
-- **Slow connections**: Test on throttled network
+| Window class | Pattern |
+|---|---|
+| Compact | `BottomNavigationBar` ou `NavigationBar` (M3) |
+| Medium / Expanded | `NavigationRail` (compacta na medium, expandida em expanded) |
+| Large / Extra-large | `NavigationDrawer` permanente em `Row` |
 
-When the adaptation feels native to each context, hand off to `$impeccable polish` for the final pass.
+Não inventar custom. Apple e Google têm padrões tested.
+
+**IMPORTANTE**: teste em devices reais. Emulador é útil para layout, falha em performance, gestos, fontes do sistema.
+
+**NUNCA**:
+- Esconder funcionalidade core no mobile (se importa, faz funcionar).
+- Assumir desktop = poderoso (considerar a11y, máquinas antigas).
+- IA diferente entre contexts (confuso).
+- Quebrar expectativa da plataforma (iOS espera padrões iOS, Android espera padrões Android).
+- Esquecer landscape em phone/tablet.
+- Usar breakpoints arbitrários em vez dos M3 windows.
+- Ignorar foldables se PRODUCT.md menciona Android premium audience.
+
+## Verificar
+
+- **Real devices**: phones reais, tablets reais. iOS + Android, mínimo um phone de baixo custo.
+- **Orientations**: portrait + landscape em pelo menos 1 device.
+- **Plataformas**: se Flutter web/desktop está no escopo, teste lá também.
+- **Input**: touch, mouse (em web/desktop), keyboard.
+- **Edge cases**: phones pequenos (320 lógicos width), tablets grandes, ultrawide se desktop.
+- **Conexões lentas**: Network Link Conditioner (iOS) ou throttle do Android dev tools.
+
+Quando a adaptação parece nativa de cada contexto, hand off para `$impeccable polish`.

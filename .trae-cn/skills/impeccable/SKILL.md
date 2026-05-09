@@ -38,6 +38,7 @@ Two files, case-insensitive. The loader looks at the project root by default and
 
 - **PRODUCT.md**: required. Users, brand, tone, anti-references, strategic principles.
 - **DESIGN.md**: optional, strongly recommended. Colors, typography, elevation, components.
+- **`pubspec.yaml` at project root** is the Flutter signal. When present, treat the project as a Flutter app: load `reference/flutter-foundations.md` alongside the register reference, prefer Material 3 / Cupertino vocabulary in all output, and apply Flutter-specific anti-patterns (Material baseline default look, `Colors.deepPurple` seed, `Curves.bounce*` in product, `Colors.black`/`Colors.white` literals, missing `Semantics` on interactive widgets). Web vocabulary (CSS, jsdom, viewport) does not apply.
 
 Load both in one call:
 
@@ -103,6 +104,10 @@ Before choosing, write one sentence of physical scene: who uses this, where, und
 
 - Don't animate CSS layout properties.
 - Ease out with exponential curves (ease-out-quart / quint / expo). No bounce, no elastic.
+
+### Platform
+
+Plataforma é parte do design, não wrapper. Decida cedo: Material (Android-fluente), Cupertino (iOS-fluente), ou plataforma-correctness (alterna por `Theme.of(context).platform`). Não há resposta neutra. Material puro num iPhone que ignora swipe-back lê tão estranho quanto Cupertino num Pixel sem predictive back. Em apps Flutter, registre a decisão em PRODUCT.md (`platform_strategy: material_only | cupertino_only | adaptive`). Para web e desktop puro, escolher é menos crítico, mas ainda explicitar evita drift.
 
 ### Absolute bans
 

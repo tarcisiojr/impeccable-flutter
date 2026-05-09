@@ -49,19 +49,19 @@ Create a strategy to increase impact while maintaining coherence:
 
 Systematically increase impact across these dimensions:
 
-### Typography Amplification
-- **Replace generic fonts**: Swap system fonts for distinctive choices (see the parent skill's typography guidelines and [typography.md](typography.md) for inspiration)
-- **Extreme scale**: Create dramatic size jumps (3x-5x differences, not 1.5x)
-- **Weight contrast**: Pair 900 weights with 200 weights, not 600 with 400
-- **Unexpected choices**: Variable fonts, display fonts for headlines, condensed/extended widths, monospace as intentional accent (not as lazy "dev tool" default)
+### Typography Amplification (Flutter)
+- **Trocar fontes genéricas**: substitua system stack ou Inter por display distintivo. Em Flutter: `GoogleFonts.X()` ou bundle em `pubspec.yaml > fonts`. Veja [typography.md](typography.md) e [brand.md](brand.md) para reflex-rejects.
+- **Escala extrema**: salto dramático entre `displayLarge` (57+) e `bodyMedium` (14). Em vez de 1.5x, vá 3-5x.
+- **Contraste de peso**: pareie `FontWeight.w900` com `FontWeight.w200`, não w600 com w400. Variable fonts via `FontVariation('wght', 880)` para peso fracionário.
+- **Escolhas inesperadas**: variable fonts (`FontVariation`), display fonts para headlines, larguras condensed/extended, mono como accent intencional (NÃO como default preguiçoso de "dev tool").
 
-### Color Intensification
-- **Increase saturation**: Shift to more vibrant, energetic colors (but not neon)
-- **Bold palette**: Introduce unexpected color combinations. Avoid the purple-blue gradient AI slop
-- **Dominant color strategy**: Let one bold color own 60% of the design
-- **Sharp accents**: High-contrast accent colors that pop
-- **Tinted neutrals**: Replace pure grays with tinted grays that harmonize with your palette
-- **Rich gradients**: Intentional multi-stop gradients (not generic purple-to-blue)
+### Color Intensification (Flutter)
+- **Aumentar saturação**: shift `seedColor` para hue mais vibrante. NÃO neon. NÃO `Colors.deepPurple` (default `flutter create`).
+- **Paleta bold**: combinações inesperadas. Evite gradient purple-blue AI slop. Em `LinearGradient`, prefira cor sólida saturada da marca.
+- **Cor dominante**: deixe uma cor (`primary` ou `tertiary`) ocupar 60% da tela. Brand surface drenched.
+- **Accents nítidos**: cores accent de alto contraste. Material 3 já entrega `primaryContainer` / `tertiaryContainer` que são candidatos naturais.
+- **Tinted neutrals**: M3 já entrega via `surfaceTint`. Não desligue.
+- **Gradients ricos**: multi-stop intencionais via `LinearGradient(colors: [...stops], stops: [0, 0.4, 1])`. NÃO purple-to-blue genérico.
 
 ### Spatial Drama
 - **Extreme scale jumps**: Make important elements 3-5x larger than surroundings
@@ -70,18 +70,18 @@ Systematically increase impact across these dimensions:
 - **Generous space**: Use white space dramatically (100-200px gaps, not 20-40px)
 - **Overlap**: Layer elements intentionally for depth
 
-### Visual Effects
-- **Dramatic shadows**: Large, soft shadows for elevation (but not generic drop shadows on rounded rectangles)
-- **Background treatments**: Mesh patterns, noise textures, geometric patterns, intentional gradients (not purple-to-blue)
-- **Texture & depth**: Grain, halftone, duotone, layered elements. NOT glassmorphism (it's overused AI slop)
-- **Borders & frames**: Thick borders, decorative frames, custom shapes (not rounded rectangles with colored border on one side)
-- **Custom elements**: Illustrative elements, custom icons, decorative details that reinforce brand
+### Visual Effects (Flutter)
+- **Sombras dramáticas**: M3 entrega via `Material(elevation: 8)`. Para hero brand surface, `BoxShadow(blurRadius: 40, color: brand.withValues(alpha: 0.3))` deliberada.
+- **Tratamentos de fundo**: `CustomPainter` para mesh, noise via `flutter_shaders`, geometric patterns via `SvgPicture` em background. NÃO purple-to-blue gradient AppBar.
+- **Texture & depth**: grain via shader, duotone via `ColorFiltered(colorFilter: ColorFilter.mode(...))`, layered `Stack`. NÃO glassmorphism em todo card (overused).
+- **Borders & frames**: `Border.all(width: 4)` decisivo, frames custom via `ClipPath` com `CustomClipper`. NÃO `BoxDecoration(border: Border(left: BorderSide(width: 4, color: accent)))` sozinho: esse é o **side-stripe** banido.
+- **Elementos custom**: ilustrações próprias (`SvgPicture.asset`), ícones desenhados, Rive animations.
 
-### Motion & Animation
-- **Entrance choreography**: Staggered, dramatic page load animations with 50-100ms delays
-- **Scroll effects**: Parallax, reveal animations, scroll-triggered sequences
-- **Micro-interactions**: Satisfying hover effects, click feedback, state changes
-- **Transitions**: Smooth, noticeable transitions using ease-out-quart/quint/expo (not bounce or elastic, which cheapen the effect)
+### Motion & Animation (Flutter)
+- **Coreografia de entrada**: staggered via `AnimationController` + `Interval` ou `flutter_staggered_animations` package. Delays 50-100ms entre items.
+- **Scroll effects**: `SliverAppBar` colapsável + `CustomScrollView`, parallax via `Transform.translate(offset: Offset(0, scroll * 0.5))`, reveal via `VisibilityDetector` package.
+- **Micro-interactions**: ripple custom em botões hero, `AnimatedSwitcher` em counters, `Hero` entre rotas para continuidade brand.
+- **Transitions**: `Curves.easeOutCubic` / `easeOutQuart` / custom `Cubic(0.16, 1, 0.3, 1)`. **Nunca** `Curves.bounceOut` ou `Curves.elasticIn`: barateiam o efeito.
 
 ### Composition Boldness
 - **Hero moments**: Create clear focal points with dramatic treatment

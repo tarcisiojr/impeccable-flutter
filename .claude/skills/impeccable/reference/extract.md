@@ -37,9 +37,33 @@ Create a systematic plan:
 
 Build improved, reusable versions:
 
-- **Components**: Clear props API with sensible defaults, proper variants for different use cases, accessibility built in (ARIA, keyboard navigation, focus management), documentation and usage examples
-- **Design tokens**: Clear naming (primitive vs semantic), proper hierarchy and organization, documentation of when to use each token
-- **Patterns**: When to use this pattern, code examples, variations and combinations
+- **Components**: Clear props API with sensible defaults, proper variants for different use cases, accessibility built in (ARIA, keyboard navigation, focus management; in Flutter: `Semantics`, `Focus`, `WidgetState`-aware), documentation and usage examples.
+- **Design tokens**: Clear naming (primitive vs semantic), proper hierarchy and organization, documentation of when to use each token. In Flutter, this means `ColorScheme` for cores, `TextTheme` para tipografia, e `ThemeExtension<T>` para qualquer token fora do M3 (spacing, motion durations, custom semantic colors, gradients).
+- **Patterns**: When to use this pattern, code examples, variations and combinations.
+
+**Flutter-specific structure**:
+
+```
+lib/
+  theme/
+    app_theme.dart           # ThemeData light + dark
+    color_schemes.dart       # ColorScheme.fromSeed wrappers
+    spacing_tokens.dart      # ThemeExtension<SpacingTokens>
+    motion_tokens.dart       # ThemeExtension<MotionTokens>
+    text_themes.dart         # TextTheme custom
+  widgets/
+    buttons/
+      app_filled_button.dart
+      app_text_button.dart
+    layout/
+      app_card.dart
+      app_section.dart
+    feedback/
+      app_empty_state.dart
+      app_error_state.dart
+```
+
+`widgetbook` package é o equivalente Flutter de Storybook: catalog interativo dos componentes do design system. Vale rodar paralelo ao app para conferir variantes.
 
 ## Step 5: Migrate
 
@@ -63,7 +87,8 @@ Update design system documentation:
 - Extract one-off, context-specific implementations without generalization
 - Create components so generic they are useless
 - Extract without considering existing design system conventions
-- Skip proper TypeScript types or prop documentation
+- Skip proper TypeScript types or prop documentation (in Flutter: skip `required` named parameters or doc comments)
 - Create tokens for every single value (tokens should have semantic meaning)
 - Extract things that differ in intent (two buttons that look similar but serve different purposes should stay separate)
+- (Flutter) Inventar paralelo do `ColorScheme`/`TextTheme` quando o M3 já entrega o slot. Estende via `ThemeExtension`, não substitui.
 

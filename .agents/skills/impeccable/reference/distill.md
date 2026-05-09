@@ -47,13 +47,13 @@ Systematically remove complexity across these dimensions:
 - **Clear hierarchy**: ONE primary action, few secondary actions, everything else tertiary or hidden
 - **Remove redundancy**: If it's said elsewhere, don't repeat it here
 
-### Visual Simplification
-- **Reduce color palette**: Use 1-2 colors plus neutrals, not 5-7 colors
-- **Limit typography**: One font family, 3-4 sizes maximum, 2-3 weights
-- **Remove decorations**: Eliminate borders, shadows, backgrounds that don't serve hierarchy or function
-- **Flatten structure**: Reduce nesting, remove unnecessary containers; never nest cards inside cards
-- **Remove unnecessary cards**: Cards aren't needed for basic layout; use spacing and alignment instead
-- **Consistent spacing**: Use one spacing scale, remove arbitrary gaps
+### Visual Simplification (Flutter)
+- **Reduzir paleta**: 1-2 cores + neutros M3. Tirar `tertiary` se não justifica. Em `ColorScheme.fromSeed`, uma seed só.
+- **Limitar tipografia**: uma família. 3-4 papéis M3 visíveis (`headlineSmall`, `titleMedium`, `bodyLarge`, `labelSmall`), 2-3 pesos.
+- **Remover decorações**: tirar `BoxShadow` custom (deixar M3 elevation só), `LinearGradient` decorativos, borders desnecessários.
+- **Flatten**: reduzir aninhamento. `Card > Card > Padding > Container` vira `Padding > Column`. **Nunca** `Card` dentro de `Card`.
+- **Remover `Card` não-essencial**: lista de items não precisa de Card cada um. `ListTile` + `Divider` resolve.
+- **Spacing consistente**: uma escala via `ThemeExtension<SpacingTokens>`, eliminar `EdgeInsets.all(7)` aleatórios.
 
 ### Layout Simplification
 - **Linear flow**: Replace complex grids with simple vertical flow where possible
@@ -77,11 +77,11 @@ Systematically remove complexity across these dimensions:
 - **Essential information only**: Remove marketing fluff, legalese, hedging
 - **Remove redundant copy**: No headers restating intros, no repeated explanations, say it once
 
-### Code Simplification
-- **Remove unused code**: Dead CSS, unused components, orphaned files
-- **Flatten component trees**: Reduce nesting depth
-- **Consolidate styles**: Merge similar styles, use utilities consistently
-- **Reduce variants**: Does that component need 12 variations, or can 3 cover 90% of cases?
+### Code Simplification (Flutter)
+- **Remover código morto**: `dart fix --apply`, `dart analyze` sinaliza. Widgets não usados, imports orphan, métodos privados sem call site.
+- **Flatten widget trees**: reduzir profundidade. Antes de `Padding(child: Padding(child: Container(child: Padding(child: ...))))`, pergunte qual passo é necessário.
+- **Consolidar styles**: `TextStyle` e `BoxDecoration` recorrentes viram tokens via `ThemeExtension`. Migra de literals.
+- **Reduzir variantes**: `AppButton` com 12 enums viraram-pesadelo. 3 cobrem 90%? Tire as 9.
 
 **NEVER**:
 - Remove necessary functionality (simplicity ≠ feature-less)
