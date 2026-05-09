@@ -2,6 +2,13 @@
 
 Todos os releases do `impeccable_flutter_lints`. Segue [Keep a Changelog](https://keepachangelog.com/) e [SemVer](https://semver.org/).
 
+## 0.1.1
+
+### Documentação
+
+- README reescrito refletindo o estado real do pacote: removido o "pré-MVP, 5 regras proof-of-concept", substituído pela tabela completa das 34 regras (14 slop + 20 quality), schema do output JSON, instruções de instalação atualizadas e link ao pacote irmão `impeccable_flutter` (CLI).
+- Sem mudanças no código.
+
 ## 0.1.0
 
 ### Adicionadas — 3 regras de a11y/contraste (cobertura agora 34 inline + 2 cross-file = 36)

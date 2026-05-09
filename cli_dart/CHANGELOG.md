@@ -2,6 +2,13 @@
 
 Todos os releases do `impeccable_flutter` (CLI). Segue [Keep a Changelog](https://keepachangelog.com/) e [SemVer](https://semver.org/).
 
+## 0.1.1
+
+### Documentação
+
+- README reescrito refletindo o estado real do CLI: removido o "pré-MVP, empacotamento pub.dev TODO" e a roadmap que listava `--fast`, JSON e empacotamento como TODO. Substituído pelo subcomandos atuais (detect com full e --fast e --json, skills install/update/check, live, version), workflow E2E e schema do output JSON.
+- Sem mudanças no código.
+
 ## 0.1.0
 
 ### Adicionado — subcomando `skills`
