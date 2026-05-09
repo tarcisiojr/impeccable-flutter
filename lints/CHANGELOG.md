@@ -2,6 +2,18 @@
 
 Todos os releases do `impeccable_flutter_lints`. Segue [Keep a Changelog](https://keepachangelog.com/) e [SemVer](https://semver.org/).
 
+## 0.1.0
+
+### Adicionadas — 3 regras de a11y/contraste (cobertura agora 34 inline + 2 cross-file = 36)
+
+- `impeccable_gray_on_color` (quality) — `Container`/`Material`/`Card` com fundo de cor saturada (`Colors.blue`, `Colors.purple`, etc.) envolvendo `Text` com `TextStyle.color: Colors.grey*`. Padrão clássico de dashboards e marketing screens em apps "modernos"; cinza fica próximo do fundo saturado e contraste cai para 1.5–2.5:1 (WCAG AA exige 4.5:1).
+- `impeccable_low_contrast` (quality) — `Container`/`Material`/`Card` com fundo literal e `Text` descendente com `TextStyle.color` literal cujo contraste WCAG é < 4.5:1. Resolve cores via tabela do Material palette + `Color(0xFF...)` literal + `Color.fromARGB`. Cores resolvidas em runtime (`Theme.of`, `Color.lerp`, `withOpacity`) são puladas silenciosamente. Sem falsos positivos quando ambas as cores podem ser resolvidas com confiança.
+- `impeccable_skipped_heading` (quality) — Múltiplos `Semantics(header: true, child: Text(_, style: TextStyle(fontSize: <N>)))` dentro de um mesmo método `build()` cujos fontSizes não estão em ordem decrescente (h1 → h2 → h3). Isolamento por método evita falsos positivos quando widgets distintos no mesmo arquivo têm headings independentes.
+
+### Mudou
+
+- README e contagens atualizadas: 33 → 36 detectores (34 via custom_lint inline + 2 cross-file via `impeccable_flutter` `--fast`).
+
 ## 0.0.1 (initial release)
 
 ### Adicionadas — 25 regras de detecção

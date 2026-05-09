@@ -1,6 +1,6 @@
 # Impeccable Flutter
 
-Design fluency for Flutter apps. **1 skill, 23 commands, 33 anti-pattern detection checks** for Material 3 / Cupertino. The vocabulary you didn't know you needed, now in Flutter.
+Design fluency for Flutter apps. **1 skill, 23 commands, 36 anti-pattern detection checks** for Material 3 / Cupertino. The vocabulary you didn't know you needed, now in Flutter.
 
 > **Heritage:** Port of [impeccable](https://github.com/pbakaus/impeccable) by Paul Bakaus, originally a design toolbox for web frontends. This repo is the Flutter sibling: same conceptual core, fully rewritten for Material 3 / Cupertino / Dart AST. See **Credits** at the bottom.
 
@@ -12,7 +12,7 @@ This skill adds:
 
 - **13 domain reference files** ([`skill/reference/`](skill/reference/)). Typography (TextTheme), color (ColorScheme.fromSeed), motion (Material Motion), spatial (EdgeInsets), interaction (WidgetState), responsive (NavigationBar↔Rail↔Drawer), UX writing, plus a brand-vs-product register that adjusts the defaults.
 - **23 commands.** A shared design vocabulary with your AI: `/impeccable-flutter polish`, `/impeccable-flutter audit`, `/impeccable-flutter critique`, `/impeccable-flutter colorize`, `/impeccable-flutter typeset`, etc.
-- **33 anti-pattern detection checks** via `custom_lint` (31 inline) plus `--fast` regex scanner (2 aggregation passes). Inline IDE warnings for slop (deepPurple seed, AI color palette, gradient text, bounce easing) and quality (missing Semantics, touch target <48dp, missing tooltip, theme bypass).
+- **36 anti-pattern detection checks** via `custom_lint` (34 inline) plus `--fast` regex scanner (2 aggregation passes). Inline IDE warnings for slop (deepPurple seed, AI color palette, gradient text, bounce easing) and quality (missing Semantics, touch target <48dp, missing tooltip, theme bypass, low contrast WCAG, gray on saturated, skipped heading).
 
 ## Three Pieces
 
@@ -157,13 +157,13 @@ The detectors are organized in two categories.
 
 Bounce/elastic easing, deep-purple seed, AI color palette (10 reflex hexes), gradient text via ShaderMask, dark glow shadows, icon-tile stacks, italic-serif display, hero-eyebrow chips, monotonous spacing, everything centered, nested cards, overused fonts (GoogleFonts.Inter/DMSans/Fraunces…), single-font TextTheme, side-tab borders, rounded accent borders.
 
-### Quality · 17 detectors: real UX/perf bugs
+### Quality · 20 detectors: real UX/perf bugs
 
-Pure black/white literals, AnimatedContainer relayout, line-length without maxLines, cramped padding, tight leading, justified text on mobile, tiny text, all-caps body, wide tracking, missing const on hot-path decorations, TextStyle outside theme, missing Semantics on InkWell, missing tooltip on IconButton, touch target <48dp, missing SafeArea on extendBodyBehindAppBar, MaterialApp without theme, useMaterial3: false.
+Pure black/white literals, AnimatedContainer relayout, line-length without maxLines, cramped padding, tight leading, justified text on mobile, tiny text, all-caps body, wide tracking, missing const on hot-path decorations, TextStyle outside theme, missing Semantics on InkWell, missing tooltip on IconButton, touch target <48dp, missing SafeArea on extendBodyBehindAppBar, MaterialApp without theme, useMaterial3: false, **gray-on-color** (cinza sobre fundo saturado), **low-contrast** (WCAG AA <4.5:1 com cores literais), **skipped-heading** (Semantics(header: true) fora de ordem decrescente no mesmo build).
 
-### Out of scope for v0.1 (require type-flow)
+### About low-contrast resolution
 
-Three checks need full type-flow analysis on `analyzer` directly: `low-contrast`, `gray-on-color`, `skipped-heading`. Planned for v0.2.
+`low-contrast` resolve cores LITERAIS: `Color(0xFF...)`, `Color.fromARGB(...)`, e `Colors.<name>` / `Colors.<name>.shade<N>` da paleta Material. Cores resolvidas em runtime (`Theme.of(context).colorScheme.X`, `Color.lerp`, `withOpacity`) são puladas silenciosamente. Falsos positivos só ocorrem quando ambas as cores foram extraídas com confiança e a conta de luminância dá <4.5:1.
 
 ## Distinct from `flutter_lints`?
 
@@ -171,7 +171,7 @@ Three checks need full type-flow analysis on `analyzer` directly: `low-contrast`
 
 ## Status
 
-- **MVP shippable.** 33 of ~36 planned checks. 23 commands. Skill bundles for 13 harness directories.
+- **v0.1.1**: 36 of 36 planned checks complete. 23 commands. Skill bundles for 13 harness directories.
 - **Live mode v0.1**: manual workflow via hot reload. v0.2 (overlay + VM Service + WidgetInspector) planned.
 - **3 complex checks** pending: low-contrast, gray-on-color, skipped-heading.
 - See [`FLUTTER-PORT.md`](FLUTTER-PORT.md) for the full status tracker.

@@ -450,3 +450,95 @@ class ShouldFlagOverusedFont extends StatelessWidget {
     );
   }
 }
+
+class ShouldFlagGrayOnColor extends StatelessWidget {
+  const ShouldFlagGrayOnColor({super.key});
+  @override
+  Widget build(BuildContext context) {
+    // FLAG: impeccable_gray_on_color
+    // Container azul saturado + texto cinza = contraste insuficiente.
+    return Container(
+      color: Colors.blue,
+      padding: const EdgeInsets.all(16),
+      child: Text(
+        'texto ilegível sobre fundo de marca',
+        style: TextStyle(color: Colors.grey.shade400),
+      ),
+    );
+  }
+}
+
+class ShouldFlagGrayOnColorViaDecoration extends StatelessWidget {
+  const ShouldFlagGrayOnColorViaDecoration({super.key});
+  @override
+  Widget build(BuildContext context) {
+    // FLAG: impeccable_gray_on_color (variante via BoxDecoration)
+    return Container(
+      decoration: const BoxDecoration(color: Colors.purple),
+      child: const Text(
+        'cinza sobre roxo',
+        style: TextStyle(color: Colors.grey),
+      ),
+    );
+  }
+}
+
+class ShouldFlagLowContrast extends StatelessWidget {
+  const ShouldFlagLowContrast({super.key});
+  @override
+  Widget build(BuildContext context) {
+    // FLAG: impeccable_low_contrast
+    // Color(0xFFCCCCCC) sobre Color(0xFFFFFFFF) = ~1.6:1 (falha WCAG AA).
+    return Container(
+      color: const Color(0xFFFFFFFF),
+      child: const Text(
+        'cinza claro sobre branco',
+        style: TextStyle(color: Color(0xFFCCCCCC)),
+      ),
+    );
+  }
+}
+
+class ShouldFlagLowContrastNamedColors extends StatelessWidget {
+  const ShouldFlagLowContrastNamedColors({super.key});
+  @override
+  Widget build(BuildContext context) {
+    // FLAG: impeccable_low_contrast
+    // Colors.grey.shade400 (#BDBDBD) sobre Colors.grey.shade300 (#E0E0E0)
+    // = ~1.4:1, falha 4.5:1.
+    return Container(
+      color: Colors.grey.shade300,
+      child: Text(
+        'cinza médio sobre cinza claro',
+        style: TextStyle(color: Colors.grey.shade400),
+      ),
+    );
+  }
+}
+
+class ShouldFlagSkippedHeading extends StatelessWidget {
+  const ShouldFlagSkippedHeading({super.key});
+  @override
+  Widget build(BuildContext context) {
+    // FLAG: impeccable_skipped_heading no SEGUNDO Semantics (32 > 16).
+    return Column(
+      children: [
+        Semantics(
+          header: true,
+          child: const Text(
+            'subseção (deveria vir depois do principal)',
+            style: TextStyle(fontSize: 16),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Semantics(
+          header: true,
+          child: const Text(
+            'título principal (deveria vir antes)',
+            style: TextStyle(fontSize: 32),
+          ),
+        ),
+      ],
+    );
+  }
+}

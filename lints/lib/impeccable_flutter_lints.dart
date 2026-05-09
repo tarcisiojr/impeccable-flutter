@@ -50,14 +50,17 @@ import 'src/rules/quality/all_caps_body.dart';
 import 'src/rules/quality/colors_black_white_literal.dart';
 import 'src/rules/quality/cramped_padding.dart';
 import 'src/rules/quality/flat_type_hierarchy.dart';
+import 'src/rules/quality/gray_on_color.dart';
 import 'src/rules/quality/justified_text.dart';
 import 'src/rules/quality/layout_transition.dart';
 import 'src/rules/quality/line_length.dart';
+import 'src/rules/quality/low_contrast.dart';
 import 'src/rules/quality/material_baseline.dart';
 import 'src/rules/quality/missing_const_decoration.dart';
 import 'src/rules/quality/missing_safe_area.dart';
 import 'src/rules/quality/missing_semantics.dart';
 import 'src/rules/quality/missing_tooltip_iconbutton.dart';
+import 'src/rules/quality/skipped_heading.dart';
 import 'src/rules/quality/textstyle_outside_theme.dart';
 import 'src/rules/quality/tight_leading.dart';
 import 'src/rules/quality/tiny_text.dart';
@@ -92,14 +95,17 @@ class _ImpeccableFlutterLintsPlugin extends PluginBase {
         ColorsBlackWhiteLiteral(),
         CrampedPadding(),
         FlatTypeHierarchy(),
+        GrayOnColor(),
         JustifiedText(),
         LayoutTransition(),
         LineLength(),
+        LowContrast(),
         MaterialBaseline(),
         MissingConstDecoration(),
         MissingSafeArea(),
         MissingSemantics(),
         MissingTooltipIconButton(),
+        SkippedHeading(),
         TextStyleOutsideTheme(),
         TightLeading(),
         TinyText(),

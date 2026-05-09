@@ -152,3 +152,60 @@ class ShouldPassMaterialAppWithTheme extends StatelessWidget {
     );
   }
 }
+
+class ShouldPassThemeColorsContainer extends StatelessWidget {
+  const ShouldPassThemeColorsContainer({super.key});
+  @override
+  Widget build(BuildContext context) {
+    // PASS: cores do scheme não são literais — gray_on_color e low_contrast
+    // pulam silenciosamente (não dispara false positive).
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      color: scheme.primary,
+      child: Text(
+        'on-primary do tema',
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: scheme.onPrimary,
+            ),
+      ),
+    );
+  }
+}
+
+class ShouldPassHeadingsInOrder extends StatelessWidget {
+  const ShouldPassHeadingsInOrder({super.key});
+  @override
+  Widget build(BuildContext context) {
+    // PASS: headings em ordem decrescente (h1 → h2 → h3) no MESMO build().
+    // ignore_for_file: impeccable_textstyle_outside_theme, impeccable_missing_const_decoration
+    return Column(
+      children: [
+        Semantics(
+          header: true,
+          child: const Text('Título', style: TextStyle(fontSize: 32)),
+        ),
+        Semantics(
+          header: true,
+          child: const Text('Seção', style: TextStyle(fontSize: 24)),
+        ),
+        Semantics(
+          header: true,
+          child: const Text('Subseção', style: TextStyle(fontSize: 18)),
+        ),
+      ],
+    );
+  }
+}
+
+class ShouldPassSingleHeading extends StatelessWidget {
+  const ShouldPassSingleHeading({super.key});
+  @override
+  Widget build(BuildContext context) {
+    // PASS: apenas um Semantics(header: true) — sem ordem para violar.
+    // (em outro método build distinto do anterior — escopo isolado).
+    return Semantics(
+      header: true,
+      child: const Text('Apenas título', style: TextStyle(fontSize: 28)),
+    );
+  }
+}

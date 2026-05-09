@@ -101,7 +101,7 @@ import '../styles/sub-pages.css';
 
 
       </div>
-      <p class="hero-version-link"><a href="#changelog">v0.1.0 (Flutter port): 33 detectors, 23 commands, custom_lint plugin and Dart CLI on pub.dev</a></p>
+      <p class="hero-version-link"><a href="#changelog">v0.1.1 (Flutter port): 36 detectors (gray-on-color, low-contrast, skipped-heading), 23 commands, custom_lint and Dart CLI on pub.dev</a></p>
       </div>
 
 
@@ -900,7 +900,8 @@ import '../styles/sub-pages.css';
       <div class="changelog-highlights" data-reveal>
         <p class="changelog-highlights-label">Flutter port <span class="changelog-date">May 9, 2026</span></p>
         <ul class="changelog-items">
-          <li><strong>v0.1.0: <code>impeccable-flutter</code> ships on pub.dev.</strong> Skill, lints, and CLI for Material 3 / Cupertino. <code>impeccable_flutter_lints</code> brings 31 inline <code>custom_lint</code> rules to the Dart analyzer (deepPurple seed, AI color palette, gradient text, missing Semantics, touch target &lt;48dp, theme bypass, and more). <code>impeccable_flutter</code> CLI adds <code>detect</code>, <code>live</code>, and <code>version</code> with a fast-mode regex scanner for two cross-file aggregation checks (monotonous spacing, everything centered). The Claude Code skill (<code>/impeccable-flutter polish</code>, <code>audit</code>, <code>critique</code>, <code>colorize</code>, <code>typeset</code>, …) coexists with <code>/impeccable</code> (web) without collision. Install: <code>dart pub add --dev impeccable_flutter_lints</code>, <code>dart pub global activate impeccable_flutter</code>, plus <code>/plugin marketplace add tarcisiojr/impeccable-flutter</code>.</li>
+          <li><strong>v0.1.1: a11y/contraste preenchem o gap.</strong> Três detectores novos completam a cobertura: <code>impeccable_gray_on_color</code> (texto cinza sobre fundo saturado), <code>impeccable_low_contrast</code> (cálculo WCAG AA &lt;4.5:1 sobre cores literais resolvidas via Material palette + <code>Color(0xFF...)</code> + <code>Color.fromARGB</code>) e <code>impeccable_skipped_heading</code> (<code>Semantics(header: true)</code> fora de ordem decrescente no mesmo <code>build()</code>). Total agora: 36 detectores (34 inline via <code>custom_lint</code> + 2 cross-file via <code>--fast</code> scanner).</li>
+          <li><strong>v0.1.0: <code>impeccable-flutter</code> ships on pub.dev.</strong> Skill, lints, and CLI for Material 3 / Cupertino. <code>impeccable_flutter_lints</code> brings inline <code>custom_lint</code> rules to the Dart analyzer (deepPurple seed, AI color palette, gradient text, missing Semantics, touch target &lt;48dp, theme bypass, and more). <code>impeccable_flutter</code> CLI adds <code>detect</code>, <code>live</code>, and <code>version</code> with a fast-mode regex scanner for two cross-file aggregation checks (monotonous spacing, everything centered). The Claude Code skill (<code>/impeccable-flutter polish</code>, <code>audit</code>, <code>critique</code>, <code>colorize</code>, <code>typeset</code>, …) coexists with <code>/impeccable</code> (web) without collision. Install: <code>dart pub add --dev impeccable_flutter_lints</code>, <code>dart pub global activate impeccable_flutter</code>, plus <code>/plugin marketplace add tarcisiojr/impeccable-flutter</code>.</li>
         </ul>
       </div>
 

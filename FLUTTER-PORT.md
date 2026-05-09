@@ -32,11 +32,11 @@ Plano original em `~/.claude/plans/analise-o-repo-iterative-snowglobe.md`. Este 
 | 0 | Baseline & guardrails | ✅ | branch `flutter-port`, pubspec raiz, este tracker, CLAUDE.md atualizado |
 | 1 | Reescrever 12 referências de domínio | ✅ | 13/13: foundations (NOVO), product, brand, typography, color-and-contrast, spatial-design, motion-design, interaction-design, responsive-design, cognitive-load, personas, ux-writing, heuristics-scoring. + edit do SKILL.md (Platform law, pubspec signal). |
 | 2 | Adaptar os 23 comandos | ✅ | 4 preservados (teach, extract, critique, clarify), 14 adaptados (shape, craft, polish, bolder, quieter, distill, harden, onboard, animate, colorize, typeset, layout, delight, overdrive), 5 reescritos (audit, document, adapt, optimize, live). Build clean (24 commands, 36 reference files). |
-| 3 | Detector Dart `custom_lint` | ✅ | **31 regras via custom_lint** (12 slop + 19 quality) + **2 exclusivas via `--fast`** (monotonous_spacing, everything_centered — agregação cross-node) = **33 distintas**. 32 integration tests + 13 unit tests verdes. LICENSE + CHANGELOG. Restam 3 complexas com type-flow (low-contrast, gray-on-color, skipped-heading) — fora do escopo MVP. |
+| 3 | Detector Dart `custom_lint` | ✅ | **34 regras via custom_lint** (14 slop + 20 quality, incluindo gray_on_color, low_contrast, skipped_heading na v0.1.0) + **2 exclusivas via `--fast`** (monotonous_spacing, everything_centered — agregação cross-node) = **36 distintas**. 35 integration tests + 13 unit tests verdes. |
 | 4 | CLI Dart `impeccable_flutter` | ✅ | `detect` (full + `--fast` cobrindo 9 regras), `live`, `version` funcionais. 13 unit tests verdes. `dart analyze` zero issues. LICENSE + CHANGELOG. `dart pub publish --dry-run` 0 warnings. Pronto para publish após autorização. |
 | 5 | Skill bundling (build multi-provider) | ✅ | command-metadata.json reescrito para Flutter (24 commands, 13 harness dirs). STYLE.md atualizado com nota sobre code samples em Dart. Build clean. |
 | 6 | Live mode em Flutter | 🟡 | v0.1 documentado em `skill/reference/live.md` (workflow manual via hot reload). CLI `live` subcommand funcional. v0.2 (overlay + VM Service) é trabalho dedicado futuro. |
-| 7 | Site (vertical `/flutter`) | ✅ | `site/pages/flutter.astro`: hero + tabela web↔Flutter + 33 regras + instalação. Nav link em Header.astro. Astro build OK (`/flutter/index.html`). |
+| 7 | Site (vertical `/flutter`) | ✅ | `site/pages/flutter.astro`: hero + tabela web↔Flutter + 36 regras + instalação. Nav link em Header.astro. Astro build OK (`/flutter/index.html`). |
 | 8 | Versionamento + publish (pub.dev + plugin rename) | ✅ | Ambos packages publicados (`impeccable_flutter_lints 0.0.1`, `impeccable_flutter 0.0.1`). Skill renomeado `impeccable` → `impeccable-flutter` para coexistir com upstream do Paul. Plugin marketplace.json pronto. |
 
 ---
@@ -152,9 +152,9 @@ No Claude Code, ambos plugins coexistem sem colisão:
 - `/impeccable polish` → upstream do Paul ([npm impeccable](https://www.npmjs.com/package/impeccable))
 - `/impeccable-flutter polish` → este repo
 
-## Próximos passos (v0.2 — não bloqueiam v0.1)
+## Próximos passos (v0.2 — não bloqueiam v0.1.x)
 
-- 3 regras complexas pendentes: `low-contrast`, `gray-on-color`, `skipped-heading` (precisam type-flow no `analyzer`)
+- ~~3 regras complexas pendentes: `low-contrast`, `gray-on-color`, `skipped-heading`~~ ✅ **implementadas em v0.1.1** com heurísticas pragmáticas (cores literais resolvidas via Material palette + Color(0xFF...) + Color.fromARGB; type-flow real do `analyzer` direto fica para v0.2 se aparecer demanda)
 - Live mode v0.2: overlay + VM Service + WidgetInspector
 - Bump das 15 dependências Dart desatualizadas (analyzer 7→13, custom_lint 0.7→0.8, etc.)
 - Eventual submissão ao marketplace oficial da Anthropic se quiser exposição maior

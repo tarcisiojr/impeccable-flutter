@@ -163,6 +163,18 @@ void main() {
       expect(output, contains('impeccable_overused_font'));
     });
 
+    test('Detecta gray_on_color em should_flag', () {
+      expect(output, contains('impeccable_gray_on_color'));
+    });
+
+    test('Detecta low_contrast em should_flag', () {
+      expect(output, contains('impeccable_low_contrast'));
+    });
+
+    test('Detecta skipped_heading em should_flag', () {
+      expect(output, contains('impeccable_skipped_heading'));
+    });
+
     test('should_pass.dart não dispara nenhum impeccable_*', () {
       // Cada linha do output que cita "should_pass.dart" não deveria existir.
       // O output do custom_lint usa o path; se uma regra disparar em
