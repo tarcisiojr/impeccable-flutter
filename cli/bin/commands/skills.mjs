@@ -61,11 +61,11 @@ async function showHelp() {
 // ─── version helpers ─────────────────────────────────────────────────────────
 
 /**
- * Read the skills version from the impeccable SKILL.md frontmatter.
+ * Read the skills version from the impeccable-flutter SKILL.md frontmatter.
  */
 function getSkillsVersion(root) {
   for (const d of PROVIDER_DIRS) {
-    const skillMd = join(root, d, 'skills', 'impeccable', 'SKILL.md');
+    const skillMd = join(root, d, 'skills', 'impeccable-flutter', 'SKILL.md');
     if (!existsSync(skillMd)) continue;
     const content = readFileSync(skillMd, 'utf-8');
     const match = content.match(/^version:\s*(.+)$/m);

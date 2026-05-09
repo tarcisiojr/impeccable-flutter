@@ -403,4 +403,4 @@ Test thoroughly with edge cases:
 - **Errors**: Force API errors, test all error states
 - **Empty**: Remove all data, test empty states
 
-When edge cases are covered, hand off to `{{command_prefix}}impeccable polish` for the final pass.
+When edge cases are covered, hand off to `{{command_prefix}}impeccable-flutter polish` for the final pass.

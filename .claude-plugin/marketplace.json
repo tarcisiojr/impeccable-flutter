@@ -1,26 +1,26 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "impeccable",
+  "name": "impeccable-flutter",
   "metadata": {
-    "description": "Design fluency for AI harnesses. 1 skill, 23 commands, and curated anti-patterns for impeccable frontend design."
+    "description": "Design fluency for Flutter apps. 1 skill, 23 commands, and 33 anti-pattern detection rules for Material 3 / Cupertino. Port of impeccable (web) by Paul Bakaus."
   },
   "owner": {
-    "name": "Paul Bakaus",
-    "email": "paul@paulbakaus.com"
+    "name": "Tarcísio Júnior",
+    "email": "tarcisiojunior@gmail.com"
   },
   "plugins": [
     {
-      "name": "impeccable",
-      "description": "Design fluency for frontend development. 1 skill with 23 commands (/impeccable polish, /impeccable audit, /impeccable critique, etc.) and curated anti-pattern detection.",
-      "version": "3.0.7",
+      "name": "impeccable-flutter",
+      "description": "Design fluency for Flutter apps. 1 skill with 23 commands (/impeccable-flutter polish, /impeccable-flutter audit, /impeccable-flutter critique, etc.) and 33 anti-pattern detection rules for Material 3 / Cupertino.",
+      "version": "0.1.0",
       "author": {
-        "name": "Paul Bakaus",
-        "email": "paul@paulbakaus.com"
+        "name": "Tarcísio Júnior",
+        "email": "tarcisiojunior@gmail.com"
       },
       "source": "./plugin",
       "category": "design",
-      "homepage": "https://impeccable.style",
-      "tags": ["design", "frontend", "ui", "ux", "skills", "commands"]
+      "homepage": "https://impeccable.style/flutter",
+      "tags": ["design", "flutter", "material-3", "cupertino", "ui", "ux", "skills", "commands"]
     }
   ]
 }

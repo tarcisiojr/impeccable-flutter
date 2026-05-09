@@ -121,7 +121,7 @@ Create a systematic plan:
 - **Consistency**: Is the spacing system applied uniformly?
 - **Responsiveness**: Does the layout adapt gracefully across screen sizes?
 
-When the rhythm and hierarchy land, hand off to `{{command_prefix}}impeccable polish` for the final pass.
+When the rhythm and hierarchy land, hand off to `{{command_prefix}}impeccable-flutter polish` for the final pass.
 
 ## Live-mode (Flutter MVP)
 

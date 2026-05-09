@@ -217,10 +217,10 @@ List recommended commands in priority order, based on the user's answers:
 - Skip commands that would address zero issues
 - If the user chose a limited scope, only include items within that scope
 - If the user marked areas as off-limits, exclude commands that would touch those areas
-- End with `{{command_prefix}}impeccable polish` as the final step if any fixes were recommended
+- End with `{{command_prefix}}impeccable-flutter polish` as the final step if any fixes were recommended
 
 After presenting the summary, tell the user:
 
 > You can ask me to run these one at a time, all at once, or in any order you prefer.
 >
-> Re-run `{{command_prefix}}impeccable critique` after fixes to see your score improve.
+> Re-run `{{command_prefix}}impeccable-flutter critique` after fixes to see your score improve.

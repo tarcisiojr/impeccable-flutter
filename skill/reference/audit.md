@@ -149,13 +149,13 @@ Comandos em ordem de prioridade (P0 primeiro):
 1. **[P?] `{{command_prefix}}command-name`**: descrição breve (contexto específico do audit)
 2. **[P?] `{{command_prefix}}command-name`**: descrição (contexto)
 
-**Rules**: só comandos de `{{available_commands}}`. Termine com `{{command_prefix}}impeccable polish` se houve fixes.
+**Rules**: só comandos de `{{available_commands}}`. Termine com `{{command_prefix}}impeccable-flutter polish` se houve fixes.
 
 Após o resumo:
 
 > Você pode pedir para rodar uma por vez, todas, ou na ordem que preferir.
 >
-> Re-rode `{{command_prefix}}impeccable audit` após fixes para ver o score subir.
+> Re-rode `{{command_prefix}}impeccable-flutter audit` após fixes para ver o score subir.
 
 **IMPORTANTE**: thorough mas acionável. Muitos P3 vira ruído. Foco no que importa.
 

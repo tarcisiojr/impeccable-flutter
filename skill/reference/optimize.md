@@ -228,4 +228,4 @@ ValueListenableBuilder(
 - **Sem regressões**: `flutter test` continua passando.
 - **Percepção**: parece mais rápido?
 
-Quando os números sobem (e a percepção também), hand off para `{{command_prefix}}impeccable polish`.
+Quando os números sobem (e a percepção também), hand off para `{{command_prefix}}impeccable-flutter polish`.

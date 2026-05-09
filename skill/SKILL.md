@@ -1,11 +1,13 @@
 ---
-name: impeccable
-description: "Use when the user wants to design, redesign, shape, critique, audit, polish, clarify, distill, harden, optimize, adapt, animate, colorize, extract, or otherwise improve a frontend interface. Covers websites, landing pages, dashboards, product UI, app shells, components, forms, settings, onboarding, and empty states. Handles UX review, visual hierarchy, information architecture, cognitive load, accessibility, performance, responsive behavior, theming, anti-patterns, typography, fonts, spacing, layout, alignment, color, motion, micro-interactions, UX copy, error states, edge cases, i18n, and reusable design systems or tokens. Also use for bland designs that need to become bolder or more delightful, loud designs that should become quieter, live browser iteration on UI elements, or ambitious visual effects that should feel technically extraordinary. Not for backend-only or non-UI tasks."
+name: impeccable-flutter
+description: "Use when the user wants to design, redesign, shape, critique, audit, polish, clarify, distill, harden, optimize, adapt, animate, colorize, extract, or otherwise improve a Flutter app interface. Covers Material 3, Cupertino, ThemeData, ColorScheme, TextTheme, MediaQuery, Semantics, NavigationBar/Rail/Drawer, SafeArea, Scaffold, widgets, screens, onboarding, and empty states. Handles UX review, visual hierarchy, cognitive load, accessibility, performance, adaptive layouts, theming, anti-patterns, typography, fonts (GoogleFonts), spacing (EdgeInsets), layout (Row/Column/Stack/Wrap), alignment, color, motion, micro-interactions, UX copy, error states, edge cases, i18n, and design tokens. Also for bland designs that need to be bolder, loud designs that should become quieter, live iteration via hot reload, or ambitious visual effects. Not for backend or non-UI tasks. Not for HTML/CSS web work: use /impeccable instead."
 argument-hint: "[{{command_hint}}] [target]"
 user-invocable: true
 allowed-tools:
-  - Bash(npx impeccable *)
-license: Apache 2.0. Based on Anthropic's frontend-design skill. See NOTICE.md for attribution.
+  - Bash(impeccable_flutter *)
+  - Bash(dart *)
+  - Bash(flutter *)
+license: Apache 2.0. Port of Paul Bakaus's impeccable (web) for the Flutter ecosystem. See NOTICE.md for attribution.
 ---
 
 Designs and iterates production-grade frontend interfaces. Real working code, committed design choices, exceptional craft.
@@ -17,9 +19,9 @@ Before any design work or file edits, pass these gates. Skipping them produces g
 | Gate | Required check | If fail |
 |---|---|---|
 | Context | The PRODUCT.md / DESIGN.md loader result is known from `node {{scripts_path}}/load-context.mjs`. | Run the loader before continuing. |
-| Product | PRODUCT.md exists and is not empty or placeholder (`[TODO]` markers, <200 chars). | Run `{{command_prefix}}impeccable teach`, refresh context, then resume. Never synthesize PRODUCT.md from the user's original prompt alone. |
+| Product | PRODUCT.md exists and is not empty or placeholder (`[TODO]` markers, <200 chars). | Run `{{command_prefix}}impeccable-flutter teach`, refresh context, then resume. Never synthesize PRODUCT.md from the user's original prompt alone. |
 | Command | The matching command reference is loaded when a sub-command is used. | Load the reference before continuing. |
-| Craft | `{{command_prefix}}impeccable craft` has a user-confirmed shape brief for this task. `teach` / PRODUCT.md never counts as shape. | Run `{{command_prefix}}impeccable shape` and wait for explicit brief confirmation. |
+| Craft | `{{command_prefix}}impeccable-flutter craft` has a user-confirmed shape brief for this task. `teach` / PRODUCT.md never counts as shape. | Run `{{command_prefix}}impeccable-flutter shape` and wait for explicit brief confirmation. |
 | Image | Required visual probes / mocks are generated or skipped with a reason. | Resolve the image-generation gate in `shape.md` or `craft.md` before code. |
 | Mutation | All active gates above pass. | Do not edit project files yet. |
 
@@ -29,7 +31,7 @@ Codex-style agents must state this before editing files:
 IMPECCABLE_PREFLIGHT: context=pass product=pass command_reference=pass shape=pass|not_required image_gate=pass|skipped:<reason> mutation=open
 ```
 
-For `{{command_prefix}}impeccable craft`, `shape=pass` is only valid after a separate user response approving the shape design brief, or when the user provided an already-confirmed brief in the request. Do not mark `shape=pass` after writing PRODUCT.md, summarizing assumptions, or drafting an unconfirmed brief yourself.
+For `{{command_prefix}}impeccable-flutter craft`, `shape=pass` is only valid after a separate user response approving the shape design brief, or when the user provided an already-confirmed brief in the request. Do not mark `shape=pass` after writing PRODUCT.md, summarizing assumptions, or drafting an unconfirmed brief yourself.
 
 Other harnesses should follow the same checklist when they can expose this state.
 
@@ -49,13 +51,13 @@ node {{scripts_path}}/load-context.mjs
 
 Consume the full JSON output. Never pipe through `head`, `tail`, `grep`, or `jq`. The output's `contextDir` field tells you where the files were resolved from.
 
-If the output is already in this session's conversation history, don't re-run. Exceptions requiring a fresh load: you just ran `{{command_prefix}}impeccable teach` or `{{command_prefix}}impeccable document` (they rewrite the files), or the user manually edited one.
+If the output is already in this session's conversation history, don't re-run. Exceptions requiring a fresh load: you just ran `{{command_prefix}}impeccable-flutter teach` or `{{command_prefix}}impeccable-flutter document` (they rewrite the files), or the user manually edited one.
 
-`{{command_prefix}}impeccable live` already warms context via `live.mjs`. If you've run `live.mjs`, don't also run `load-context.mjs` this session.
+`{{command_prefix}}impeccable-flutter live` already warms context via `live.mjs`. If you've run `live.mjs`, don't also run `load-context.mjs` this session.
 
-If PRODUCT.md is missing, empty, or placeholder (`[TODO]` markers, <200 chars): run `{{command_prefix}}impeccable teach`, then resume the user's original task with the fresh context. If the original task was `{{command_prefix}}impeccable craft`, resume into `{{command_prefix}}impeccable shape` before any implementation work.
+If PRODUCT.md is missing, empty, or placeholder (`[TODO]` markers, <200 chars): run `{{command_prefix}}impeccable-flutter teach`, then resume the user's original task with the fresh context. If the original task was `{{command_prefix}}impeccable-flutter craft`, resume into `{{command_prefix}}impeccable-flutter shape` before any implementation work.
 
-If DESIGN.md is missing: nudge once per session (*"Run `{{command_prefix}}impeccable document` for more on-brand output"*), then proceed.
+If DESIGN.md is missing: nudge once per session (*"Run `{{command_prefix}}impeccable-flutter document` for more on-brand output"*), then proceed.
 
 ### 2. Register
 
@@ -63,7 +65,7 @@ Every design task is **brand** (marketing, landing, campaign, long-form content,
 
 Identify before designing. Priority: (1) cue in the task itself ("landing page" vs "dashboard"); (2) the surface in focus (the page, file, or route being worked on); (3) `register` field in PRODUCT.md. First match wins.
 
-If PRODUCT.md lacks the `register` field (legacy), infer it once from its "Users" and "Product Purpose" sections, then cache the inferred value for the session. Suggest the user run `{{command_prefix}}impeccable teach` to add the field explicitly.
+If PRODUCT.md lacks the `register` field (legacy), infer it once from its "Users" and "Product Purpose" sections, then cache the inferred value for the session. Suggest the user run `{{command_prefix}}impeccable-flutter teach` to add the field explicitly.
 
 Load the matching reference: [reference/brand.md](reference/brand.md) or [reference/product.md](reference/product.md). The shared design laws below apply to both.
 
@@ -177,7 +179,7 @@ If the first word is `craft`, setup still runs first, but [reference/craft.md](r
 
 ## Pin / Unpin
 
-**Pin** creates a standalone shortcut so `{{command_prefix}}<command>` invokes `{{command_prefix}}impeccable <command>` directly. **Unpin** removes it. The script writes to every harness directory present in the project.
+**Pin** creates a standalone shortcut so `{{command_prefix}}<command>` invokes `{{command_prefix}}impeccable-flutter <command>` directly. **Unpin** removes it. The script writes to every harness directory present in the project.
 
 ```bash
 node {{scripts_path}}/pin.mjs <pin|unpin> <command>

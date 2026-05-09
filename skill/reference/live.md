@@ -183,4 +183,4 @@ Após aceitar uma variante:
 - Hot reload (`r`) reflete a mudança imediato.
 - Se o user pediu uma direção específica (bolder), a variante final realmente cumpre.
 
-Após o ciclo, hand off para `{{command_prefix}}impeccable polish` para o pass final.
+Após o ciclo, hand off para `{{command_prefix}}impeccable-flutter polish` para o pass final.

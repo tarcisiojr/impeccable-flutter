@@ -209,4 +209,4 @@ Não inventar custom. Apple e Google têm padrões tested.
 - **Edge cases**: phones pequenos (320 lógicos width), tablets grandes, ultrawide se desktop.
 - **Conexões lentas**: Network Link Conditioner (iOS) ou throttle do Android dev tools.
 
-Quando a adaptação parece nativa de cada contexto, hand off para `{{command_prefix}}impeccable polish`.
+Quando a adaptação parece nativa de cada contexto, hand off para `{{command_prefix}}impeccable-flutter polish`.

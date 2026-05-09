@@ -45,7 +45,7 @@ const EXCLUDED_SKILLS = new Set([
  */
 export const SKILL_CATEGORIES = {
   // CREATE - build something new
-  impeccable: 'create',
+  'impeccable-flutter': 'create',
   craft: 'create',
   shape: 'create',
   // EVALUATE - review and assess
@@ -213,11 +213,11 @@ export async function buildSubPageData(rootDir) {
   const contentDir = path.join(rootDir, 'site/content');
   const commandDemos = await loadCommandDemos(rootDir);
 
-  // After the v3.0 consolidation there's only one source skill (impeccable).
+  // After the v3.0 consolidation there's only one source skill (impeccable-flutter).
   // Its reference/ directory holds one file per command (audit.md, polish.md, ...).
   // We synthesize a virtual skill entry for each sub-command so the sub-page
   // generators can keep rendering per-command pages, index cards, etc.
-  const impeccableSkill = rawSkills.find((s) => s.name === 'impeccable');
+  const impeccableSkill = rawSkills.find((s) => s.name === 'impeccable-flutter');
   const metadataPath = path.join(rootDir, 'skill/scripts/command-metadata.json');
   let commandMetadata = {};
   if (fs.existsSync(metadataPath)) {
@@ -229,22 +229,22 @@ export async function buildSubPageData(rootDir) {
   // rendering, resolve them here using the claude-code provider as the canonical
   // form ("/" prefix). The list of all command names includes the root skill
   // plus all sub-commands from metadata so cross-references render correctly.
-  const allCommandNames = ['impeccable', ...Object.keys(commandMetadata)];
+  const allCommandNames = ['impeccable-flutter', ...Object.keys(commandMetadata)];
   const resolvePlaceholders = (content) =>
     replacePlaceholders(content, 'claude-code', [], allCommandNames);
 
   const skills = [];
 
-  // 1. The root impeccable skill itself.
+  // 1. The root impeccable-flutter skill itself.
   if (impeccableSkill && !EXCLUDED_SKILLS.has(impeccableSkill.name)) {
-    const editorial = readEditorialWrapper(contentDir, 'skills', 'impeccable');
-    const demo = commandDemos['impeccable'] || null;
+    const editorial = readEditorialWrapper(contentDir, 'skills', 'impeccable-flutter');
+    const demo = commandDemos['impeccable-flutter'] || null;
     skills.push({
-      id: 'impeccable',
-      name: 'impeccable',
+      id: 'impeccable-flutter',
+      name: 'impeccable-flutter',
       description: impeccableSkill.description,
       argumentHint: impeccableSkill.argumentHint,
-      category: SKILL_CATEGORIES['impeccable'],
+      category: SKILL_CATEGORIES['impeccable-flutter'],
       body: resolvePlaceholders(impeccableSkill.body),
       references: (impeccableSkill.references || []).map((r) => ({
         ...r,

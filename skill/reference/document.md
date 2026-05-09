@@ -14,7 +14,7 @@ Leia [flutter-foundations.md](flutter-foundations.md) primeiro.
 - `pubspec.yaml` na raiz (sinal de projeto Flutter).
 - Decisão clara entre scan vs seed.
 
-Se PRODUCT.md falta, blocker: rode `{{command_prefix}}impeccable teach` antes.
+Se PRODUCT.md falta, blocker: rode `{{command_prefix}}impeccable-flutter teach` antes.
 
 ## Decisão scan vs seed
 
@@ -223,7 +223,7 @@ Quando `lib/` é vazio ou template puro. Faça 5 perguntas:
 4. **Energia de motion**: "Quieto (animações sutis 150-200ms), padrão (300ms), ou expressivo (com Hero, shared axis, 500ms)?" Vira motion tokens.
 5. **Referências visuais**: "App que captura o feel certo? (Linear, Things, Notion, Liquid Death, etc.)" Influencia color strategy e component vocabulary.
 
-Sintetize em DESIGN.md "starter" com defaults sensatos baseados nas respostas, e marque cada section com `<!-- TODO: validate after first screens are built -->`. Lembre o user de re-rodar `{{command_prefix}}impeccable document` depois que tiver código.
+Sintetize em DESIGN.md "starter" com defaults sensatos baseados nas respostas, e marque cada section com `<!-- TODO: validate after first screens are built -->`. Lembre o user de re-rodar `{{command_prefix}}impeccable-flutter document` depois que tiver código.
 
 ## Output
 
@@ -241,4 +241,4 @@ Após escrever, **rode o loader de novo** (`node {{scripts_path}}/load-context.m
 - Componentes listados existem mesmo em `lib/widgets/`.
 - Seções marcadas `TODO` são reais (não invente).
 
-Hand off para `{{command_prefix}}impeccable extract` se a documentação revelou padrões repetidos prontos para virar componentes.
+Hand off para `{{command_prefix}}impeccable-flutter extract` se a documentação revelou padrões repetidos prontos para virar componentes.

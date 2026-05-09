@@ -30,7 +30,7 @@ import { createAllZips } from './lib/zip.js';
 function generateCounts(rootDir, skills, buildDir) {
   // Count active commands. After the v3.0 consolidation, commands are sub-commands
   // of /impeccable. Count them from the command router table in SKILL.md.
-  const impeccableSkill = skills.find(s => s.name === 'impeccable');
+  const impeccableSkill = skills.find(s => s.name === 'impeccable-flutter');
   let commandCount;
   if (impeccableSkill) {
     // Count lines in the command table that start with | `...` | — tolerant
@@ -446,18 +446,18 @@ function generateApiData(buildDir, skills, patterns) {
   if (!fs.existsSync(metadataPath)) {
     throw new Error(`command-metadata.json is missing at ${metadataPath}. This file is required to generate the commands API.`);
   }
-  const impeccable = skills.find(s => s.name === 'impeccable');
+  const impeccable = skills.find(s => s.name === 'impeccable-flutter');
   if (!impeccable) {
-    throw new Error('impeccable skill not found at skill/SKILL.md. The build system expects exactly one skill at that path.');
+    throw new Error('impeccable-flutter skill not found at skill/SKILL.md. The build system expects exactly one skill at that path.');
   }
 
   const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf-8'));
   const commandsData = [
     {
-      id: 'impeccable',
-      name: 'impeccable',
+      id: 'impeccable-flutter',
+      name: 'impeccable-flutter',
       description: impeccable.description,
-      tagline: readTagline('impeccable'),
+      tagline: readTagline('impeccable-flutter'),
       userInvocable: true,
     },
     ...Object.entries(metadata).map(([id, meta]) => ({
@@ -706,10 +706,10 @@ async function build() {
     JSON.stringify(pluginManifest, null, 2) + '\n',
   );
 
-  const claudeSkillsSrc = path.join(DIST_DIR, 'claude-code', '.claude', 'skills', 'impeccable');
+  const claudeSkillsSrc = path.join(DIST_DIR, 'claude-code', '.claude', 'skills', 'impeccable-flutter');
   if (fs.existsSync(claudeSkillsSrc)) {
     fs.mkdirSync(pluginSkillsDir, { recursive: true });
-    copyDirSync(claudeSkillsSrc, path.join(pluginSkillsDir, 'impeccable'));
+    copyDirSync(claudeSkillsSrc, path.join(pluginSkillsDir, 'impeccable-flutter'));
   }
 
   console.log('📦 Built Claude Code plugin subtree at ./plugin/');

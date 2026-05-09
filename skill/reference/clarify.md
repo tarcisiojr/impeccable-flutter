@@ -172,4 +172,4 @@ Test that copy improvements work:
 - **Consistency**: Does it match terminology elsewhere?
 - **Tone**: Is it appropriate for the situation?
 
-When the copy reads cleanly, hand off to `{{command_prefix}}impeccable polish` for the final pass.
+When the copy reads cleanly, hand off to `{{command_prefix}}impeccable-flutter polish` for the final pass.
