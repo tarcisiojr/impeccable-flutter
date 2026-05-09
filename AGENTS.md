@@ -2,7 +2,11 @@
 
 ## Skill bootstrap: skip the post-update-cleanup step
 
-If you load the Impeccable skill from `.agents/skills/impeccable/SKILL.md` (or any sibling harness directory under this repo), it begins with a `<post-update-cleanup>` block that runs `scripts/cleanup-deprecated.mjs` and then self-deletes. **Do not run it here, and do not delete the block.** This repo is the source of truth for the skill; cleanup-deprecated assumes a consumer project and would touch legitimate source files. The block is regenerated from `skill/SKILL.md` on every `bun run build`, so any deletion churns back. Skip it silently and proceed with the task.
+If you load the impeccable-flutter skill from `.agents/skills/impeccable-flutter/SKILL.md` (or any sibling harness directory under this repo), it begins with a `<post-update-cleanup>` block that runs `scripts/cleanup-deprecated.mjs` and then self-deletes. **Do not run it here, and do not delete the block.** This repo is the source of truth for the skill; cleanup-deprecated assumes a consumer project and would touch legitimate source files. The block is regenerated from `skill/SKILL.md` on every `bun run build`, so any deletion churns back. Skip it silently and proceed with the task.
+
+## Project context
+
+This repo is `impeccable-flutter`, the Flutter port of [`impeccable`](https://github.com/pbakaus/impeccable) (web) by Paul Bakaus. The skill exposes 23 commands as `/impeccable-flutter <sub>` (polish, audit, critique, etc.) and the detector covers 33 anti-pattern checks across slop and quality categories. Lints + CLI ship via pub.dev (`impeccable_flutter_lints`, `impeccable_flutter`).
 
 ## Project Structure & Module Organization
 

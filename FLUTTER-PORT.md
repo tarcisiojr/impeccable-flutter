@@ -1,6 +1,12 @@
-# Status do port: `impeccable` (web) → `impeccable_flutter`
+# Status do port: `impeccable` (web) → `impeccable-flutter` ✅ v0.1.0 publicada
 
-Este repo está sendo transformado de uma toolbox de design para frontends web em uma toolbox para apps Flutter. Plano completo em `~/.claude/plans/analise-o-repo-iterative-snowglobe.md`.
+Port concluído e publicado. Branch `flutter-port` mergeada na `main`. Pacotes no pub.dev:
+
+- [`impeccable_flutter_lints 0.0.1`](https://pub.dev/packages/impeccable_flutter_lints) (31 regras `custom_lint`)
+- [`impeccable_flutter 0.0.1`](https://pub.dev/packages/impeccable_flutter) (CLI: `detect`, `live`, `version` + 2 regras de agregação via `--fast`)
+- Plugin Claude Code: `impeccable-flutter` no marketplace deste repo (instala via `/plugin marketplace add tarcisiojr/impeccable-flutter`)
+
+Plano original em `~/.claude/plans/analise-o-repo-iterative-snowglobe.md`. Este tracker reflete o pós-publish.
 
 ## Princípios do port
 
@@ -31,7 +37,7 @@ Este repo está sendo transformado de uma toolbox de design para frontends web e
 | 5 | Skill bundling (build multi-provider) | ✅ | command-metadata.json reescrito para Flutter (24 commands, 13 harness dirs). STYLE.md atualizado com nota sobre code samples em Dart. Build clean. |
 | 6 | Live mode em Flutter | 🟡 | v0.1 documentado em `skill/reference/live.md` (workflow manual via hot reload). CLI `live` subcommand funcional. v0.2 (overlay + VM Service) é trabalho dedicado futuro. |
 | 7 | Site (vertical `/flutter`) | ✅ | `site/pages/flutter.astro`: hero + tabela web↔Flutter + 33 regras + instalação. Nav link em Header.astro. Astro build OK (`/flutter/index.html`). |
-| 8 | Versionamento + publish (pub.dev) | 🟡 | `dart pub publish --dry-run` passa em ambos packages (0 warnings). Tudo pronto para publish real após confirmação do user. |
+| 8 | Versionamento + publish (pub.dev + plugin rename) | ✅ | Ambos packages publicados (`impeccable_flutter_lints 0.0.1`, `impeccable_flutter 0.0.1`). Skill renomeado `impeccable` → `impeccable-flutter` para coexistir com upstream do Paul. Plugin marketplace.json pronto. |
 
 ---
 
@@ -134,11 +140,21 @@ Este repo está sendo transformado de uma toolbox de design para frontends web e
 
 ## Coexistência com a versão web
 
-Tudo abaixo permanece funcional durante o port (não apagar):
+Pacotes web sobrevivem como referência arquitetônica e para servir o site original. Não apagar:
 
 - `cli/` (Node CLI web)
 - `extension/` (Chrome extension web)
 - `tests/framework-fixtures/` (fixtures de frameworks web)
 - `_redirects` e deploy Cloudflare Pages
 
-A deprecação só acontece quando `impeccable_flutter` tiver paridade publicada no pub.dev (Fase 8).
+No Claude Code, ambos plugins coexistem sem colisão:
+
+- `/impeccable polish` → upstream do Paul ([npm impeccable](https://www.npmjs.com/package/impeccable))
+- `/impeccable-flutter polish` → este repo
+
+## Próximos passos (v0.2 — não bloqueiam v0.1)
+
+- 3 regras complexas pendentes: `low-contrast`, `gray-on-color`, `skipped-heading` (precisam type-flow no `analyzer`)
+- Live mode v0.2: overlay + VM Service + WidgetInspector
+- Bump das 15 dependências Dart desatualizadas (analyzer 7→13, custom_lint 0.7→0.8, etc.)
+- Eventual submissão ao marketplace oficial da Anthropic se quiser exposição maior

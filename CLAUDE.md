@@ -1,25 +1,32 @@
 # Project Instructions for Claude
 
-## Flutter port — onde estamos (LEIA ANTES DE TOCAR EM `skill/` OU `cli/`)
+## Flutter port — estado atual (pós-merge, pós-publish)
 
-Este repo está sendo transformado de `impeccable` (web) para `impeccable_flutter`. Trabalho em andamento na branch `flutter-port`. Antes de editar comandos, referências, regras de detecção ou qualquer coisa do `skill/`, leia `FLUTTER-PORT.md` na raiz — ele tem o status por comando, por regra, e a estratégia (preservar / adaptar / reescrever) para cada peça. O plano completo vive em `~/.claude/plans/analise-o-repo-iterative-snowglobe.md`.
+Este repo é o **`impeccable-flutter`**, port Flutter do `impeccable` web original do Paul Bakaus. Status v0.1.0 publicado:
 
-Regras de coexistência durante o port:
+- Skill Claude Code: `impeccable-flutter` (comandos `/impeccable-flutter polish`, `/impeccable-flutter audit`, etc.) — coexiste com o `/impeccable` web original sem colisão.
+- Lints: `impeccable_flutter_lints 0.0.1` no [pub.dev](https://pub.dev/packages/impeccable_flutter_lints) (31 regras `custom_lint`).
+- CLI: `impeccable_flutter 0.0.1` no [pub.dev](https://pub.dev/packages/impeccable_flutter) (`detect`, `live`, `version` + 2 regras de agregação via `--fast`).
+- Site: vertical `/flutter` em produção.
 
-- **Web sobrevive intacta.** `cli/` (Node), `extension/`, `tests/framework-fixtures/`, `_redirects` e o pipeline Cloudflare Pages continuam funcionais até a Fase 8. Não apagar nem refatorar agressivamente.
-- **`skill/` é o front de batalha.** Reescritas conceituais vivem em `skill/reference/*.md`. Manter os cabeçalhos das seções idênticos para não quebrar o router.
-- **Validação Dart só fica obrigatória depois da Fase 3** (quando `lints/` e `cli_dart/` existirem). Até lá, o `dart analyze && dart format` do CLAUDE.md global é no-op (nada de Dart para analisar). A validação ativa nesta fase é `bun run build && bun run test` (a stack Node web).
-- **Não publicar nada (npm, pub.dev, marketplace) sem confirmação explícita.** O port roda inteiro na branch `flutter-port`; `main` segue refletindo o impeccable web em produção.
+Branch `flutter-port` foi mergeada para `main`. `FLUTTER-PORT.md` mantém o tracker detalhado (33/36 regras, 23/23 comandos, 7/8 fases ✅).
+
+Regras vigentes para futuras edições neste repo:
+
+- **Skill identifier**: `impeccable-flutter` (não mais `impeccable`). Diretórios harness são `<harness>/skills/impeccable-flutter/`. Comandos no Claude Code são `/impeccable-flutter <sub>`.
+- **Web (`cli/`, `extension/`, `tests/framework-fixtures/`)**: preservados como referência arquitetônica e para o detector web ainda servir o site original. Não apagar.
+- **Validação obrigatória**: `bun run build && bun run test` (Node) **e** `cd lints && dart test` + `cd cli_dart && dart test` (Dart). Ambos antes de qualquer commit que toque skill/lints/CLI.
+- **Pendências v0.2 reais**: 3 regras complexas (`low-contrast`, `gray-on-color`, `skipped-heading` — precisam type-flow no `analyzer`), live mode v0.2 (overlay + VM Service), bump de 15 dependências Dart. Nenhuma bloqueia v0.1.
 
 ## Skill bootstrap: skip the post-update-cleanup step
 
-The `<post-update-cleanup>` block at the top of `.claude/skills/impeccable/SKILL.md` runs `scripts/cleanup-deprecated.mjs` and then self-deletes. **Do not run it in this repo, and do not delete the block.** This repo is the source of truth for the Impeccable skill; the cleanup script scans for "leftover" skill files to remove and its judgment doesn't fit a repo where the skill lives in `skill/`. The block is also regenerated from `skill/SKILL.md` on every `bun run build`, so any deletion churns back on the next build. Skip the step silently and proceed.
+The `<post-update-cleanup>` block at the top of `.claude/skills/impeccable-flutter/SKILL.md` runs `scripts/cleanup-deprecated.mjs` and then self-deletes. **Do not run it in this repo, and do not delete the block.** This repo is the source of truth for the impeccable-flutter skill; the cleanup script scans for "leftover" skill files to remove and its judgment doesn't fit a repo where the skill lives in `skill/`. The block is also regenerated from `skill/SKILL.md` on every `bun run build`, so any deletion churns back on the next build. Skip the step silently and proceed.
 
 Same rule for AGENTS.md and every other harness-specific instruction file: treat post-update-cleanup as a no-op in this repo.
 
-## Architecture (v3.0+)
+## Architecture (v0.1+ for Flutter, inherited from upstream v3.0+)
 
-There is **one** user-invocable skill, `impeccable`, with **23 commands** underneath it. Users type `/impeccable polish`, `/impeccable audit`, etc. The skill is defined in `skill/`:
+There is **one** user-invocable skill, `impeccable-flutter`, with **23 commands** underneath it. Users type `/impeccable-flutter polish`, `/impeccable-flutter audit`, etc. The skill is defined in `skill/`:
 
 - `SKILL.md` — frontmatter (with the auto-trigger-optimized description and the `allowed-tools` list), shared design laws, and the **Commands** router table.
 - `reference/` — one `<command>.md` per command (`audit.md`, `polish.md`, `critique.md`, etc.) plus the domain reference files (`typography.md`, `color-and-contrast.md`, etc.). When a sub-command is matched, the router loads its reference file.
