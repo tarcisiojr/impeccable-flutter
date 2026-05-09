@@ -6,8 +6,8 @@ description: >-
   Port do impeccable web (27 regras HTML/CSS) para o ecossistema Dart.
 version: 0.0.1
 homepage: https://impeccable.style
-repository: https://github.com/Tarcisiojr/impeccable-flutter
-issue_tracker: https://github.com/Tarcisiojr/impeccable-flutter/issues
+repository: https://github.com/tarcisiojr/impeccable-flutter
+issue_tracker: https://github.com/tarcisiojr/impeccable-flutter/issues
 documentation: https://impeccable.style/flutter
 topics:
   - lints
@@ -15,7 +15,6 @@ topics:
   - analyzer
   - flutter
   - custom-lint
-publish_to: none
 
 environment:
   sdk: ^3.5.0
