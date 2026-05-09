@@ -2,6 +2,12 @@
 
 Todos os releases do `impeccable_flutter_lints`. Segue [Keep a Changelog](https://keepachangelog.com/) e [SemVer](https://semver.org/).
 
+## 0.1.2
+
+### Documentação
+
+- Bump alinhado com `impeccable_flutter` (CLI) v0.1.2, que ganhou doc de PATH e workaround do bug [anthropics/claude-code#18949](https://github.com/anthropics/claude-code/issues/18949) de skills via marketplace plugin. Sem mudança neste pacote.
+
 ## 0.1.1
 
 ### Documentação

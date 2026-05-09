@@ -56,41 +56,66 @@ Warnings appear inline in VS Code and Android Studio (Dart extension required).
 
 ```bash
 dart pub global activate impeccable_flutter
+```
 
+> **macOS / Linux com zsh**: por default `~/.pub-cache/bin/` não está no PATH. Adicione:
+>
+> ```bash
+> echo 'export PATH="$PATH:$HOME/.pub-cache/bin"' >> ~/.zshrc
+> source ~/.zshrc
+> ```
+>
+> (Para bash, troque `~/.zshrc` por `~/.bashrc`.) Confirme com `which impeccable_flutter`.
+
+Sem alterar o PATH, ainda dá pra rodar via:
+
+```bash
+dart pub global run impeccable_flutter:impeccable_flutter <args>
+```
+
+Subcomandos:
+
+```bash
 # detect
-impeccable_flutter detect lib/                  # full scan
-impeccable_flutter detect --fast lib/           # regex-only (faster, smaller scope)
-impeccable_flutter detect --json lib/           # JSON output for CI
+impeccable_flutter detect lib/                  # full scan (delega para custom_lint)
+impeccable_flutter detect --fast lib/           # regex-only + checks de agregação cross-file
+impeccable_flutter detect --format=json lib/    # JSON unificado (paridade com impeccable web)
 
-# skills (manages the Claude Code / Cursor / Codex skill in the project)
-impeccable_flutter skills install               # install skill into detected harness dirs
-impeccable_flutter skills install --all         # install in all 11 supported harnesses
+# skills (instala/atualiza/verifica o skill no projeto Flutter atual)
+impeccable_flutter skills install               # instala em harness dirs detectados
+impeccable_flutter skills install --all         # em TODOS os 11 harnesses suportados
 impeccable_flutter skills install --target=.cursor
-impeccable_flutter skills update                # overwrite existing harness dirs with latest
-impeccable_flutter skills check                 # compare local vs remote version
+impeccable_flutter skills update                # sobrescreve harness existente
+impeccable_flutter skills check                 # compara versão local vs remota
 
-# live (v0.1: manual edit + hot reload workflow; v0.2 will add overlay)
+# live (v0.1: workflow manual via hot reload; v0.2 ganha overlay)
 impeccable_flutter live
 
-impeccable_flutter --version
+impeccable_flutter version
 ```
 
-> Note: `skills install` clones this repo (shallow) via `git` and copies the
-> harness-specific bundle. Requires `git` available on the path. For Claude
-> Code specifically, the marketplace flow (`/plugin install impeccable-flutter`)
-> is more idiomatic; `skills install` is for harnesses without a marketplace
-> (Cursor, Codex, Gemini, etc.).
+`skills install` clona este repo via `git` (requer `git` no PATH) e copia o skill bundlado para os harness dirs do projeto. Esse é o **caminho recomendado para todos os harnesses**, incluindo Claude Code.
 
-### 3. Skill in Claude Code (the 23 commands)
+### 3. Skill (os 23 comandos do agente)
 
-This repo is published as a Claude Code plugin via marketplace. To install:
+**Caminho recomendado** (funciona em Claude Code, Cursor, Codex, Gemini, OpenCode e mais 6 harnesses):
 
-```
-/plugin marketplace add tarcisiojr/impeccable-flutter
-/plugin install impeccable-flutter
+```bash
+cd /seu/app/flutter
+impeccable_flutter skills install
 ```
 
-Once installed, the 23 commands become available:
+Isso cria `<seu-projeto>/.claude/skills/impeccable-flutter/` (e equivalentes para outros harnesses detectados). **Reinicie o Claude Code** depois de instalar; o autocomplete só vê skills novas no startup.
+
+Dentro do Claude Code, no diretório do app:
+
+```
+/impeccable-flutter teach
+/impeccable-flutter polish lib/screens/home.dart
+/impeccable-flutter audit
+```
+
+Os 23 sub-comandos disponíveis:
 
 ```
 /impeccable-flutter teach            # one-time setup: gather PRODUCT.md + DESIGN.md context
@@ -119,6 +144,17 @@ Once installed, the 23 commands become available:
 ```
 
 Use `/impeccable-flutter pin <command>` to create standalone shortcuts (e.g., `pin audit` creates `/audit`).
+
+#### Caminho alternativo: Plugin Marketplace (Claude Code), atenção ao bug
+
+Se preferir o flow do marketplace nativo do Claude Code:
+
+```
+/plugin marketplace add tarcisiojr/impeccable-flutter
+/plugin install impeccable-flutter@impeccable-flutter
+```
+
+> ⚠️ **Bug conhecido**: skills empacotadas em plugins instalados via marketplace **não aparecem no autocomplete** do `/` ([anthropics/claude-code#18949](https://github.com/anthropics/claude-code/issues/18949)). O plugin instala e fica `enabled`, mas `/impeccable-flutter teach` retorna "Unknown command". Por isso o caminho recomendado acima usa `impeccable_flutter skills install` que escapa do bug instalando como skill local de projeto.
 
 ## Coexistence with the original `/impeccable` (web)
 

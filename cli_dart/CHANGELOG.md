@@ -2,6 +2,14 @@
 
 Todos os releases do `impeccable_flutter` (CLI). Segue [Keep a Changelog](https://keepachangelog.com/) e [SemVer](https://semver.org/).
 
+## 0.1.2
+
+### Documentação
+
+- README ganha seção explícita "Adicionar ao PATH" para macOS/Linux com zsh ou bash. Por default, `~/.pub-cache/bin/` não está no PATH e `dart pub global activate impeccable_flutter` deixa o binário "instalado mas inacessível". Snippet copy-paste com `~/.zshrc` / `~/.bashrc` resolve.
+- Workaround sem alterar PATH documentado: `dart pub global run impeccable_flutter:impeccable_flutter <args>`.
+- Seção `skills install` corrigida: agora é o **caminho recomendado para Claude Code também** (não mais "para harnesses sem marketplace"). Inclui referência ao bug [anthropics/claude-code#18949](https://github.com/anthropics/claude-code/issues/18949) que torna o flow `/plugin install` inviável para skills hoje.
+
 ## 0.1.1
 
 ### Adicionado

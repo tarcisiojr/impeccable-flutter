@@ -4,7 +4,7 @@ description: >-
   custom_lint que cobre AI slop (gradient AppBar, deepPurple seed, bounce
   easing) e quality (TextStyle literal, missing Semantics, touch target <48dp).
   Port do impeccable web (27 regras HTML/CSS) para o ecossistema Dart.
-version: 0.1.1
+version: 0.1.2
 homepage: https://impeccable.style
 repository: https://github.com/tarcisiojr/impeccable-flutter
 issue_tracker: https://github.com/tarcisiojr/impeccable-flutter/issues

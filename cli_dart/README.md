@@ -12,6 +12,30 @@ Port Flutter do [`impeccable`](https://github.com/pbakaus/impeccable) (web) por 
 dart pub global activate impeccable_flutter
 ```
 
+### Adicionar ao PATH (macOS/Linux com zsh ou bash)
+
+Por default, `~/.pub-cache/bin/` não está no PATH. Sem isso, `impeccable_flutter` retorna `command not found`.
+
+```bash
+# zsh (default no macOS recente)
+echo 'export PATH="$PATH:$HOME/.pub-cache/bin"' >> ~/.zshrc
+source ~/.zshrc
+
+# bash
+echo 'export PATH="$PATH:$HOME/.pub-cache/bin"' >> ~/.bashrc
+source ~/.bashrc
+
+# Confirme
+which impeccable_flutter
+# /Users/<você>/.pub-cache/bin/impeccable_flutter
+```
+
+Sem alterar o PATH, ainda dá pra rodar via:
+
+```bash
+dart pub global run impeccable_flutter:impeccable_flutter <args>
+```
+
 ## Subcomandos
 
 ### `detect [path]` — scan estático
@@ -76,7 +100,7 @@ impeccable_flutter skills check
 
 **Pré-requisito**: `git` disponível no PATH (usado para clone shallow do repo).
 
-**Para Claude Code especificamente**, o flow idiomático é o marketplace do Claude Code: `/plugin marketplace add tarcisiojr/impeccable-flutter` + `/plugin install impeccable-flutter`. `skills install` cobre os outros harnesses que não têm marketplace.
+**Para Claude Code**: `skills install` é o **caminho recomendado**. O flow alternativo via `/plugin marketplace add tarcisiojr/impeccable-flutter` + `/plugin install impeccable-flutter@impeccable-flutter` esbarra no bug [anthropics/claude-code#18949](https://github.com/anthropics/claude-code/issues/18949) (skills via marketplace plugin não aparecem no autocomplete). `skills install` instala como skill local de projeto e funciona normalmente. **Reinicie o Claude Code** depois de instalar para o autocomplete reconhecer.
 
 ### `live` — iteração via hot reload
 
