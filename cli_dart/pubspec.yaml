@@ -1,11 +1,12 @@
 name: impeccable_flutter
 description: >-
   CLI Dart para detectar anti-padrões de design em apps Flutter. Modo --fast
-  faz scan regex incluindo dois checks de agregação cross-file (monotonous
-  spacing, everything centered) e formata em human ou JSON. Para o conjunto
-  completo de checks AST inline, use o pacote irmão impeccable_flutter_lints
-  via custom_lint. Inclui também o modo live (v0.1: edit + hot reload manual).
-version: 0.0.1
+  faz scan regex (incluindo 2 checks cross-file: monotonous spacing,
+  everything centered). Subcomando `skills install/update/check` instala o
+  skill impeccable-flutter (Claude Code, Cursor, Codex e 8 outros harnesses)
+  no projeto atual. Para checks AST inline use o pacote irmão
+  impeccable_flutter_lints via custom_lint.
+version: 0.1.0
 homepage: https://impeccable.style/flutter
 repository: https://github.com/tarcisiojr/impeccable-flutter
 issue_tracker: https://github.com/tarcisiojr/impeccable-flutter/issues

@@ -52,17 +52,34 @@ dart run custom_lint
 
 Warnings appear inline in VS Code and Android Studio (Dart extension required).
 
-### 2. CLI (one-shot scan or live mode)
+### 2. CLI (one-shot scan, skill management, live mode)
 
 ```bash
 dart pub global activate impeccable_flutter
 
+# detect
 impeccable_flutter detect lib/                  # full scan
 impeccable_flutter detect --fast lib/           # regex-only (faster, smaller scope)
 impeccable_flutter detect --json lib/           # JSON output for CI
-impeccable_flutter live                         # live iteration workflow (v0.1: edit + hot reload)
+
+# skills (manages the Claude Code / Cursor / Codex skill in the project)
+impeccable_flutter skills install               # install skill into detected harness dirs
+impeccable_flutter skills install --all         # install in all 11 supported harnesses
+impeccable_flutter skills install --target=.cursor
+impeccable_flutter skills update                # overwrite existing harness dirs with latest
+impeccable_flutter skills check                 # compare local vs remote version
+
+# live (v0.1: manual edit + hot reload workflow; v0.2 will add overlay)
+impeccable_flutter live
+
 impeccable_flutter --version
 ```
+
+> Note: `skills install` clones this repo (shallow) via `git` and copies the
+> harness-specific bundle. Requires `git` available on the path. For Claude
+> Code specifically, the marketplace flow (`/plugin install impeccable-flutter`)
+> is more idiomatic; `skills install` is for harnesses without a marketplace
+> (Cursor, Codex, Gemini, etc.).
 
 ### 3. Skill in Claude Code (the 23 commands)
 

@@ -2,6 +2,22 @@
 
 Todos os releases do `impeccable_flutter` (CLI). Segue [Keep a Changelog](https://keepachangelog.com/) e [SemVer](https://semver.org/).
 
+## 0.1.0
+
+### Adicionado — subcomando `skills`
+
+Reduz o gap entre o CLI Dart e o `impeccable` (Node, web upstream):
+
+- `skills install` — clona o repo `tarcisiojr/impeccable-flutter` (shallow via `git`) e copia o skill bundlado para os harness dirs do projeto atual (`.claude/skills/impeccable-flutter/`, `.cursor/skills/...`, etc.). Detecta automaticamente harness dirs já presentes; default `.claude/` quando nada é detectado. Flags: `--target=<harness>` para um único, `--all` para todos os 11 suportados.
+- `skills update` — igual a install mas sobrescreve harness dirs existentes (force overwrite).
+- `skills check` — compara versão local (lida do `SKILL.md` frontmatter num harness dir) com versão remota (lida do `plugin.json` no GitHub raw). Retorna `Atualizado` ou `Atualização disponível`.
+
+Sem dependências novas: usa `git` shell + `dart:io HttpClient`.
+
+### Mudou
+
+- Description do `pubspec.yaml` reflete a realidade: CLI tem `--fast` próprio + delega ao `custom_lint` para modo full + agora gerencia o skill via `skills install/update/check`.
+
 ## 0.0.1 (initial release)
 
 ### Adicionados — subcomandos

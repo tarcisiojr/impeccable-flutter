@@ -17,6 +17,7 @@ import 'package:args/command_runner.dart';
 
 import 'package:impeccable_flutter/src/commands/detect_command.dart';
 import 'package:impeccable_flutter/src/commands/live_command.dart';
+import 'package:impeccable_flutter/src/commands/skills_command.dart';
 import 'package:impeccable_flutter/src/commands/version_command.dart';
 
 Future<void> main(List<String> args) async {
@@ -26,6 +27,7 @@ Future<void> main(List<String> args) async {
   )
     ..addCommand(DetectCommand())
     ..addCommand(LiveCommand())
+    ..addCommand(SkillsCommand())
     ..addCommand(VersionCommand());
 
   try {
