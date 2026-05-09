@@ -5,44 +5,62 @@ import { join } from 'node:path';
 
 const ROOT = process.cwd();
 
-describe('live reference authoring contract', () => {
-  it('keeps live preview CSS guidance capability-mode driven', () => {
+// Contrato do live.md depois do port para Flutter. O equivalente do antigo
+// "styleMode capability mode" da era web é o **hot reload + dart format +
+// preservação de assinatura pública** — propriedades que o agente precisa
+// honrar sempre, independente do widget.
+describe('live reference authoring contract (Flutter)', () => {
+  it('descreve o ciclo iterativo em vocabulário Flutter', () => {
     const liveMd = readFileSync(join(ROOT, 'skill/reference/live.md'), 'utf-8');
 
+    // Cabeçalho identifica a era Flutter explicitamente.
     assert.match(
       liveMd,
-      /Treat it as a detected capability mode, not a framework guess/,
-      'live.md should frame styleMode as a capability contract instead of framework guidance',
+      /^# Live \(Flutter\)/,
+      'live.md deve declarar plataforma Flutter no título (port concluído)',
     );
+
+    // Hot reload é o canal de feedback (não HMR de bundler web).
     assert.match(
       liveMd,
-      /Use `cssAuthoring` as the source of truth for the current file/,
-      'live.md should route per-file CSS exceptions through live-wrap cssAuthoring output',
+      /hot reload/i,
+      'live.md deve apontar hot reload como mecanismo de feedback',
     );
-    assert.doesNotMatch(
+
+    // dart format obrigatório no fim do ciclo: variantes formatadas
+    // inconsistentes confundem o diff e quebram o `dart analyze` da review.
+    assert.match(
       liveMd,
-      /For `styleMode: "astro-global-prefixed"` files:/,
-      'event=live_reference.framework_exception actor=agent operation=read_live_docs risk=agents_apply_astro_css_rules_to_non_astro_files expected=capability_mode_contract actual=standalone_astro_section',
+      /`?dart format`?/,
+      'live.md deve exigir dart format ao final do ciclo de variantes',
     );
-    assert.doesNotMatch(
+
+    // Anti-pattern explícito: agente não pode quebrar contrato público
+    // do widget ao gerar variantes.
+    assert.match(
       liveMd,
-      /^Astro rule:/m,
-      'Astro-specific implementation notes should live behind cssAuthoring/styleMode, not in universal live flow',
+      /[Vv]ariantes? (que )?(mudam|altera|muda) (o )?contrato p[úu]blico|mantêm assinatura|manter assinatura/,
+      'live.md deve listar como anti-pattern variantes que quebram a assinatura pública do widget',
     );
   });
 
-  it('passes cssAuthoring into the LLM E2E agent instead of hard-coding scoped CSS', () => {
-    const llmAgent = readFileSync(join(ROOT, 'tests/live-e2e/agents/llm-agent.mjs'), 'utf-8');
+  it('não deixa restos da era web (CSS scopes, Astro, styleMode)', () => {
+    const liveMd = readFileSync(join(ROOT, 'skill/reference/live.md'), 'utf-8');
 
-    assert.match(
-      llmAgent,
-      /wrapInfo\.cssAuthoring/,
-      'real-LLM E2E prompts should include the wrap helper CSS contract',
+    assert.doesNotMatch(
+      liveMd,
+      /styleMode/,
+      'live.md (Flutter) não deve mencionar styleMode (capability da era web)',
     );
     assert.doesNotMatch(
-      llmAgent,
-      /with @scope \(\[data-impeccable-variant=/,
-      'real-LLM E2E prompt should not hard-code @scope as the universal CSS contract',
+      liveMd,
+      /astro-global-prefixed/,
+      'live.md (Flutter) não deve mencionar capacities CSS específicas da era web',
+    );
+    assert.doesNotMatch(
+      liveMd,
+      /@scope \(/,
+      'live.md (Flutter) não deve mencionar @scope CSS — Flutter não tem cascata',
     );
   });
 });
