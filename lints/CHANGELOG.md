@@ -2,6 +2,16 @@
 
 Todos os releases do `impeccable_flutter_lints`. Segue [Keep a Changelog](https://keepachangelog.com/) e [SemVer](https://semver.org/).
 
+## 0.1.3
+
+### Documentação e empacotamento — pana score fixes
+
+- **Description**: encurtada de 288 para 145 chars (pana exige 60-180). Mantém menção a custom_lint, 34 regras e as duas categorias (slop / quality).
+- **Repository URL**: agora aponta para `tree/main/lints` em vez da raiz do monorepo, permitindo pana validar o pubspec correto.
+- **LICENSE**: substituído pelo boilerplate Apache 2.0 canônico (sem indentação no header). Detector SPDX reconhece a licença.
+
+Sem mudança em regras ou comportamento.
+
 ## 0.1.2
 
 ### Documentação

@@ -2,6 +2,20 @@
 
 Todos os releases do `impeccable_flutter` (CLI). Segue [Keep a Changelog](https://keepachangelog.com/) e [SemVer](https://semver.org/).
 
+## 0.1.3
+
+### Documentação e empacotamento — pana score fixes
+
+Pana (analisador do pub.dev) flagrou 5 issues que penalizavam o score. Todas corrigidas:
+
+- **Description**: encurtada de 391 para 131 chars (pana exige 60-180). Mantém o essencial: detect (`--fast`/full) + `skills install`.
+- **Repository URL**: agora aponta para o subpath exato do monorepo (`tree/main/cli_dart`) em vez da raiz, permitindo pana validar o `pubspec.yaml` correto.
+- **LICENSE**: substituído pelo boilerplate Apache 2.0 canônico (sem indentação no header). Detector SPDX do pana agora reconhece a licença.
+- **Example**: criado `example/main.dart` + `example/README.md` que demonstram o uso programático do scanner `--fast` em snippet inline com 3 anti-padrões. Cobre o requisito pana "Package has an example".
+- **Dangling library doc comment**: `bin/impeccable_flutter.dart` tinha `///` no header sem `library;` antes dos imports. Trocado por `//` regular. Resolve o INFO do `dangling_library_doc_comments` lint.
+
+Sem mudança de API ou comportamento. Score esperado: 160/160.
+
 ## 0.1.2
 
 ### Documentação

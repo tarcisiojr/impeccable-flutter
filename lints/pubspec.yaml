@@ -1,12 +1,10 @@
 name: impeccable_flutter_lints
 description: >-
-  Detector estático de anti-padrões de design para apps Flutter. Plugin
-  custom_lint que cobre AI slop (gradient AppBar, deepPurple seed, bounce
-  easing) e quality (TextStyle literal, missing Semantics, touch target <48dp).
-  Port do impeccable web (27 regras HTML/CSS) para o ecossistema Dart.
-version: 0.1.2
+  Plugin custom_lint que detecta anti-padrões de design em apps Flutter.
+  34 regras: AI slop (gradient, deepPurple) e quality (Semantics, contrast).
+version: 0.1.3
 homepage: https://impeccable.style
-repository: https://github.com/tarcisiojr/impeccable-flutter
+repository: https://github.com/tarcisiojr/impeccable-flutter/tree/main/lints
 issue_tracker: https://github.com/tarcisiojr/impeccable-flutter/issues
 documentation: https://impeccable.style/flutter
 topics:

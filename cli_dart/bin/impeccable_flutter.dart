@@ -1,15 +1,15 @@
-/// CLI entrypoint do impeccable_flutter.
-///
-/// Subcomandos:
-///   impeccable_flutter detect [path]    - roda regras sobre lib/
-///   impeccable_flutter live              - boota modo live (MVP stub)
-///   impeccable_flutter version           - mostra versão
-///
-/// Para uso global:
-///   dart pub global activate impeccable_flutter
-///
-/// Para uso local (dev):
-///   dart run cli_dart/bin/impeccable_flutter.dart detect lib/
+// CLI entrypoint do impeccable_flutter.
+//
+// Subcomandos:
+//   impeccable_flutter detect [path]    - roda regras sobre lib/
+//   impeccable_flutter live              - boota modo live (MVP stub)
+//   impeccable_flutter version           - mostra versão
+//
+// Para uso global:
+//   dart pub global activate impeccable_flutter
+//
+// Para uso local (dev):
+//   dart run cli_dart/bin/impeccable_flutter.dart detect lib/
 
 import 'dart:io';
 
