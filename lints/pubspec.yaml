@@ -2,7 +2,7 @@ name: impeccable_flutter_lints
 description: >-
   Plugin custom_lint que detecta anti-padrões de design em apps Flutter.
   34 regras: AI slop (gradient, deepPurple) e quality (Semantics, contrast).
-version: 0.1.3
+version: 0.1.4
 homepage: https://impeccable.style
 repository: https://github.com/tarcisiojr/impeccable-flutter/tree/main/lints
 issue_tracker: https://github.com/tarcisiojr/impeccable-flutter/issues

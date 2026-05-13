@@ -2,6 +2,14 @@
 
 Todos os releases do `impeccable_flutter` (CLI). Segue [Keep a Changelog](https://keepachangelog.com/) e [SemVer](https://semver.org/).
 
+## 0.1.4
+
+### Documentação — pana score fix complementar
+
+Pana v0.1.3 ainda flagrou **"Repository has multiple matching pubspec.yaml with name: impeccable_flutter"** mesmo com `repository:` apontando para `tree/main/cli_dart`. Causa: o `pubspec.yaml` da raiz do monorepo tinha `name: impeccable_flutter` (idêntico ao do CLI publicado), e pana clona o repo inteiro para validar. Fix: renomeado o pubspec raiz para `impeccable_flutter_workspace` (não publicável, `publish_to: none`). Pana agora encontra apenas um match em `cli_dart/pubspec.yaml`.
+
+Sem mudança de código.
+
 ## 0.1.3
 
 ### Documentação e empacotamento — pana score fixes

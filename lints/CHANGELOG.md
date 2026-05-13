@@ -2,6 +2,14 @@
 
 Todos os releases do `impeccable_flutter_lints`. Segue [Keep a Changelog](https://keepachangelog.com/) e [SemVer](https://semver.org/).
 
+## 0.1.4
+
+### Documentação — pana score fix complementar
+
+Pubspec raiz do monorepo renomeado de `impeccable_flutter` para `impeccable_flutter_workspace` (não publicável). Resolve o "Repository has multiple matching pubspec.yaml" do pana, mesmo issue que afetava o pacote irmão CLI.
+
+Sem mudança em regras ou código.
+
 ## 0.1.3
 
 ### Documentação e empacotamento — pana score fixes

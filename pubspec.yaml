@@ -13,10 +13,10 @@
 #
 # Quando os pacotes filhos forem criados, descomente o bloco `workspace`.
 
-name: impeccable_flutter
+name: impeccable_flutter_workspace
 description: >-
-  Toolbox de design para apps Flutter — port do impeccable (web).
-  Skill de 23 comandos + lints custom_lint + CLI Dart. Em construção.
+  Workspace raiz do monorepo impeccable_flutter — port do impeccable (web).
+  Os pacotes publicáveis vivem em cli_dart/ e lints/. Esta raiz não publica.
 publish_to: none
 version: 0.0.1-port
 
